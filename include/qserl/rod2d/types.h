@@ -43,6 +43,15 @@ typedef boost::array<double, 3>		Wrench2D;
 */
 typedef boost::array<double, 3>		Displacement2D;
 
+/**< Helper transforming a 2-dimensional pseudo-displacement into a 3D displacement
+* in the XY plane at z=0.
+*/
+inline Eigen::Displacementd toDisplacement3D(const Displacement2D& i_disp)
+{
+	return Eigen::Displacementd(Eigen::Vector3d(i_disp[0], i_disp[1], 0.), 
+		Eigen::AngleAxisd(i_disp[2], Eigen::Vector3d::UnitZ()));
+}
+
 }	// namespace rod2d
 }	// namespace qserl
 
