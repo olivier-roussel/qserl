@@ -73,6 +73,12 @@ public:
 	bool integrate();
 
 	/**
+	* \brief Compute rod state from its base wrench by integration until conjugate point (bifurcation point) is found.
+	* \return False if could not integrate state (abnormal case).
+	*/
+	bool integrateUntilConjugatePoint(int i_maxIter, double& o_tconj);
+
+	/**
 	* \brief Returns true if rod configuration is in a stable quasi-static confiugration.
 	* \pre Rod must be initialized.
 	*/
@@ -124,11 +130,12 @@ public:
 		*/
 		IntegrationOptions();
 
-		bool									stop_if_unstable;		/**< True if integration process should be stop if configuration is detected as not stable. */
-		bool									keepMuValues;
-		bool									keepJdet;
-		bool									keepMMatrices;
-		bool									keepJMatrices;
+		bool									stop_if_unstable;		/**< True if integration process should be stop if configuration is detected as not stable.
+																							Default is true (ignored is integrate_until_conjugate_point is true) . */
+		bool									keepMuValues;				/**< Default is false. */
+		bool									keepJdet;						/**< Default is false. */
+		bool									keepMMatrices;			/**< Default is false. */
+		bool									keepJMatrices;			/**< Default is false. */
 	};
 
 	/**

@@ -114,7 +114,6 @@ bool WorkspaceIntegratedState::integrate()
 /************************************************************************/
 bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 {
-
 	static const double ktstart = 0.;													// Start integration time
 	const double ktend = m_rodParameters.integrationTime;			// End integration time
 	const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
@@ -324,6 +323,113 @@ const WorkspaceIntegratedState::IntegrationOptions& WorkspaceIntegratedState::in
 }
 
 /************************************************************************/
+/*										integrateUntilConjugatePoint											*/
+/************************************************************************/
+bool WorkspaceIntegratedState::integrateUntilConjugatePoint(int i_maxIter, double& o_tconj)
+{
+	static const double ktstart = 0.;													// Start integration time
+	const double ktend = m_rodParameters.integrationTime;			// End integration time
+	const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
+
+	if (Rod::isConfigurationSingular(m_mu[0]))
+		return false;
+
+	const double stiffnessCoefficient = Rod::getStiffnessCoefficients(m_rodParameters);
+	const double invStiffness = 1. / stiffnessCoefficient;
+	CostateSystem costate_system(invStiffness, m_rodParameters.length, m_rodParameters.rodModel);
+	boost::numeric::odeint::runge_kutta4< costate_type > css_stepper;
+
+	// init mu(0) = a					(base DLO wrench)
+	costate_type mu_t = m_mu[0];
+
+		// until C++0x, there is no convenient way to release memory of a vector 
+	// so we use temporary allocated vectors if we do not want our instance
+	// memory print to explode.
+	std::vector<costate_type>* mu_buffer;
+	if (m_integrationOptions.keepMuValues)
+	{
+		mu_buffer = &m_mu;
+	}else{
+		mu_buffer = new std::vector<costate_type>();
+		(*mu_buffer).push_back(m_mu[0]);
+	}
+
+	// init state integrator and q(0)
+	StateSystem state_system(invStiffness, m_rodParameters.length, dt, *mu_buffer, m_rodParameters.rodModel);
+	boost::numeric::odeint::runge_kutta4< state_type > sss_stepper;
+	state_type q_t = StateSystem::kDefaultState;
+	m_nodes.clear();
+	m_nodes.push_back(q_t);
+	//m_nodes.reserve(m_numNodes);
+
+	// init jacobian integarator and M_0 to identity and J_0 to zero
+	JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);
+	boost::numeric::odeint::runge_kutta4< jacobian_state_type > jacobianStepper;
+	jacobian_state_type jacobian_t;
+	Eigen::Map<Eigen::Matrix<double, 3, 3> > M_t_e(jacobian_t.data());
+	Eigen::Map<Eigen::Matrix<double, 3, 3> > J_t_e(jacobian_t.data()+9);
+	M_t_e.setIdentity();
+	J_t_e.setZero();
+	if (m_integrationOptions.keepMMatrices)
+		m_M.push_back(M_t_e);
+	if (m_integrationOptions.keepJMatrices)
+		m_J.push_back(J_t_e);
+	double Jdet_cur = 0., Jdet_prev = 0.;
+	m_J_det.clear();
+	m_J_det.push_back(Jdet_cur);
+
+	// integrate until unstability or max iteration reached
+	m_isStable = true;
+	bool isThresholdOn = false;
+	int iter = 1;
+	double t = 0.;
+	while (m_isStable && iter < i_maxIter)
+	{
+		// integrate co-state
+		css_stepper.do_step(costate_system, mu_t, t, dt);
+		(*mu_buffer).push_back(mu_t);
+		// integrate jacobian
+		jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
+		Eigen::Map<Eigen::Matrix<double, 3, 3> > J_cur = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
+		// compute jacobian and check stability
+		Jdet_prev = Jdet_cur;
+		Jdet_cur = J_cur.determinant();
+		if (abs(Jdet_cur) > JacobianSystem::kStabilityThreshold)
+				isThresholdOn = true;
+		if (isThresholdOn && ( abs(Jdet_cur) < JacobianSystem::kStabilityTolerance ||
+			Jdet_cur * Jdet_prev < 0.) )	// zero crossing
+				m_isStable = false;
+		if (m_isStable)
+		{
+			// integrate state
+			sss_stepper.do_step(state_system, q_t, t, dt);
+			if (m_integrationOptions.keepMMatrices)
+				m_M.push_back(Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()));
+			if (m_integrationOptions.keepJMatrices)
+				m_J.push_back(J_cur);
+			if (m_integrationOptions.keepJdet)
+				m_J_det.push_back(Jdet_cur);
+			m_nodes.push_back(q_t);
+			++iter;
+			t+=dt;
+		}
+	}
+
+	if (!m_integrationOptions.keepMuValues)
+		delete mu_buffer;
+
+	if (!m_isStable)
+	{
+		// conjugate point found
+		o_tconj = t;
+	}else{
+		// conjugate point not found
+		o_tconj = -1.;
+	}
+	return true;
+}
+
+/************************************************************************/
 /*									IntegrationOptions::Constructor											*/
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationOptions::IntegrationOptions() :
@@ -331,7 +437,7 @@ WorkspaceIntegratedState::IntegrationOptions::IntegrationOptions() :
 	keepMuValues(false),
 	keepJdet(false),
 	keepMMatrices(false),
-	keepJMatrices(true)
+	keepJMatrices(false)
 {}
 
 }	// namespace rod2d

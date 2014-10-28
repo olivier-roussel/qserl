@@ -109,7 +109,59 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability2DTest_stable1)
 	BOOST_CHECK_CLOSE( q_last[2], 1. , 1.e-6 );
 }
 
+BOOST_AUTO_TEST_CASE(InextensibleRodStability2DTest_iterativeIntegration_stable1)
+{
+	qserl::rod2d::Parameters rodParameters;
+	// set appropriate elasticity parameters
+	rodParameters.radius = 0.01;
+	rodParameters.length = 1.;
+	rodParameters.integrationTime = 1.;
+	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+	rodParameters.numNodes = 100;
+
+	// set integration options
+	qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
+	integrationOptions.stop_if_unstable = false;
+	integrationOptions.keepMuValues = true;
+	integrationOptions.keepJdet = true;
+	integrationOptions.keepMMatrices = true;
+	integrationOptions.keepJMatrices = true;
+
+	// stable configuration
+	static const qserl::rod2d::Displacement2D identityDisp = { { 0. } };
+	qserl::rod2d::Wrench2D stableConf1;
+	stableConf1[0] = 0.;
+	stableConf1[1] = 0.;
+	stableConf1[2] = 1.;
+	qserl::rod2d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod2d::WorkspaceIntegratedState::create(stableConf1,
+		rodParameters.numNodes, identityDisp, rodParameters);
+	BOOST_CHECK( rodStableState1 );	
+	rodStableState1->integrationOptions(integrationOptions);
+	// not singular 
+	double tconj = 0.;
+	BOOST_CHECK( rodStableState1->integrateUntilConjugatePoint(rodParameters.numNodes, tconj) );	
+	// stable
+	BOOST_CHECK( rodStableState1->isStable() );
+	// as configuraiton is stable, conjugate point is not found if we stop at this max number of nodes,
+	// so should return < 0 tconj value.
+	BOOST_CHECK( tconj < 0. );	
+
+
+	// check co-state mu terminal values (sould be constant so equal to base wrench)
+	qserl::rod2d::Wrench2D mu_last = rodStableState1->wrench(rodStableState1->numNodes()-1);
+	BOOST_CHECK_CLOSE( mu_last[0], stableConf1[0], 1.e-6 );
+	BOOST_CHECK_CLOSE( mu_last[1], stableConf1[1], 1.e-6 );
+	BOOST_CHECK_CLOSE( mu_last[2], stableConf1[2], 1.e-6 );
+
+	// check state q terminal values
+	qserl::rod2d::Displacement2D q_last = rodStableState1->nodes().back();
+	BOOST_CHECK_CLOSE( q_last[0], sin(1.), 1.e-3 );
+	BOOST_CHECK_CLOSE( q_last[1], 1. - cos(1.), 1.e-3 );
+	BOOST_CHECK_CLOSE( q_last[2], 1. , 1.e-6 );
+}
+
 BOOST_AUTO_TEST_SUITE_END();
+
 
 /* ------------------------------------------------------------------------- */
 /* Inextensible2DBencnhmarks																										 */
@@ -155,6 +207,7 @@ BOOST_AUTO_TEST_CASE(Inextensible2DBencnhmark_1)
 	qserl::rod2d::Wrench2D wrench;
 	static const int numSamples = 5000;
 	int validSamples = 0;
+	srand(1);
 	for (int i = 0 ; i < numSamples ; ++i)
 	{
 		wrench[0] = ((rand() % 10000) * ( aSpaceUpperBounds[3] - aSpaceLowerBounds[3]) ) / 1.e4 + aSpaceUpperBounds[3];
@@ -173,6 +226,75 @@ BOOST_AUTO_TEST_CASE(Inextensible2DBencnhmark_1)
 	}
 	double benchTimeMs = util::getElapsedTimeMsec(startBenchTime).count();
 	BOOST_TEST_MESSAGE( "Benchmarking inextensible 2D rods total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
+	double benchTimePerRodUs = benchTimeMs * 1.e3 / static_cast<double>(numSamples);
+	BOOST_TEST_MESSAGE( "  Avg. integration time per rod = " << benchTimePerRodUs << "us for " << rodParameters.numNodes << " nodes" );
+	BOOST_TEST_MESSAGE( "  Avg. integration time per rod node = " << benchTimePerRodUs / static_cast<double>(rodParameters.numNodes) << "us" );
+	double stabilityRatio = static_cast<double>(validSamples) / static_cast<double>(numSamples);
+	// stability ratio should be arround 99%
+	static const double minStabilityRatio = 0.9;
+	BOOST_TEST_MESSAGE( "  Stability ratio = " << stabilityRatio << " (should be above " << minStabilityRatio << ")" );
+	BOOST_CHECK( stabilityRatio > minStabilityRatio );	
+
+}
+
+BOOST_AUTO_TEST_CASE(Inextensible2DBencnhmark_iterativeIntegration_1)
+{
+	qserl::rod2d::Parameters rodParameters;
+	// set appropriate elasticity parameters
+	rodParameters.radius = 0.01;
+	rodParameters.length = 1.;
+	rodParameters.integrationTime = 1.;
+	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+	rodParameters.numNodes = 200;
+	
+	// set A-space bounds
+	Eigen::Matrix<double, 6, 1> aSpaceUpperBounds, aSpaceLowerBounds;
+	static const double maxTorque = 6.29;
+	static const double maxForce = 100;
+	for (int k = 0 ; k < 3 ; ++k)
+	{
+		aSpaceUpperBounds[k] = maxTorque;
+		aSpaceLowerBounds[k] = -maxTorque;
+	}
+	for (int k = 3 ; k < 6 ; ++k)
+	{
+		aSpaceUpperBounds[k] = maxForce;
+		aSpaceLowerBounds[k] = -maxForce;
+	}
+
+	// set integration options
+	qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
+	integrationOptions.stop_if_unstable = false;
+	integrationOptions.keepMuValues = true;
+	integrationOptions.keepJdet = true;
+	integrationOptions.keepMMatrices = false;
+	integrationOptions.keepJMatrices = true;
+
+	static const qserl::rod2d::Displacement2D identityDisp = { { 0. } };
+	util::TimePoint startBenchTime = util::getTimePoint();
+	qserl::rod2d::Wrench2D wrench;
+	static const int numSamples = 5000;
+	int validSamples = 0;
+	srand(1);
+	for (int i = 0 ; i < numSamples ; ++i)
+	{
+		wrench[0] = ((rand() % 10000) * ( aSpaceUpperBounds[3] - aSpaceLowerBounds[3]) ) / 1.e4 + aSpaceUpperBounds[3];
+		wrench[1] = ((rand() % 10000) * ( aSpaceUpperBounds[4] - aSpaceLowerBounds[4]) ) / 1.e4 + aSpaceUpperBounds[4];
+		wrench[2] = ((rand() % 10000) * ( aSpaceUpperBounds[0] - aSpaceLowerBounds[0]) ) / 1.e4 + aSpaceUpperBounds[0];
+		bool isStable = false;
+		qserl::rod2d::WorkspaceIntegratedStateShPtr rodState = qserl::rod2d::WorkspaceIntegratedState::create(wrench,
+			rodParameters.numNodes, identityDisp, rodParameters);
+		rodState->integrationOptions(integrationOptions);
+		BOOST_CHECK( rodState );	
+		// not singular (zero volume, so should never happen by random sampling
+		double tconj = 0.;
+		bool isNotSingular =  rodState->integrateUntilConjugatePoint(rodParameters.numNodes, tconj);
+		BOOST_CHECK( isNotSingular );	
+		if (isNotSingular && rodState->isStable())
+			++validSamples;
+	}
+	double benchTimeMs = util::getElapsedTimeMsec(startBenchTime).count();
+	BOOST_TEST_MESSAGE( "Benchmarking inextensible 2D rods (iterative mode) total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
 	double benchTimePerRodUs = benchTimeMs * 1.e3 / static_cast<double>(numSamples);
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod = " << benchTimePerRodUs << "us for " << rodParameters.numNodes << " nodes" );
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod node = " << benchTimePerRodUs / static_cast<double>(rodParameters.numNodes) << "us" );
