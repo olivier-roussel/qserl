@@ -17,14 +17,15 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#include "qserl/rod.h"
+#include "qserl/rod3d/rod.h"
 
 #include <boost/math/constants/constants.hpp>
 
-#include "qserl/workspace_integrated_state.h"
+#include "qserl/rod3d/workspace_integrated_state.h"
 #include "util/utils.h"
 
 namespace qserl {
+namespace rod3d {
 
 /************************************************************************/
 /*													Constructor																	*/
@@ -176,4 +177,5 @@ Eigen::Matrix<double, 6, 1> Rod::getStiffnessCoefficients(const Parameters& i_pa
 	return rodStifness;
 }
 
+}	// namespace rod3d
 }	// namespace qserl

@@ -17,8 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_UTILS_H_
-#define QSERL_UTILS_H_
+#ifndef QSERL_UTIL_UTILS_H_
+#define QSERL_UTIL_UTILS_H_
 
 #include <boost/array.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -187,4 +187,4 @@ double peaks(double x, double y);
 
 } // namespace util
 
-#endif // QSERL_UTILS_H_
+#endif // QSERL_UTIL_UTILS_H_

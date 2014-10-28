@@ -17,8 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_QUASI_STATIC_ROD_TIMER_H_
-#define QSERL_QUASI_STATIC_ROD_TIMER_H_
+#ifndef QSERL_UTIL_TIMER_H_
+#define QSERL_UTIL_TIMER_H_
 
 #include <boost/chrono.hpp>
 
@@ -35,4 +35,4 @@ boost::chrono::seconds getElapsedTimeSec(const TimePoint& start);
 
 } // namespace util
 
-#endif // QSERL_QUASI_STATIC_ROD_TIMER_H_
+#endif // QSERL_UTIL_TIMER_H_

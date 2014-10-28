@@ -17,20 +17,20 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_QUASI_STATIC_ROD_WORKSPACE_STATE_H_
-#define QSERL_QUASI_STATIC_ROD_WORKSPACE_STATE_H_
+#ifndef QSERL_3D_WORKSPACE_STATE_H_
+#define QSERL_3D_WORKSPACE_STATE_H_
 
-#include "exports.h"
+#include "qserl/exports.h"
 
 #pragma warning( push, 0 )	
 #include <Eigen/Lgsm>
 #pragma warning( pop )	
 
-#include "qserl/parameters.h"
+#include "qserl/rod3d/parameters.h"
 #include "util/forward_class.h"
 
-
 namespace qserl {
+namespace rod3d {
 
 DECLARE_CLASS( WorkspaceState );
 
@@ -103,8 +103,9 @@ public:
 	*/
 	double torsionalRotation() const;
 
-	/**< \note I agree this is kind of ugly, but WorkspaceIntegratedState need 
-	* a way to access protected members of other instances of this class. */
+	/** \note WorkspaceIntegratedState needs a way to access protected members of other 
+	* instances of this class. 
+	*/
 	friend class WorkspaceIntegratedState;
 
 protected:
@@ -118,9 +119,10 @@ protected:
 	std::vector<Eigen::Displacementd>												m_nodes;			/**< Position of each node (size N), in base frame. */
 	Eigen::Displacementd																		m_base;				/**< DLO base position, in world frame (absolute). */
 
-	Parameters																							m_rodParameters;
+	Parameters  																						m_rodParameters;
 };
 
+}	// namespace rod3d
 }	// namespace qserl
 
-#endif // QSERL_QUASI_STATIC_ROD_WORKSPACE_STATE_H_
+#endif // QSERL_3D_WORKSPACE_STATE_H_

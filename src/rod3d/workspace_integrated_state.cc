@@ -19,7 +19,7 @@
 
 #define NOMINMAX
 
-#include "qserl/workspace_integrated_state.h"
+#include "qserl/rod3d/workspace_integrated_state.h"
 
 #pragma warning( push, 0 )	
 #include <Eigen/Eigenvalues>
@@ -27,12 +27,13 @@
 #pragma warning( pop )	
 #include <boost/numeric/odeint.hpp>
 
-#include "qserl/rod.h"
+#include "qserl/rod3d/rod.h"
 #include "state_system.h"
 #include "costate_system.h"
 #include "jacobian_system.h"
 
 namespace qserl {
+namespace rod3d {
 
 /************************************************************************/
 /*													Constructor																	*/
@@ -428,4 +429,5 @@ WorkspaceIntegratedState::IntegrationOptions::IntegrationOptions() :
 	keepJMatrices(true)
 {}
 
+}	// namespace rod3d
 }	// namespace qserl

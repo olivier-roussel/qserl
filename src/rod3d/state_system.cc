@@ -22,8 +22,9 @@
 #include <boost/bind.hpp>
 
 namespace qserl {
+namespace rod3d {
 
-const StateSystem::state_type StateSystem::kDefaultState = { {  0., 0., 0., 0. } };
+const StateSystem::state_type StateSystem::kDefaultState = { {  0. } };
 
 StateSystem::StateSystem(const Eigen::Matrix<double,6, 1>& i_inv_stiffness, double i_length, 
 	double i_dt, const std::vector<WorkspaceIntegratedState::costate_type>& i_mu, 
@@ -101,4 +102,5 @@ void StateSystem::evaluateExtensibleShearable(const state_type& i_q, state_type&
 	dqdt_e = q_e * u_hat_h;
 }
 
+}	// namespace rod3d
 }	// namespace qserl

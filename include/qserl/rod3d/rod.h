@@ -1,22 +1,4 @@
 /**
-* Copyright (c) 2012-2013 CNRS
-* Author: Olivier Roussel
-*
-* This file is part of the gaec-planning package.
-* gaec-planning is free software: you can redistribute it
-* and/or modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation, either version
-* 3 of the License, or (at your option) any later version.
-*
-* gaec-planning is distributed in the hope that it will be
-* useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* General Lesser Public License for more details.  You should have
-* received a copy of the GNU Lesser General Public License along with
-* gaec-planning.  If not, see
-* <http://www.gnu.org/licenses/>.
-**/
-/**
 * Copyright (c) 2012-2014 CNRS
 * Author: Olivier Roussel
 *
@@ -35,10 +17,10 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_QUASI_STATIC_ROD_H_
-#define QSERL_QUASI_STATIC_ROD_H_
+#ifndef QSERL_3D_ROD_H_
+#define QSERL_3D_ROD_H_
 
-#include "exports.h"
+#include "qserl/exports.h"
 
 #include <boost/thread.hpp>
 #include <unordered_map>
@@ -47,12 +29,13 @@
 #include <Eigen/Lgsm>
 #pragma warning( pop )	
 
-#include "qserl/parameters.h"
-#include "qserl/workspace_integrated_state.h"
+#include "qserl/rod3d/parameters.h"
+#include "qserl/rod3d/workspace_integrated_state.h"
 #include "util/forward_class.h"
 
 
 namespace qserl {
+namespace rod3d {
 
 DECLARE_CLASS( WorkspaceState );
 
@@ -149,6 +132,7 @@ private:
 
 };
 
+}	// namespace rod3d
 }	// namespace qserl
 
-#endif // QSERL_QUASI_STATIC_ROD_H_
+#endif // QSERL_3D_ROD_H_

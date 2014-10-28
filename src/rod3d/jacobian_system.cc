@@ -22,6 +22,7 @@
 #include <boost/bind.hpp>
 
 namespace qserl {
+namespace rod3d {
 
 const JacobianSystem::state_type JacobianSystem::kDefaultState = { {  0. } };
 
@@ -156,4 +157,5 @@ void JacobianSystem::evaluateExtensibleShearable(const state_type& i_MJ, state_t
 	dJdt_e = G*M_e + H*J_e;
 }
 
+}	// namespace rod3d
 }	// namespace qserl

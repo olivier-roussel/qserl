@@ -17,8 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_TRIPLET_H_
-#define QSERL_TRIPLET_H_
+#ifndef QSERL_UTIL_TRIPLET_H_
+#define QSERL_UTIL_TRIPLET_H_
 
 namespace util {
 
@@ -228,4 +228,4 @@ struct UniformTriplet
 
 } // namespace util
 
-#endif // QSERL_TRIPLET_H_
+#endif // QSERL_UTIL_TRIPLET_H_

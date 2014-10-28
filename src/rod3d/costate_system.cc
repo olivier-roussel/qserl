@@ -22,6 +22,7 @@
 #include <boost/bind.hpp>
 
 namespace qserl {
+namespace rod3d {
 
 const CostateSystem::state_type CostateSystem::kDefaultState = { {  0., 0., 0., 0., 0., 0. } };
 
@@ -77,4 +78,5 @@ void CostateSystem::evaluateExtensibleShearable(const state_type& i_mu, state_ty
 	dfdt_e = -u_m.cross(f_e);
 }
 
+}	// namespace rod3d
 }	// namespace qserl

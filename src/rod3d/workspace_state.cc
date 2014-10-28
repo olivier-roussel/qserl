@@ -17,11 +17,12 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#include "qserl/workspace_state.h"
+#include "qserl/rod3d/workspace_state.h"
 
 #include <Eigen/Core>
 
 namespace qserl {
+namespace rod3d {
 
 /************************************************************************/
 /*													Constructor																	*/
@@ -166,4 +167,5 @@ double WorkspaceState::torsionalRotation() const
 	return torsionalRotation;
 }
 
+}	// namespace rod3d
 }	// namespace qserl

@@ -16,19 +16,20 @@
 * qserl.  If not, see
 * <http://www.gnu.org/licenses/>.
 **/
-#ifndef QSERL_QUASI_STATIC_ROD_WORKSPACE_INTEGRATED_STATE_H_
-#define QSERL_QUASI_STATIC_ROD_WORKSPACE_INTEGRATED_STATE_H_
+#ifndef QSERL_2D_WORKSPACE_INTEGRATED_STATE_H_
+#define QSERL_2D_WORKSPACE_INTEGRATED_STATE_H_
 
-#include "exports.h"
+#include "qserl/exports.h"
 
 #include <boost/array.hpp>
 #include <boost/function.hpp>
 
-#include "qserl/workspace_state.h"
-#include "qserl/parameters.h"
+#include "qserl/rod2d/workspace_state.h"
+#include "qserl/rod2d/parameters.h"
 #include "util/forward_class.h"
 
 namespace qserl {
+namespace rod2d {
 
 DECLARE_CLASS( WorkspaceIntegratedState );
 
@@ -37,11 +38,11 @@ class QSERL_EXPORT WorkspaceIntegratedState : public WorkspaceState
 public:
 	
 	/** Rod state types. */
-	typedef boost::array<double, 16>	state_type;						/**< Type of 3D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(3). */
-	typedef boost::array<double, 6>		costate_type;					/**< Type of 3D elastic rod co-states mu(t) at position t, where mu(t) is an element of the dual Lie algebra se(3)*. */
-	typedef boost::array<double, 72>	jacobian_state_type;	/**< Type of 3D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
-																													     - M(t) is the 6x6 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 36 elements),
-																															 - J(t) is the 6x6 Jacobian matrix of the state q(t) w.r.t. initial conditions (i.e. mu(0)) (last 36 elements). */
+	typedef boost::array<double, 9>	  state_type;						/**< Type of 2D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(2). */
+	typedef boost::array<double, 3>		costate_type;					/**< Type of 2D elastic rod co-states mu(t) at position t, where mu(t) is an element of the dual Lie algebra se(2)*. */
+	typedef boost::array<double, 18>	jacobian_state_type;	/**< Type of 2D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
+																													     - M(t) is the 3x3 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 9 elements),
+																															 - J(t) is the 3x3 Jacobian matrix of the state q(t) w.r.t. initial conditions (i.e. mu(0)) (last 9 elements). */
 
 	/**
 	* \brief Destructor.
@@ -52,8 +53,8 @@ public:
 	* \brief Constructor.
 	* Rod base is independant from this as node positions are computed in local base frame.
 	*/
-	static WorkspaceIntegratedStateShPtr create(const Eigen::Wrenchd& i_baseWrench, unsigned int i_nnodes, 
-		const Eigen::Displacementd& i_basePosition, const Parameters& i_rodParams);
+	static WorkspaceIntegratedStateShPtr create(const Wrench2D& i_baseWrench, unsigned int i_nnodes, 
+		const Displacement2D& i_basePosition, const Parameters& i_rodParams);
 
 	/**
 	* \brief Copy constructor.
@@ -72,51 +73,15 @@ public:
 	bool integrate();
 
 	/**
-	*\brief Approximate nodes positions by linearization for a neighboring state of this.
-	* The local neihbour state is given by this plus given da, the base wrench perturbation.
-	* Output positions are in local base frame.
-	* \pre this state is initialized.
-	*/
-	WorkspaceStateShPtr approximateLinearlyNeighbourState(const Eigen::Wrenchd& i_da, const Eigen::Displacementd& i_neighbBase) const;
-
-	/** \brief Set whether the singular values of the linear speed nu part of the Jacobian
-	* (the 3x6 block starting at (3,0) ) should be computed during integration or not.
-	* Default is set to true.
-	* \warning Singular values decomposition if slow (takes approximately as long as the whole
-	* integration process itself. 
-	*/
-	//void computeJacobianNuSingularValues(bool i_compute);
-
-	/** \brief Returns whether the singular values of the linear speed nu part of the Jacobian
-	* (the 3x6 block starting at (3,0) ) should be computed during integration or not.
-	* Default is set to true.
-	*/
-	//bool computeJacobianNuSingularValues() const;
-
-	/**
 	* \brief Returns true if rod configuration is in a stable quasi-static confiugration.
 	* \pre Rod must be initialized.
 	*/
 	bool isStable() const;
 
 	/**
-	* \brief Returns the wrench at the rod base.
-	* \note This is equivalent to access through mu()[0]
-	* \deprecated Use wrench(size_t i_idxNode) instead.
-	*/
-	Eigen::Wrenchd baseWrench() const;
-
-	/**
-	* \brief Returns the wrench at the rod tip.
-	* \note This is equivalent to access through mu()[N-1]
-	* \deprecated Use wrench(size_t i_idxNode) instead.
-	*/
-	Eigen::Wrenchd tipWrench() const;
-
-	/**
 	* \brief Returns the wrench at the rod given node.
 	*/
-	Eigen::Wrenchd wrench(size_t i_idxNode) const;
+	Wrench2D wrench(size_t i_idxNode) const;
 
 	/**
 	* \brief Const accessor to the wrenches (costate) of the rod for each node. 
@@ -126,14 +91,14 @@ public:
 	const std::vector<costate_type>& mu() const;
 
 	/** \brief Returns the M matrix (i.e. dmu(t) / dmu(0) ).
-	*   \warning Only accessible if the keepMMatrices() has been set to true.
+	*   \warning Only accessible if the keepMMatrices integration option has been set to true.
 	*/
-	const Eigen::Matrix<double, 6, 6>& getMMatrix(size_t i_nodeIdx) const;
+	const Eigen::Matrix<double, 3, 3>& getMMatrix(size_t i_nodeIdx) const;
 
 	/** \brief Returns the J matrix (i.e. dq(t) / dmu(0) ).
-	*   \warning Only accessible if the keepJMatrices() has been set to true.
+	*   \warning Only accessible if the keepJMatrices integration option has been set to true.
 	*/
-	const Eigen::Matrix<double, 6, 6>& getJMatrix(size_t i_nodeIdx) const;
+	const Eigen::Matrix<double, 3, 3>& getJMatrix(size_t i_nodeIdx) const;
 
 	/**
 	* \brief Returns the values for each node of the jacobian determinant.
@@ -142,12 +107,6 @@ public:
 	* \warning Only accessible if the keepJdet() has been set to true.
 	*/
 	const std::vector<double>& J_det() const;
-
-	/**
-	* \brief Const accessor to Jacobian linear speed part nu singular values.
-	* \warning Only accessible if the computeJacobianNuSingularValues() has been set to true.
-	*/
-	const Eigen::Vector3d& J_nu_sv(size_t i_nodeIdx) const;
 
 	/**
 	* \brief Returns the memory usage of this instance.
@@ -165,7 +124,6 @@ public:
 		*/
 		IntegrationOptions();
 
-		bool									computeJ_nu_sv;			/**< True if linear speed nu part of Jacobian matrix singular values should be computed. */
 		bool									stop_if_unstable;		/**< True if integration process should be stop if configuration is detected as not stable. */
 		bool									keepMuValues;
 		bool									keepJdet;
@@ -189,31 +147,31 @@ protected:
 	/**
 	\brief Constructor
 	*/
-	WorkspaceIntegratedState(unsigned int i_nnodes, const Eigen::Displacementd& i_basePosition, 
+	WorkspaceIntegratedState(unsigned int i_nnodes, const Displacement2D& i_basePosition, 
 		const Parameters& i_rodParams);
 
 	/**
 	\brief Init function
 	*/
-	bool init(const Eigen::Wrenchd& i_wrench);
+	bool init(const Wrench2D& i_wrench);
 
 	/** \brief Returns true if could integrate state (even if it is not a stable
 			state, in which case m_isStable attribute is set to false).
 			Returns false if the input wrench cannot be integrated (singular configurations). */
-	bool integrateFromBaseWrench(const Eigen::Wrenchd& i_wrench);
+	bool integrateFromBaseWrench(const Wrench2D& i_wrench);
 
 
 	bool																										m_isStable;		/**< True if DLO state is stable. */
 	std::vector<costate_type>																m_mu;					/**< Wrenches at each nodes (size N). */
-	std::vector<Eigen::Matrix<double, 6, 6> >								m_M;
-	std::vector<Eigen::Matrix<double, 6, 6> >								m_J;
+	std::vector<Eigen::Matrix<double, 3, 3> >								m_M;
+	std::vector<Eigen::Matrix<double, 3, 3> >								m_J;
 
 	std::vector<double>																			m_J_det;
-	std::vector<Eigen::Vector3d>														m_J_nu_sv;			/**< Singular values of the linear speed nu part of the Jacobian matrix. */
 
 	IntegrationOptions																			m_integrationOptions;
 };
 
+}	// namespace rod2d
 }	// namespace qserl
 
-#endif // QSERL_QUASI_STATIC_ROD_WORKSPACE_INTEGRATED_STATE_H_
+#endif // QSERL_2D_WORKSPACE_INTEGRATED_STATE_H_

@@ -17,8 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_QUASI_STATIC_MJ_SYSTEM_H_
-#define QSERL_QUASI_STATIC_MJ_SYSTEM_H_
+#ifndef QSERL_2D_JACOBIAN_SYSTEM_H_
+#define QSERL_2D_JACOBIAN_SYSTEM_H_
 
 #include "qserl/exports.h"
 
@@ -28,9 +28,10 @@
 #include <Eigen/Lgsm>
 #pragma warning( pop )	
 
-#include "qserl/workspace_integrated_state.h"
+#include "qserl/rod2d/workspace_integrated_state.h"
 
 namespace qserl {
+namespace rod2d {
 
 class QSERL_EXPORT JacobianSystem
 {
@@ -45,7 +46,7 @@ public:
 	/**
 	* Constructors, destructors
 	*/
-	JacobianSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffness, double i_dt, 
+	JacobianSystem(double i_inv_stiffness, double i_dt, 
 		const std::vector<WorkspaceIntegratedState::costate_type>& i_mu, Parameters::RodModelT i_rodModel);
   virtual ~JacobianSystem();
 
@@ -56,15 +57,7 @@ public:
 
 private:
 
-	Eigen::Matrix<double, 6, 1>																			m_inv_c;	/**< inverse stiffness coefficients */
-	Eigen::Matrix<double, 6, 1>																			m_b;			/**<	Precomputed values from inverse stiffness coefficients, where:
-																																									b(1) = inv_c(3) - inv_c(2) 
-																																									b(2) = inv_c(1) - inv_c(3) 
-																																									b(3) = inv_c(2) - inv_c(1) 
-																																									b(4) = inv_c(6) - inv_c(5) 
-																																									b(5) = inv_c(4) - inv_c(6) 
-																																									b(6) = inv_c(5) - inv_c(4) 
-																																									*/
+	double																													m_inv_c;	/**< inverse stiffness coefficients */
 	double																													m_dt;			
 	const std::vector<WorkspaceIntegratedState::costate_type>&			m_mu;
 	Parameters::RodModelT																						m_rodModel;
@@ -75,13 +68,10 @@ private:
 	* Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
 	*/
 	void evaluateInextensible(const state_type& MJ, state_type& dMJdt, double t);
-	
-	/** 
-	* Derivative evaluation at time t for the inextensible (RM_EXTENSIBLE_SHEARABLE) rod model.
-	*/
-	void evaluateExtensibleShearable(const state_type& MJ, state_type& dMJdt, double t);
+
 };
 
+}	// namespace rod2d
 }	// namespace qserl
 
-#endif // QSERL_QUASI_STATIC_MJ_SYSTEM_H_
+#endif // QSERL_2D_JACOBIAN_SYSTEM_H_

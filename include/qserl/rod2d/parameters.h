@@ -17,10 +17,10 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_QUASI_STATIC_ROD_PARAMETERS_H_
-#define QSERL_QUASI_STATIC_ROD_PARAMETERS_H_
+#ifndef QSERL_2D_PARAMETERS_H_
+#define QSERL_2D_PARAMETERS_H_
 
-#include "exports.h"
+#include "qserl/exports.h"
 
 #include <Eigen/Core>
 #include <boost/serialization/serialization.hpp>
@@ -31,51 +31,43 @@
 #include "util/eigen_types_serialization.h"
 
 namespace qserl {
+namespace rod2d {
 
 /**
-* \brief Static parameters of a Kirchhoff 3D circular rod (homogeneous, istropic, linear elastic material).
+* \brief Static parameters of a Kirchhoff 2D (planar) rod (homogeneous, istropic, linear elastic material).
 */
 struct QSERL_EXPORT Parameters
 {
 	Parameters() :
 		radius(0.01), 
 		length(1.), 
-		youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
-		shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
-		density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
+		//youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
+		//shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
+		//density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
 		integrationTime(1.),
-		rodModel(RM_EXTENSIBLE_SHEARABLE),
+		rodModel(RM_INEXTENSIBLE),
 		numNodes(100)
 	{}
 
 	enum RodModelT
 	{
 		RM_INEXTENSIBLE = 0,
-		RM_EXTENSIBLE_SHEARABLE,
+		//RM_EXTENSIBLE,	/**< Not implemented yet */
 		RM_NUMBER_OF_ROD_MODELS
 	};
 
 	static const std::string getRodModelName(RodModelT i_model)
 	{
-		const static char * const model_names_array[] = { "INEXTENSIBLE", "EXTENSIBLE_SHEARABLE" };
+		const static char * const model_names_array[] = { "INEXTENSIBLE" };
 		const static std::vector<std::string> v_model_names_array(model_names_array, model_names_array + RM_NUMBER_OF_ROD_MODELS);
 		return v_model_names_array[static_cast<int>(i_model)];
 	}
 
 	double														radius; 
 	double														length;
-	double														youngModulus;			/** So called E Young modulus. */
-	double														shearModulus;			/** So called G shear modulus. */
-	double														density;		
-
-	/**< These two parameters are only used when coupling inextensible/non-shearable static rod model
-	* with extensible/shearable one.
-	* They are required to express the ratio between stiffness coefficients for the supposed infinite values
-	* of extension & shear elasticity values. 
-	* \deprecated
-	*/
-	//double														extensionRatio;		/**< Ratio for the young modulus (thus for extension). */
-	//double														shearingRatio;		/**< Ratio for the shear modulus (thus for shearing). */			
+	//double														youngModulus;			/** So called E Young modulus. */
+	//double														shearModulus;			/** So called G shear modulus. */
+	//double														density;				
 
 	/**< Internal use only. */
 	double														integrationTime;	/**< Should be kept to 1 (default value). */
@@ -90,17 +82,16 @@ struct QSERL_EXPORT Parameters
 	{
 		ar & boost::serialization::make_nvp("radius", radius) & 
 			boost::serialization::make_nvp("length", length) & 
-			boost::serialization::make_nvp("youngModulus", youngModulus) & 
-			boost::serialization::make_nvp("shearModulus", shearModulus) & 
-			boost::serialization::make_nvp("density", density) & 
-			//boost::serialization::make_nvp("extensionRatio", extensionRatio) & 
-			//boost::serialization::make_nvp("shearingRatio", shearingRatio) & 
+			//boost::serialization::make_nvp("youngModulus", youngModulus) & 
+			//boost::serialization::make_nvp("shearModulus", shearModulus) & 
+			//boost::serialization::make_nvp("density", density) & 
 			boost::serialization::make_nvp("integrationTime", integrationTime) &
 			boost::serialization::make_nvp("rodModel", rodModel) &
 			boost::serialization::make_nvp("numNodes", numNodes);
 	}
 };
 
+}	// namespace rod2d
 }	// namespace qserl
 
-#endif // QSERL_QUASI_STATIC_ROD_PARAMETERS_H_
+#endif // QSERL_2D_PARAMETERS_H_

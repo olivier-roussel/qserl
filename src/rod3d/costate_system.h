@@ -17,8 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_QUASI_STATIC_ROD_COSTATE_SYSTEM_H_
-#define QSERL_QUASI_STATIC_ROD_COSTATE_SYSTEM_H_
+#ifndef QSERL_3D_COSTATE_SYSTEM_H_
+#define QSERL_3D_COSTATE_SYSTEM_H_
 
 #include "qserl/exports.h"
 
@@ -28,9 +28,10 @@
 #include <Eigen/Lgsm>
 #pragma warning( pop )	
 
-#include "qserl/workspace_integrated_state.h"
+#include "qserl/rod3d/workspace_integrated_state.h"
 
 namespace qserl {
+namespace rod3d {
 
 class QSERL_EXPORT CostateSystem
 {
@@ -67,6 +68,7 @@ private:
 	void evaluateExtensibleShearable(const state_type& i_mu, state_type& o_dmudt, double i_t);
 };
 
+}	// namespace rod3d
 }	// namespace qserl
 
-#endif // QSERL_QUASI_STATIC_ROD_COSTATE_SYSTEM_H_
+#endif // QSERL_3D_COSTATE_SYSTEM_H_

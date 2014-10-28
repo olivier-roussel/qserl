@@ -17,8 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_FORWARD_CLASS_H_
-#define QSERL_FORWARD_CLASS_H_
+#ifndef QSERL_UTIL_FORWARD_CLASS_H_
+#define QSERL_UTIL_FORWARD_CLASS_H_
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -30,4 +30,4 @@
     typedef boost::shared_ptr<const C> C##ConstShPtr;									 \
     typedef boost::weak_ptr<const C> C##ConstWkPtr				 
 
-#endif // QSERL_FORWARD_CLASS_H_
+#endif // QSERL_UTIL_FORWARD_CLASS_H_
