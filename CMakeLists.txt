@@ -20,6 +20,7 @@ cmake_minimum_required(VERSION 2.8)
 
 include(cmake/detect_msvc_versions.cmake)
 include(cmake/common.cmake)
+include(cmake/install.cmake)
 
 set(PROJECT_NAME "qserl")
 set(PROJECT_VERSION 1.0)
