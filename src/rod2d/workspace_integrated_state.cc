@@ -157,40 +157,18 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 	// 2. solve the state system to find q 
 	StateSystem state_system(invStiffness, m_rodParameters.length, dt, *mu_buffer, m_rodParameters.rodModel);
 	boost::numeric::odeint::runge_kutta4< state_type > sss_stepper;
-	//std::vector<state_type> q_array(m_numNodes, StateSystem::kDefaultState);
 	m_nodes.resize(m_numNodes);
 
 	// init q_0 to identity
-	state_type q_t;
-	Eigen::Matrix4d::Map(q_t.data()).setIdentity();
-	//q_array[0] = q_t;			// store q_0
-	{
-		const Eigen::Map<const Eigen::Matrix3d> q_e(q_t.data());
-		double theta = atan2(q_e(1,0), q_e(0,0));
-		m_nodes[0][0] = q_e(0,2);
-		m_nodes[0][1] = q_e(1,2);
-		m_nodes[0][2] = theta;
-	}
+	state_type q_t = StateSystem::kDefaultState;
+	m_nodes[0] = q_t;
 
 	step_idx = 1;
 	for (double t = ktstart; step_idx < m_numNodes ; ++step_idx, t+=dt)
 	{
 		sss_stepper.do_step(state_system, q_t, t, dt);
-		//q_array[step_idx] = q_t;
-		const Eigen::Map<const Eigen::Matrix3d> q_e(q_t.data());
-		double theta = atan2(q_e(1,0), q_e(0,0));
-		m_nodes[step_idx][0] = q_e(0,2);
-		m_nodes[step_idx][1] = q_e(1,2);
-		m_nodes[step_idx][2] = theta;
+		m_nodes[step_idx] = q_t;
 	}
-
-	// update state
-	//m_nodes.assign(q_array.size(), StateSystem::kDefaultState);
-	//for (size_t i = 0 ; i < q_array.size() ; ++i)
-	//{
-	//	const Eigen::Map<const Eigen::Matrix4d> q_e(q_array[i].data());
-	//	m_nodes[i] = Eigen::Displacementd(q_e);
-	//}
 
 	// 3. Solve the jacobian system (and check non-degenerescence of matrix J)
 	JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);

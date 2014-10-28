@@ -23,11 +23,11 @@
 #include "util/timer.h"
 
 /* ------------------------------------------------------------------------- */
-/* SingularConfigurationsTests  																						 */
+/* SingularConfigurations3DTests  																						 */
 /* ------------------------------------------------------------------------- */
-BOOST_AUTO_TEST_SUITE(SingularConfigurationsTests)
+BOOST_AUTO_TEST_SUITE(SingularConfigurations3DTests)
 
-BOOST_AUTO_TEST_CASE(SingularConfigurationsTest_1)
+BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_1)
 {
 	qserl::rod3d::Parameters rodDefaultParameters;
 
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(SingularConfigurationsTest_1)
 	BOOST_CHECK( !rodIntegratedState1->integrate() );	
 }
 
-BOOST_AUTO_TEST_CASE(SingularConfigurationsTest_2)
+BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_2)
 {
 	qserl::rod3d::Parameters rodDefaultParameters;
 
@@ -58,11 +58,11 @@ BOOST_AUTO_TEST_CASE(SingularConfigurationsTest_2)
 BOOST_AUTO_TEST_SUITE_END();
 
 /* ------------------------------------------------------------------------- */
-/* ExtensibleRodStabilityTests  																						 */
+/* ExtensibleRodStability3DTests  																						 */
 /* ------------------------------------------------------------------------- */
-BOOST_AUTO_TEST_SUITE(ExtensibleRodStabilityTests)
+BOOST_AUTO_TEST_SUITE(ExtensibleRodStability3DTests)
 
-BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_stable1)
+BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable1)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_stable1)
 	BOOST_CHECK( rodStableState1->isStable() );
 }
 
-BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_stable2)
+BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_stable2)
 	BOOST_CHECK( rodStableState2->isStable() );
 }
 
-BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_unstable1)
+BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_unstable1)
 	BOOST_CHECK( !rodUnstableState1->isStable() );
 }
 
-BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_unstable2)
+BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -185,11 +185,11 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStabilityTest_unstable2)
 BOOST_AUTO_TEST_SUITE_END();
 
 /* ------------------------------------------------------------------------- */
-/* InextensibleRodStabilityTests																						 */
+/* InextensibleRodStability3DTests																						 */
 /* ------------------------------------------------------------------------- */
-BOOST_AUTO_TEST_SUITE(InextensibleRodStabilityTests)
+BOOST_AUTO_TEST_SUITE(InextensibleRodStability3DTests)
 
-BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_stable1)
+BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable1)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_stable1)
 	BOOST_CHECK( rodStableState1->isStable() );
 }
 
-BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_stable2)
+BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_stable2)
 	BOOST_CHECK( rodStableState2->isStable() );
 }
 
-BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_unstable1)
+BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_unstable1)
 	BOOST_CHECK( !rodUnstableState1->isStable() );
 }
 
-BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_unstable2)
+BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -312,11 +312,13 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStabilityTest_unstable2)
 BOOST_AUTO_TEST_SUITE_END();
 
 /* ------------------------------------------------------------------------- */
-/* ExtensibleBencnhmarks																										 */
+/* Extensible3DBencnhmarks																									*/
 /* ------------------------------------------------------------------------- */
-BOOST_AUTO_TEST_SUITE(ExtensibleBencnhmarks)
+#ifndef _DEBUG
 
-BOOST_AUTO_TEST_CASE(ExtensibleBencnhmark_1)
+BOOST_AUTO_TEST_SUITE(Extensible3DBencnhmarks)
+
+BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 {
 	qserl::rod3d::Parameters rodParameters;
 	// set appropriate elasticity parameters
@@ -355,7 +357,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleBencnhmark_1)
 
 	util::TimePoint startBenchTime = util::getTimePoint();
 	Eigen::Wrenchd wrench;
-	static const int numSamples = 5000;
+	static const int numSamples = 2000;
 	int validSamples = 0;
 	for (int i = 0 ; i < numSamples ; ++i)
 	{
@@ -373,7 +375,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleBencnhmark_1)
 			++validSamples;
 	}
 	double benchTimeMs = util::getElapsedTimeMsec(startBenchTime).count();
-	BOOST_TEST_MESSAGE( "Benchmarking extensible rods total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
+	BOOST_TEST_MESSAGE( "Benchmarking 3D extensible rods total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
 	double benchTimePerRodUs = benchTimeMs * 1.e3 / static_cast<double>(numSamples);
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod = " << benchTimePerRodUs << "us for " << rodParameters.numNodes << " nodes" );
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod node = " << benchTimePerRodUs / static_cast<double>(rodParameters.numNodes) << "us" );
@@ -386,3 +388,5 @@ BOOST_AUTO_TEST_CASE(ExtensibleBencnhmark_1)
 }
 
 BOOST_AUTO_TEST_SUITE_END();
+
+#endif

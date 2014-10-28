@@ -38,7 +38,7 @@ class QSERL_EXPORT WorkspaceIntegratedState : public WorkspaceState
 public:
 	
 	/** Rod state types. */
-	typedef boost::array<double, 9>	  state_type;						/**< Type of 2D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(2). */
+	typedef boost::array<double, 3>	  state_type;						/**< Type of 2D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(2). */
 	typedef boost::array<double, 3>		costate_type;					/**< Type of 2D elastic rod co-states mu(t) at position t, where mu(t) is an element of the dual Lie algebra se(2)*. */
 	typedef boost::array<double, 18>	jacobian_state_type;	/**< Type of 2D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
 																													     - M(t) is the 3x3 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 9 elements),
