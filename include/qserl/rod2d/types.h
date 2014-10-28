@@ -22,6 +22,7 @@
 
 #include "qserl/exports.h"
 
+#include <Eigen/Lgsm>
 #include <boost/array.hpp>
 
 namespace qserl {
