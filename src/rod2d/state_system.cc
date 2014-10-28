@@ -61,15 +61,9 @@ void StateSystem::evaluateInextensible(const state_type& i_q, state_type& o_dqdt
 	
 	const double u = mu_k[2] * m_inv_c;
 
-	Eigen::Matrix3d u_hat_h;
-	u_hat_h << 0, -u, 1.,
-						 u, 0., 0.,
-						 0., 0., 0.;
-
-	const Eigen::Map<const Eigen::Matrix3d> q_e(i_q.data());
-	Eigen::Map<Eigen::Matrix3d> dqdt_e(o_dqdt.data());
-
-	dqdt_e = q_e * u_hat_h;
+	o_dqdt[0] = cos(i_q[2]);
+	o_dqdt[1] = sin(i_q[2]);
+	o_dqdt[2] = u;
 }
 
 }	// namespace rod2d
