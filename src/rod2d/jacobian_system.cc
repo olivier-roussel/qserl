@@ -26,10 +26,8 @@ namespace rod2d {
 
 const JacobianSystem::state_type JacobianSystem::kDefaultState = { {  0. } };
 
-const double JacobianSystem::kStabilityThreshold = 1.e-5;				/** Threshold for Jacobian determinant. */
-//const double JacobianSystem::kStabilityThreshold = 1.e-8;				/** Threshold for Jacobian determinant. */
+const double JacobianSystem::kStabilityThreshold = 1.e-8;				/** Threshold for Jacobian determinant. */
 const double JacobianSystem::kStabilityTolerance = 1.e-12;			/** Tolerance for which Jacobian determinant vanishes. */
-//const double JacobianSystem::kStabilityTolerance = 1.e-12;			/** Tolerance for which Jacobian determinant vanishes. */
 
 JacobianSystem::JacobianSystem(double i_inv_stiffness, double i_dt, 
 	const std::vector<WorkspaceIntegratedState::costate_type>& i_mu, Parameters::RodModelT i_rodModel) :
