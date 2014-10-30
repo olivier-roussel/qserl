@@ -17,12 +17,6 @@
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 
-# set(Boost_COMPONENTS unit_test_framework)
-
-# if(UNIX)
-  # set(libraries boost_unit_test_framework)
-# endif()
-
 # -------------------------------------
 # Dependencies
 # -------------------------------------
