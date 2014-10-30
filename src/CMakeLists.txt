@@ -89,13 +89,13 @@ target_link_libraries(${LIB_NAME} LINK_INTERFACE_LIBRARIES ${LIBS})
 
 if(MSVC)
 	# debug suffix already added at this point
-	set_target_properties(${PROJECT_NAME} PROPERTIES 
+	set_target_properties(${LIB_NAME} PROPERTIES 
 		VERSION ${PROJECT_VERSION}
 		DEBUG_OUTPUT_NAME "${PROJECT_NAME}d-${PLATFORM_COMPILER}" 
 		RELEASE_OUTPUT_NAME "${PROJECT_NAME}-${PLATFORM_COMPILER}")
 
 else(MSVC)
-	set_target_properties(${PROJECT_NAME} PROPERTIES 
+	set_target_properties(${LIB_NAME} PROPERTIES 
 		VERSION "${PROJECT_VERSION}" 
 		SOVERSION "${PROJECT_SOVERSION}")
 endif(MSVC)

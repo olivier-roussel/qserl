@@ -53,8 +53,6 @@ set(CMAKE_INSTALL_PREFIX "$ENV{DEVEL_DIR}/install/unstable/" CACHE PATH "Prefix 
 # Option for building tests
 option(QSERL_BUILD_TEST ON "Build tests")
 
-#include (common.cmake)
-
 # -------------------------------------
 # Visit subdirectories
 # -------------------------------------
