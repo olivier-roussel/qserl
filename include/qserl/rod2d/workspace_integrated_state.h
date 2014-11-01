@@ -53,7 +53,7 @@ public:
 	* \brief Constructor.
 	* Rod base is independant from this as node positions are computed in local base frame.
 	*/
-	static WorkspaceIntegratedStateShPtr create(const Wrench2D& i_baseWrench, unsigned int i_nnodes, 
+	static WorkspaceIntegratedStateShPtr create(const Wrench2D& i_baseWrench, /*unsigned int i_nnodes, */
 		const Displacement2D& i_basePosition, const Parameters& i_rodParams);
 
 	/**
@@ -72,11 +72,25 @@ public:
 	*/
 	bool integrate();
 
+	/**< \brief Descriptors of possible status result returned by the rod integration process.*/
+	enum IntegrationResultT{
+		IR_VALID = 0,													/**< The rod configuration is valid w.r.t to given criterias (stability, max wrench, etc...) */
+		IR_SINGULAR,													/**< The rod configuration is singular, i.e. a[1] = a[2] = 0. */
+		IR_UNSTABLE,													/**< The rod configuration is unstable. */
+		IR_OUT_OF_WRENCH_BOUNDS,							/**< The rod configuration is out of maximum allowed wrench. */
+		IR_NUMBER_OF_INTEGRATION_RESULTS
+	};
+
 	/**
-	* \brief Compute rod state from its base wrench by integration until conjugate point (bifurcation point) is found.
-	* \return False if could not integrate state (abnormal case).
+	* \brief Compute rod state from its base wrench by integration until invalid point is found.
+	* Note that is an invalid point is found (i.e. the frontier of A_free space is reached), the corresponding
+	* rod configuration will be the last valid one before invalidity (exception of IR_SINGULAR configurations).
+	* \param[in] i_maxWrench Maximum wrench allowed along the rod. If reached, the function will return IR_OUT_OF_WRENCH_BOUNDS.
+	* \param[out] o_tinv Integration time point of invalidity (if the resulting configuration is unstable, this is the conjugate point
+	* and the function will returns IR_UNSTABLE).
+	* \return The corresponding integration result status depending on the type of the A_free space boundary reached.
 	*/
-	bool integrateUntilConjugatePoint(int i_maxIter, double& o_tconj);
+	IntegrationResultT integrateWhileValid(const Wrench2D& i_maxWrench, double& o_tinv);
 
 	/**
 	* \brief Returns true if rod configuration is in a stable quasi-static confiugration.
@@ -154,7 +168,7 @@ protected:
 	/**
 	\brief Constructor
 	*/
-	WorkspaceIntegratedState(unsigned int i_nnodes, const Displacement2D& i_basePosition, 
+	WorkspaceIntegratedState(/*unsigned int i_nnodes,*/ const Displacement2D& i_basePosition, 
 		const Parameters& i_rodParams);
 
 	/**

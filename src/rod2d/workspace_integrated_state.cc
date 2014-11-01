@@ -38,13 +38,14 @@ namespace rod2d {
 /************************************************************************/
 /*													Constructor																	*/
 /************************************************************************/
-WorkspaceIntegratedState::WorkspaceIntegratedState(unsigned int i_nnodes, 
+WorkspaceIntegratedState::WorkspaceIntegratedState(/*unsigned int i_nnodes, */
 	const Displacement2D& i_basePosition,	const Parameters& i_rodParams):
 WorkspaceState(std::vector<Displacement2D>(), i_basePosition, i_rodParams),
 	m_integrationOptions() // initialize to default values
 {
-  assert ( i_nnodes > 1 && "rod number of nodes must be greater or equal to 2" );
-	m_numNodes = i_nnodes;
+  assert ( m_rodParameters.delta_t > 0. && "step integration time must be stricly positive" );
+	m_numNodes = m_rodParameters.numberOfNodes();
+  assert ( m_numNodes > 1 && "rod number of nodes must be greater or equal to 2" );
 }
 
 /************************************************************************/
@@ -57,10 +58,10 @@ WorkspaceIntegratedState::~WorkspaceIntegratedState()
 /************************************************************************/
 /*														create																		*/
 /************************************************************************/
-WorkspaceIntegratedStateShPtr WorkspaceIntegratedState::create(const Wrench2D& i_baseWrench, unsigned int i_nnodes, 
+WorkspaceIntegratedStateShPtr WorkspaceIntegratedState::create(const Wrench2D& i_baseWrench, /*unsigned int i_nnodes, */
 	const Displacement2D& i_basePosition, const Parameters& i_rodParams)
 {
-	WorkspaceIntegratedStateShPtr shPtr(new WorkspaceIntegratedState(i_nnodes, i_basePosition, i_rodParams));
+	WorkspaceIntegratedStateShPtr shPtr(new WorkspaceIntegratedState(/*i_nnodes,*/ i_basePosition, i_rodParams));
 
 	if (!shPtr->init(i_baseWrench))
 		shPtr.reset();
@@ -116,7 +117,8 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 {
 	static const double ktstart = 0.;													// Start integration time
 	const double ktend = m_rodParameters.integrationTime;			// End integration time
-	const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
+	const double dt = m_rodParameters.delta_t;
+	//const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
 
 	if (Rod::isConfigurationSingular(i_wrench))
 		return false;
@@ -323,16 +325,18 @@ const WorkspaceIntegratedState::IntegrationOptions& WorkspaceIntegratedState::in
 }
 
 /************************************************************************/
-/*										integrateUntilConjugatePoint											*/
+/*													integrateWhileValid													*/
 /************************************************************************/
-bool WorkspaceIntegratedState::integrateUntilConjugatePoint(int i_maxIter, double& o_tconj)
+WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateWhileValid(const Wrench2D& i_maxWrench, double& o_tinv)
 {
 	static const double ktstart = 0.;													// Start integration time
-	const double ktend = m_rodParameters.integrationTime;			// End integration time
-	const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
+	//const double ktend = m_rodParameters.integrationTime;			// End integration time
+	const double dt = m_rodParameters.delta_t;
+	//const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
+	o_tinv = -1.;
 
 	if (Rod::isConfigurationSingular(m_mu[0]))
-		return false;
+		return IR_SINGULAR;
 
 	const double stiffnessCoefficient = Rod::getStiffnessCoefficients(m_rodParameters);
 	const double invStiffness = 1. / stiffnessCoefficient;
@@ -379,54 +383,67 @@ bool WorkspaceIntegratedState::integrateUntilConjugatePoint(int i_maxIter, doubl
 	m_J_det.push_back(Jdet_cur);
 
 	// integrate until unstability or max iteration reached
-	m_isStable = true;
+	m_isStable = true;	// will stay true as we keept the last valid state, which always exists starting from origin
+	bool isStable = true;
 	bool isThresholdOn = false;
 	int iter = 1;
 	double t = 0.;
-	while (m_isStable && iter < i_maxIter)
+	bool isOutOfWrenchBounds = false;
+	int maxIter = m_rodParameters.numberOfNodes();
+	while (isStable && !isOutOfWrenchBounds && iter < maxIter)
 	{
 		// integrate co-state
 		css_stepper.do_step(costate_system, mu_t, t, dt);
-		(*mu_buffer).push_back(mu_t);
-		// integrate jacobian
-		jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
-		Eigen::Map<Eigen::Matrix<double, 3, 3> > J_cur = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
-		// compute jacobian and check stability
-		Jdet_prev = Jdet_cur;
-		Jdet_cur = J_cur.determinant();
-		if (abs(Jdet_cur) > JacobianSystem::kStabilityThreshold)
-				isThresholdOn = true;
-		if (isThresholdOn && ( abs(Jdet_cur) < JacobianSystem::kStabilityTolerance ||
-			Jdet_cur * Jdet_prev < 0.) )	// zero crossing
-				m_isStable = false;
-		if (m_isStable)
+		if (mu_t > i_maxWrench)
 		{
-			// integrate state
-			sss_stepper.do_step(state_system, q_t, t, dt);
-			if (m_integrationOptions.keepMMatrices)
-				m_M.push_back(Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()));
-			if (m_integrationOptions.keepJMatrices)
-				m_J.push_back(J_cur);
-			if (m_integrationOptions.keepJdet)
-				m_J_det.push_back(Jdet_cur);
-			m_nodes.push_back(q_t);
-			++iter;
-			t+=dt;
+			isOutOfWrenchBounds = true;
+		}else{
+			(*mu_buffer).push_back(mu_t);
+			// integrate jacobian
+			jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
+			Eigen::Map<Eigen::Matrix<double, 3, 3> > J_cur = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
+			// compute jacobian and check stability
+			Jdet_prev = Jdet_cur;
+			Jdet_cur = J_cur.determinant();
+			if (abs(Jdet_cur) > JacobianSystem::kStabilityThreshold)
+				isThresholdOn = true;
+			if (isThresholdOn && ( abs(Jdet_cur) < JacobianSystem::kStabilityTolerance ||
+				Jdet_cur * Jdet_prev < 0.) )	// zero crossing
+				isStable = false;
+			if (isStable)
+			{
+				// integrate state
+				sss_stepper.do_step(state_system, q_t, t, dt);
+				if (m_integrationOptions.keepMMatrices)
+					m_M.push_back(Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()));
+				if (m_integrationOptions.keepJMatrices)
+					m_J.push_back(J_cur);
+				if (m_integrationOptions.keepJdet)
+					m_J_det.push_back(Jdet_cur);
+				m_nodes.push_back(q_t);
+				++iter;
+				t+=dt;
+			}else{
+				// unstability found _ remove last costate
+				(*mu_buffer).resize((*mu_buffer).size() - 1);
+			}
 		}
 	}
 
 	if (!m_integrationOptions.keepMuValues)
 		delete mu_buffer;
 
-	if (!m_isStable)
+	if (!isStable)
 	{
 		// conjugate point found
-		o_tconj = t;
-	}else{
-		// conjugate point not found
-		o_tconj = -1.;
+		o_tinv = t;
+		return IR_UNSTABLE;
+	}else if (isOutOfWrenchBounds)
+	{
+		o_tinv = t;
+		return IR_OUT_OF_WRENCH_BOUNDS;
 	}
-	return true;
+	return IR_VALID;
 }
 
 /************************************************************************/

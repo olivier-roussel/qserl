@@ -41,12 +41,9 @@ struct QSERL_EXPORT Parameters
 	Parameters() :
 		radius(0.01), 
 		length(1.), 
-		//youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
-		//shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
-		//density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
 		integrationTime(1.),
-		rodModel(RM_INEXTENSIBLE),
-		numNodes(100)
+		delta_t(0.01),
+		rodModel(RM_INEXTENSIBLE)
 	{}
 
 	enum RodModelT
@@ -65,16 +62,15 @@ struct QSERL_EXPORT Parameters
 
 	double														radius; 
 	double														length;
-	//double														youngModulus;			/** So called E Young modulus. */
-	//double														shearModulus;			/** So called G shear modulus. */
-	//double														density;				
 
-	/**< Internal use only. */
-	double														integrationTime;	/**< Should be kept to 1 (default value). */
+	double														integrationTime;		/**< Default is 1. */
+	double														delta_t;						/**< Integration step time. */
 
 	RodModelT													rodModel;
 
-	int																numNodes;
+	//int																numNodes;				/** Deprecated. Use numberOfNodes() instead. */
+	int	numberOfNodes() const
+	{ return static_cast<int>(std::floor(integrationTime/delta_t)) + 1; }
 
 	/** Serialization */
 	template<class Archive>
@@ -82,12 +78,10 @@ struct QSERL_EXPORT Parameters
 	{
 		ar & boost::serialization::make_nvp("radius", radius) & 
 			boost::serialization::make_nvp("length", length) & 
-			//boost::serialization::make_nvp("youngModulus", youngModulus) & 
-			//boost::serialization::make_nvp("shearModulus", shearModulus) & 
-			//boost::serialization::make_nvp("density", density) & 
 			boost::serialization::make_nvp("integrationTime", integrationTime) &
-			boost::serialization::make_nvp("rodModel", rodModel) &
-			boost::serialization::make_nvp("numNodes", numNodes);
+			boost::serialization::make_nvp("delta_t", delta_t) &
+			boost::serialization::make_nvp("rodModel", rodModel);
+			//boost::serialization::make_nvp("numNodes", numNodes);
 	}
 };
 
