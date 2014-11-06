@@ -142,10 +142,10 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_w
 	if (m_integrationOptions.keepMuValues)
 	{
 		mu_buffer = &m_mu;
-		mu_buffer->assign(m_numNodes, CostateSystem::kDefaultState);
+		mu_buffer->assign(m_numNodes, CostateSystem::defaultState());
 		m_mu[0] = mu_t;				// store mu_0
 	}else{
-		mu_buffer = new std::vector<costate_type>(m_numNodes, CostateSystem::kDefaultState);
+		mu_buffer = new std::vector<costate_type>(m_numNodes, CostateSystem::defaultState());
 		m_mu.assign(1, mu_t); // store mu_0
 	}
 
@@ -162,7 +162,7 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_w
 	// 2. solve the state system to find q 
 	StateSystem state_system(invStiffness, m_rodParameters.length, dt, *mu_buffer, m_rodParameters.rodModel);
 	boost::numeric::odeint::runge_kutta4< state_type > sss_stepper;
-	std::vector<state_type> q_array(m_numNodes, StateSystem::kDefaultState);
+	std::vector<state_type> q_array(m_numNodes, StateSystem::defaultState());
 
 	// init q_0 to identity
 	state_type q_t;

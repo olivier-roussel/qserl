@@ -24,7 +24,12 @@
 namespace qserl {
 namespace rod2d {
 
-const StateSystem::state_type StateSystem::kDefaultState = { {  0. } };
+StateSystem::state_type StateSystem::defaultState()
+{
+	state_type defaultStateArray;
+	defaultStateArray.assign(0.);
+	return defaultStateArray;
+}
 
 StateSystem::StateSystem(double i_inv_stiffness, double i_length, 
 	double i_dt, const std::vector<WorkspaceIntegratedState::costate_type>& i_mu, 

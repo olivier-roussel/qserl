@@ -138,10 +138,10 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 	if (m_integrationOptions.keepMuValues)
 	{
 		mu_buffer = &m_mu;
-		mu_buffer->assign(m_numNodes, CostateSystem::kDefaultState);
+		mu_buffer->assign(m_numNodes, CostateSystem::defaultState());
 		m_mu[0] = mu_t;				// store mu_0
 	}else{
-		mu_buffer = new std::vector<costate_type>(m_numNodes, CostateSystem::kDefaultState);
+		mu_buffer = new std::vector<costate_type>(m_numNodes, CostateSystem::defaultState());
 		m_mu.assign(1, mu_t); // store mu_0
 	}
 
@@ -161,7 +161,7 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 	m_nodes.resize(m_numNodes);
 
 	// init q_0 to identity
-	state_type q_t = StateSystem::kDefaultState;
+	state_type q_t = StateSystem::defaultState();
 	m_nodes[0] = q_t;
 
 	step_idx = 1;
@@ -361,7 +361,7 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 	// init state integrator and q(0)
 	StateSystem state_system(invStiffness, m_rodParameters.length, dt, *mu_buffer, m_rodParameters.rodModel);
 	boost::numeric::odeint::runge_kutta4< state_type > sss_stepper;
-	state_type q_t = StateSystem::kDefaultState;
+	state_type q_t = StateSystem::defaultState();
 	m_nodes.clear();
 	m_nodes.push_back(q_t);
 	//m_nodes.reserve(m_numNodes);
@@ -394,7 +394,18 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 	{
 		// integrate co-state
 		css_stepper.do_step(costate_system, mu_t, t, dt);
-		if (mu_t > i_maxWrench)
+		Wrench2D scaledMaxWrench;
+		if (t > 1.)
+		{
+			scaledMaxWrench[0] = t * t * i_maxWrench[0];
+			scaledMaxWrench[1] = t * t * i_maxWrench[1];
+			scaledMaxWrench[2] = t * i_maxWrench[2];
+		}else{
+			scaledMaxWrench[0] = i_maxWrench[0];
+			scaledMaxWrench[1] = i_maxWrench[1];
+			scaledMaxWrench[2] = i_maxWrench[2];
+		}
+		if (!isLess(mu_t, i_maxWrench))
 		{
 			isOutOfWrenchBounds = true;
 		}else{

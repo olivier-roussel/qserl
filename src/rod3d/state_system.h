@@ -38,7 +38,7 @@ class QSERL_EXPORT StateSystem
 public:
 	typedef WorkspaceIntegratedState::state_type state_type;
 
-	static const WorkspaceIntegratedState::state_type kDefaultState;
+	//static const state_type kDefaultState;
 
 	/**
 	* Constructors, destructors
@@ -49,6 +49,9 @@ public:
   virtual ~StateSystem();
 
 	void operator() (const state_type& i_q, state_type& o_dqdt, double i_t);
+
+	/** Returns default state value. */
+	static state_type defaultState();
 
 private:
 

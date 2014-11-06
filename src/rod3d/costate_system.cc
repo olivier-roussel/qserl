@@ -24,7 +24,12 @@
 namespace qserl {
 namespace rod3d {
 
-const CostateSystem::state_type CostateSystem::kDefaultState = { {  0., 0., 0., 0., 0., 0. } };
+CostateSystem::state_type CostateSystem::defaultState()
+{
+	state_type defaultStateArray;
+	defaultStateArray.assign(0.);
+	return defaultStateArray;
+}
 
 CostateSystem::CostateSystem(const Eigen::Matrix<double,6,1>& i_inv_stiffness, double i_length,
 	Parameters::RodModelT i_rodModel) :

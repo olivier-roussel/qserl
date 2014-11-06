@@ -53,6 +53,17 @@ inline Eigen::Displacementd toDisplacement3D(const Displacement2D& i_disp)
 		Eigen::AngleAxisd(i_disp[2], Eigen::Vector3d::UnitZ()));
 }
 
+/**< \brief Comparator for 2D wrenches.
+* Returns true if w1 is strictly less than w2, false otherwise.
+*/
+inline bool isLess(const Wrench2D& i_w1, const Wrench2D& i_w2)
+{
+	bool res = true;
+	for (int k = 0 ; k < 3 && res ; ++k)
+		res = i_w1[k] < i_w2[k];
+	return res;
+}
+
 }	// namespace rod2d
 }	// namespace qserl
 

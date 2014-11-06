@@ -38,7 +38,7 @@ class QSERL_EXPORT JacobianSystem
 public:
 	typedef WorkspaceIntegratedState::jacobian_state_type state_type;
 
-	static const state_type kDefaultState;				/**< Deprecated */
+	//static const state_type kDefaultState;				/**< Deprecated */
 
 	static const double kStabilityThreshold;			/** Threshold for Jacobian determinant. */
 	static const double kStabilityTolerance;			/** Tolerance for which Jacobian determinant vanishes. */
@@ -54,6 +54,9 @@ public:
 	* Derivative evaluation at time t.
 	*/
 	void operator() (const state_type& MJ, state_type& dMJdt, double t);
+
+	/** Returns default state value. */
+	static state_type defaultState();
 
 private:
 

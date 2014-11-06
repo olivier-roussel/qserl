@@ -38,7 +38,7 @@ class QSERL_EXPORT CostateSystem
 public:
 	typedef WorkspaceIntegratedState::costate_type state_type;
 
-	static const state_type kDefaultState;
+	//static const state_type kDefaultState;
 
 	/**
 	* Constructors, destructors
@@ -48,6 +48,9 @@ public:
   virtual ~CostateSystem();
 
 	void operator() (const state_type& i_mu, state_type& o_dmudt, double i_t);
+
+	/** Returns default state value. */
+	static state_type defaultState();
 
 private:
 
