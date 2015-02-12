@@ -93,8 +93,8 @@ public:
 	* Rod base is independant from this as node positions are computed in local base frame.
 	* Returns false if given configuration was singular.
 	*/
-	bool integrateStateFromBaseWrench(const Wrench2D& i_wrench, /*unsigned int i_nnodes, */
-		const Displacement2D& i_basePos, const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
+	bool integrateStateFromBaseWrench(const Wrench2D& i_wrench, const Displacement2D& i_basePos,
+		const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
 
 	/************************************************************************/
 	/*														Static members														*/

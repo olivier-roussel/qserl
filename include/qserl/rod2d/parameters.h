@@ -60,11 +60,12 @@ struct QSERL_EXPORT Parameters
 		return v_model_names_array[static_cast<int>(i_model)];
 	}
 
-	double														radius; 
-	double														length;
+	double														radius;							/**< Rod radius _ Default is 1e-2. */
+	double														length;							/**< Rod length _ Must be set to 1 _ Default is 1. */
 
-	double														integrationTime;		/**< Default is 1. */
-	double														delta_t;						/**< Integration step time. */
+	double														integrationTime;		/**< Internal use _ Default is 1. */
+	double														delta_t;						/**< Integration step time, defines the resolution of the rod discretization. 
+																												* Default is 1e-2. */
 
 	RodModelT													rodModel;
 
