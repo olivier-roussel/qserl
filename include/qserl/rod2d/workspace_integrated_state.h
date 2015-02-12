@@ -83,7 +83,7 @@ public:
 
 	/**
 	* \brief Compute rod state from its base wrench by integration until invalid point is found.
-	* Note that is an invalid point is found (i.e. the frontier of A_free space is reached), the corresponding
+	* Note that if an invalid point is found (e.g. the frontier of A_free space is reached), the corresponding
 	* rod configuration will be the last valid one before invalidity (exception of IR_SINGULAR configurations).
 	* \param[in] i_maxWrench Maximum wrench allowed along the rod. If reached, the function will return IR_OUT_OF_WRENCH_BOUNDS.
 	* \param[out] o_tinv Integration time point of invalidity (if the resulting configuration is unstable, this is the conjugate point
@@ -179,13 +179,13 @@ protected:
 	/** \brief Returns true if could integrate state (even if it is not a stable
 			state, in which case m_isStable attribute is set to false).
 			Returns false if the input wrench cannot be integrated (singular configurations). */
-	bool integrateFromBaseWrench(const Wrench2D& i_wrench);
+	WorkspaceIntegratedState::IntegrationResultT integrateFromBaseWrench(const Wrench2D& i_wrench);
 
 
 	bool																										m_isStable;		/**< True if DLO state is stable. */
-	std::vector<costate_type>																m_mu;					/**< Wrenches at each nodes (size N). */
-	std::vector<Eigen::Matrix<double, 3, 3> >								m_M;
-	std::vector<Eigen::Matrix<double, 3, 3> >								m_J;
+	std::vector<costate_type>																m_mu;					/**< mu : internal wrenches at each nodes in body frame (N elements). */
+	std::vector<Eigen::Matrix<double, 3, 3> >								m_M;					/**< dmu / da jacobian matrices (N elements).*/
+	std::vector<Eigen::Matrix<double, 3, 3> >								m_J;					/**< dq / da jacobian matrices (N elements). */
 
 	std::vector<double>																			m_J_det;
 

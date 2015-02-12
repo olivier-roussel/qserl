@@ -113,7 +113,7 @@ bool WorkspaceIntegratedState::integrate()
 /************************************************************************/
 /*												integrateFromBaseWrench												*/
 /************************************************************************/
-bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
+WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 {
 	static const double ktstart = 0.;													// Start integration time
 	const double ktend = m_rodParameters.integrationTime;			// End integration time
@@ -121,7 +121,7 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 	//const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
 
 	if (Rod::isConfigurationSingular(i_wrench))
-		return false;
+		return IR_SINGULAR;
 
 	// 1. solve the costate system to find mu
 	const double stiffnessCoefficient = Rod::getStiffnessCoefficients(m_rodParameters);
@@ -241,7 +241,11 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
 	if (!m_integrationOptions.keepJMatrices)
 		delete J_buffer;
 
-	return true; 
+	if (!isStable)
+	{
+		return IR_UNSTABLE;
+	}
+	return IR_VALID;
 }
 
 /************************************************************************/
