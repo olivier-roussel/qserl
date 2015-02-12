@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations2DTest_1)
 		/*rodDefaultParameters.numNodes, */identityDisp, rodDefaultParameters);
 	BOOST_CHECK( rodIntegratedState1 );	
 	// singular 
-	BOOST_CHECK( !rodIntegratedState1->integrate() );	
+	BOOST_CHECK( rodIntegratedState1->integrate() == qserl::rod2d::WorkspaceIntegratedState::IR_SINGULAR );	
 }
 
 BOOST_AUTO_TEST_CASE(SingularConfigurations2DTest_2)
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations2DTest_2)
 		/*rodDefaultParameters.numNodes, */identityDisp, rodDefaultParameters);
 	BOOST_CHECK( rodIntegratedState2  );	
 	// singular 
-	BOOST_CHECK( !rodIntegratedState2->integrate()  );	
+	BOOST_CHECK( rodIntegratedState2->integrate() == qserl::rod2d::WorkspaceIntegratedState::IR_SINGULAR );	
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability2DTest_stable1)
 	BOOST_CHECK( rodStableState1 );	
 	rodStableState1->integrationOptions(integrationOptions);
 	// not singular 
-	BOOST_CHECK( rodStableState1->integrate() );	
+	BOOST_CHECK( rodStableState1->integrate() != qserl::rod2d::WorkspaceIntegratedState::IR_SINGULAR );	
 	// stable
 	BOOST_CHECK( rodStableState1->isStable() );
 
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(Inextensible2DBencnhmark_1)
 		rodState->integrationOptions(integrationOptions);
 		BOOST_CHECK( rodState );	
 		// not singular (zero volume, so should never happen by random sampling
-		bool isNotSingular = rodState->integrate();
+		bool isNotSingular = (rodState->integrate() != qserl::rod2d::WorkspaceIntegratedState::IR_SINGULAR);
 		BOOST_CHECK( isNotSingular );	
 		if (isNotSingular && rodState->isStable())
 			++validSamples;

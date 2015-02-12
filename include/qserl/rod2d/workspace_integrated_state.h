@@ -43,6 +43,15 @@ public:
 	typedef boost::array<double, 18>	jacobian_state_type;	/**< Type of 2D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
 																													     - M(t) is the 3x3 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 9 elements),
 																															 - J(t) is the 3x3 Jacobian matrix of the state q(t) w.r.t. initial conditions (i.e. mu(0)) (last 9 elements). */
+			
+	/**< \brief Descriptors of possible status result returned by the rod integration process.*/
+	enum IntegrationResultT{
+		IR_VALID = 0,													/**< The rod configuration is valid w.r.t to given criterias (stability, max wrench, etc...) */
+		IR_SINGULAR,													/**< The rod configuration is singular, i.e. a[1] = a[2] = 0. */
+		IR_UNSTABLE,													/**< The rod configuration is unstable. */
+		IR_OUT_OF_WRENCH_BOUNDS,							/**< The rod configuration is out of maximum allowed wrench. */
+		IR_NUMBER_OF_INTEGRATION_RESULTS
+	};
 
 	/**
 	* \brief Destructor.
@@ -53,7 +62,7 @@ public:
 	* \brief Constructor.
 	* Rod base is independant from this as node positions are computed in local base frame.
 	*/
-	static WorkspaceIntegratedStateShPtr create(const Wrench2D& i_baseWrench, /*unsigned int i_nnodes, */
+	static WorkspaceIntegratedStateShPtr create(const Wrench2D& i_baseWrench, 
 		const Displacement2D& i_basePosition, const Parameters& i_rodParams);
 
 	/**
@@ -68,18 +77,11 @@ public:
 
 	/**
 	* \brief Compute rod state from its base wrench by integration.
-	* \return False if could not integrate state (abnormal case).
+	* \return The corresponding integration result status (see enum IntegrationResultT).
+	*	Note that IR_OUT_OF_WRENCH_BOUNDS cannot be returned, as out of bounds detection for internal
+	* rod wrenches is not implemented yet.
 	*/
-	bool integrate();
-
-	/**< \brief Descriptors of possible status result returned by the rod integration process.*/
-	enum IntegrationResultT{
-		IR_VALID = 0,													/**< The rod configuration is valid w.r.t to given criterias (stability, max wrench, etc...) */
-		IR_SINGULAR,													/**< The rod configuration is singular, i.e. a[1] = a[2] = 0. */
-		IR_UNSTABLE,													/**< The rod configuration is unstable. */
-		IR_OUT_OF_WRENCH_BOUNDS,							/**< The rod configuration is out of maximum allowed wrench. */
-		IR_NUMBER_OF_INTEGRATION_RESULTS
-	};
+	IntegrationResultT integrate();
 
 	/**
 	* \brief Compute rod state from its base wrench by integration until invalid point is found.
@@ -168,8 +170,7 @@ protected:
 	/**
 	\brief Constructor
 	*/
-	WorkspaceIntegratedState(/*unsigned int i_nnodes,*/ const Displacement2D& i_basePosition, 
-		const Parameters& i_rodParams);
+	WorkspaceIntegratedState(const Displacement2D& i_basePosition, const Parameters& i_rodParams);
 
 	/**
 	\brief Init function
@@ -179,15 +180,14 @@ protected:
 	/** \brief Returns true if could integrate state (even if it is not a stable
 			state, in which case m_isStable attribute is set to false).
 			Returns false if the input wrench cannot be integrated (singular configurations). */
-	WorkspaceIntegratedState::IntegrationResultT integrateFromBaseWrench(const Wrench2D& i_wrench);
+	IntegrationResultT integrateFromBaseWrench(const Wrench2D& i_wrench);
 
-
-	bool																										m_isStable;		/**< True if DLO state is stable. */
-	std::vector<costate_type>																m_mu;					/**< mu : internal wrenches at each nodes in body frame (N elements). */
-	std::vector<Eigen::Matrix<double, 3, 3> >								m_M;					/**< dmu / da jacobian matrices (N elements).*/
-	std::vector<Eigen::Matrix<double, 3, 3> >								m_J;					/**< dq / da jacobian matrices (N elements). */
-
-	std::vector<double>																			m_J_det;
+	bool																										m_isIntegrated;	/**< True if the state has been integrated.*/
+	bool																										m_isStable;			/**< True if DLO state is stable. */
+	std::vector<costate_type>																m_mu;						/**< mu : internal wrenches at each nodes in body frame (N elements). */
+	std::vector<Eigen::Matrix<double, 3, 3> >								m_M;						/**< dmu / da jacobian matrices (N elements).*/
+	std::vector<Eigen::Matrix<double, 3, 3> >								m_J;						/**< dq / da jacobian matrices (N elements). */
+	std::vector<double>																			m_J_det;				/**< dq / da jacobian determinants (N elements). */
 
 	IntegrationOptions																			m_integrationOptions;
 };
