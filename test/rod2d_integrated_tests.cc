@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(Inextensible2DBencnhmark_1)
 			++validSamples;
 	}
 	const int numNodes = rodParameters.numberOfNodes();
-	double benchTimeMs = util::getElapsedTimeMsec(startBenchTime).count();
+	double benchTimeMs = static_cast<double>(util::getElapsedTimeMsec(startBenchTime).count());
 	BOOST_TEST_MESSAGE( "Benchmarking inextensible 2D rods total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
 	double benchTimePerRodUs = benchTimeMs * 1.e3 / static_cast<double>(numSamples);
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod = " << benchTimePerRodUs << "us for " << numNodes << " nodes" );
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE(Inextensible2DBencnhmark_iterativeIntegration_1)
 			++validSamples;
 	}
 	const int numNodes = rodParameters.numberOfNodes();
-	double benchTimeMs = util::getElapsedTimeMsec(startBenchTime).count();
+	double benchTimeMs = static_cast<double>(util::getElapsedTimeMsec(startBenchTime).count());
 	BOOST_TEST_MESSAGE( "Benchmarking inextensible 2D rods (iterative mode) total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
 	double benchTimePerRodUs = benchTimeMs * 1.e3 / static_cast<double>(numSamples);
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod = " << benchTimePerRodUs << "us for " << numNodes << " nodes" );
@@ -349,10 +349,10 @@ BOOST_AUTO_TEST_CASE(example_quickstart)
 	// ... and compute corresponding configuration
 	// note that the given coordinates must not be singular (otherwise the returned
 	// boolean isNotSingular will be false). See Rod::isConfigurationSingular() for details.
-	bool isNotSingular = planarRod->integrateStateFromBaseWrench(baseWrench, rodBasePosition,
-		integrationOptions);		
+	WorkspaceIntegratedState::IntegrationResultT intResult = planarRod->integrateStateFromBaseWrench(baseWrench, 
+    rodBasePosition, integrationOptions);		
 
-	if (isNotSingular)
+	if (intResult != WorkspaceIntegratedState::IR_SINGULAR)
 	{
 		WorkspaceIntegratedStateShPtr integratedState = planarRod->integratedState();
 		
