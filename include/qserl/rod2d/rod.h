@@ -83,10 +83,14 @@ public:
 	WorkspaceStateShPtr state() const;
 
 	/**
-	* \brief Accessor to rod integrated state if exists, or null pointer otherwise
+	* \brief Accessor to rod integrated state if exists, or null pointer otherwise.
 	*/
 	WorkspaceIntegratedStateShPtr integratedState() const;
 
+  /**
+  * \brief Setter for the rod state.
+  */
+  void state(const WorkspaceStateShPtr& i_state);
 
 	/**
 	* \brief Compute rod state from its base wrench.

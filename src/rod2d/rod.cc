@@ -125,6 +125,14 @@ WorkspaceIntegratedStateShPtr Rod::integratedState() const
 }
 
 /************************************************************************/
+/*													state                                       */
+/************************************************************************/
+void Rod::state(const WorkspaceStateShPtr& i_state)
+{
+  m_state = i_state;
+}
+
+/************************************************************************/
 /*											isConfigurationSingular													*/
 /************************************************************************/
 bool Rod::isConfigurationSingular(const Wrench2D& i_cfgWrench)
