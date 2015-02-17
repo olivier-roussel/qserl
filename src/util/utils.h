@@ -22,9 +22,9 @@
 
 #include <boost/array.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#pragma warning( push, 0 )	
+#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+#pragma warning( pop )
 
 namespace util {
 
@@ -33,8 +33,18 @@ namespace util {
 template<class T>
 inline T sqr(T a) { return a*a; }
 
-template<class T> 
+template<class T>
 inline T clamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
+
+/**
+* Static power function.
+* \return x^y
+*/
+template<unsigned int X, unsigned int Y>
+struct power { enum { value = X * power<X, Y - 1>::value, }; };
+
+template<unsigned int X>
+struct power<X, 0> { enum { value = 1, }; };
 
 template<class Real, int N>
 inline Real round(Real val)
@@ -43,17 +53,8 @@ inline Real round(Real val)
 	return static_cast<Real>(static_cast<int>(val * p + 0.5) / static_cast<Real>(p));
 }
 
-/**
-* Static power function. 
-* \return x^y
-*/
-template<unsigned int X, unsigned int Y> 
-struct power { enum { value = X * power<X, Y - 1>::value, }; };
 
-template<unsigned int X> 
-struct power<X, 0> { enum { value = 1, }; };
-
-/** rand utils 
+/** rand utils
 */
 
 double rand_interval(double rmin, double rmax);
@@ -130,7 +131,7 @@ std::vector<std::string> split(const std::string &s, char delim);
 * Dof values must be ordered as it:
 * tx ty tz fx fy fz x y z rx ry rz
 * (separator are spaces)
-* where where wrench is given by the first six coefficient and 
+* where where wrench is given by the first six coefficient and
 * displacement by the six last ones.
 */
 bool readStartAngGoalConfigsFromCfgFile(const std::string& i_cfgPath, Eigen::Wrenchd& o_startWrench, Eigen::Displacementd& o_startDisp, Eigen::Wrenchd& o_goalWrench, Eigen::Displacementd& o_goalDisp);
@@ -141,7 +142,7 @@ bool readStartAngGoalConfigsFromCfgFile(const std::string& i_cfgPath, Eigen::Wre
 bool createDirAndParents(const std::string& i_path);
 
 /**
-* \brief Performs coefficient wise equality comparison for a given precision between 
+* \brief Performs coefficient wise equality comparison for a given precision between
 * two Eigen matrices.
 */
 template<typename DerivedA, typename DerivedB>
@@ -156,11 +157,11 @@ bool allclose(const Eigen::DenseBase<DerivedA>& a,
           <= (atol + rtol * b.derived().array().abs())).all();
 }
 
-/** \brief Search insertion index of given element in sorted randomly accessible container. 
-* Returns a pair where first is a boolean set to true if element was found in the array, 
+/** \brief Search insertion index of given element in sorted randomly accessible container.
+* Returns a pair where first is a boolean set to true if element was found in the array,
 * and second is the index where should be inserted e_ in sorted array vec_ (i.e. e_ < vec_[index] )
 */
-template<typename V, typename T, typename FuncPred> 
+template<typename V, typename T, typename FuncPred>
 inline std::pair<bool, int> searchInsertionIndexInSortedContainer(const V& i_cont, const T& i_e, const FuncPred& i_isLess)
 {
   int binf = 0, bsup = static_cast<int>(i_cont.size()) - 1;
@@ -169,7 +170,7 @@ inline std::pair<bool, int> searchInsertionIndexInSortedContainer(const V& i_con
     const int mid = (binf + bsup) / 2;
     if (i_isLess(i_e, i_cont[mid]))
       bsup = mid - 1;
-    else if (i_isLess(i_cont[mid], i_e)) 
+    else if (i_isLess(i_cont[mid], i_e))
       binf = mid + 1;
     else
       return std::pair<bool, int>(true, mid);
@@ -177,7 +178,7 @@ inline std::pair<bool, int> searchInsertionIndexInSortedContainer(const V& i_con
   return std::pair<bool, int>(false, binf);
 }
 
-/** Returns color based on the Jet color map for the given 1-d value v 
+/** Returns color based on the Jet color map for the given 1-d value v
 * which goes from vmin to vmax.
 */
 Eigen::Vector4f getJetColor(double v, double vmin, double vmax);

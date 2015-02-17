@@ -37,7 +37,7 @@ endif(MSVC)
 
 # Define & include header directory
 set(${PROJECT_NAME}_HEADER_DIR qserl)
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_INSTALL_PREFIX}"/include/)
 
 # Use cmake/ dir for user modules
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -68,13 +68,16 @@ if(NOT SUBMODULE_MODE)
 	# Source directory
 	set(PROJECT_GROUP "")
 	add_subdirectory(src)
+	add_subdirectory(examples)
 	
 	if (QSERL_BUILD_TEST)
 		enable_testing()
 		add_subdirectory(test)
+		
 	endif(QSERL_BUILD_TEST)
 
 else()
 	# Source directory
 	add_subdirectory(src)
+	add_subdirectory(examples)
 endif()
