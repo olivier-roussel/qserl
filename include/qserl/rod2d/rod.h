@@ -91,10 +91,14 @@ public:
 	/**
 	* \brief Compute rod state from its base wrench.
 	* Rod base is independant from this as node positions are computed in local base frame.
-	* Returns false if given configuration was singular.
+  * The corresponding rod state will be updated only if the result of integration leads to 
+  * WorkspaceIntegratedState::IR_VALID (see enum WorkspaceIntegratedState::IntegrationResultT).
+	* \return The corresponding integration result status (see enum WorkspaceIntegratedState::IntegrationResultT).
+	*	Note that IR_OUT_OF_WRENCH_BOUNDS cannot be returned, as out of bounds detection for internal
+	* rod wrenches is not implemented yet.
 	*/
-	bool integrateStateFromBaseWrench(const Wrench2D& i_wrench, const Displacement2D& i_basePos,
-		const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
+	WorkspaceIntegratedState::IntegrationResultT integrateStateFromBaseWrench(const Wrench2D& i_wrench, 
+    const Displacement2D& i_basePos, const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
 
 	/************************************************************************/
 	/*														Static members														*/
