@@ -17,6 +17,8 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
+/** Common helper functions. */
+
 #ifndef QSERL_UTIL_UTILS_H_
 #define QSERL_UTIL_UTILS_H_
 
@@ -28,11 +30,15 @@
 
 namespace util {
 
-/** Common helper functions. */
-
+/**
+* Square function.
+*/
 template<class T>
 inline T sqr(T a) { return a*a; }
 
+/**
+* Clamps the value v to the bounds [mn, mx].
+*/
 template<class T>
 inline T clamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
 
@@ -42,10 +48,15 @@ inline T clamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
 */
 template<unsigned int X, unsigned int Y>
 struct power { enum { value = X * power<X, Y - 1>::value, }; };
-
+/**
+* Specialization of the static power function as stopping criterion.
+*/
 template<unsigned int X>
 struct power<X, 0> { enum { value = 1, }; };
 
+/**
+* Rounding function.
+*/
 template<class Real, int N>
 inline Real round(Real val)
 {
@@ -53,13 +64,30 @@ inline Real round(Real val)
 	return static_cast<Real>(static_cast<int>(val * p + 0.5) / static_cast<Real>(p));
 }
 
-
-/** rand utils
+/**
+* \brief Implementation of the signum function. Returns:
+* 1 if a > 0
+* 0 if a = 0
+* -1 if a < 0
 */
+template<typename T>
+inline signed char sign(T a) { return (static_cast<signed char>(a > static_cast<T>(0)) - 
+  static_cast<signed char>(a < static_cast<T>(0))); }
 
+/**
+* \brief Non-null version of the signum function. Returns:
+* 1 if a >= 0
+* -1 if a < 0
+*/
+template<typename T>
+inline signed char sigpos(T a) { return (a >= static_cast<T>(0) ? 1 : -1); }
+
+/** rand utils */
+
+/** TODO doc. */
 double rand_interval(double rmin, double rmax);
 
-/** Stats utils **/
+/** Stats utils */
 
 /**
 * \brief Computes mean and standard deviation of a set of values
@@ -79,6 +107,7 @@ void computeMeanAndStdDev(const std::vector<T>& i_values, T& o_mean, T& o_stdDev
 }
 
 /** Eigen utils */
+/** TODO doc. */
 
 inline Eigen::Matrix3d hat(const Eigen::Vector3d& i_v)
 {
@@ -109,7 +138,9 @@ void transformationMatrixToByrantAngles(const Eigen::Matrix4d& trans, double& x,
 
 void rotationMatrixToByrantAngles(const Eigen::Matrix3d& rot, double& rx, double& ry, double& rz);
 
-/** Date/time tools.
+/** Date/time tools. *
+
+/**
  * Returns a string from given ptime with format "CCYYMMDD_hhmmss"
  */
 std::string formatTime(boost::posix_time::ptime now);
