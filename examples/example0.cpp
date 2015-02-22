@@ -4,7 +4,6 @@
 
 int main ()
 {
-  using std::cout; using std::endl; cout<<"Init ok"<<endl;
   using namespace qserl;
   using namespace rod2d;
 
@@ -43,9 +42,6 @@ int main ()
 
 	if (intResult != WorkspaceIntegratedState::IR_SINGULAR)
   {
-
-    cout <<"isNotSingular"<<endl;
-
     WorkspaceIntegratedStateShPtr integratedState1 = planarRod->integratedState();
 
     // here we can access to rod geometry (and more as wrenches as we defined some specific
@@ -53,18 +49,19 @@ int main ()
 
     // For example, we can express the rod geometry (node by node) in the global frame
     // instead of rod base frame this way
-    Eigen::Displacementd base3D = toDisplacement3D(rodBasePosition);
+    const Eigen::Displacementd base3D = toDisplacement3D(rodBasePosition);
     for (std::vector<Displacement2D>::const_iterator itNode = integratedState1->nodes().begin();
       itNode != integratedState1->nodes().end(); ++itNode)
     {
                 // we will tranform our 2D 'pseudo'-displacement to 3D displacements
                 // which will make transformations and manipulation easier
-                Eigen::Displacementd node3D = toDisplacement3D(*itNode);
-                Eigen::Displacementd node3DGlobal = base3D * node3D;
+                const Eigen::Displacementd node3D = toDisplacement3D(*itNode);
+                const Eigen::Displacementd node3DGlobal = base3D * node3D;
 
-    } //for
+                // ... do something with the current rod node position ...
+    }
 
-  } //if
+  }
 
 
 } //main
