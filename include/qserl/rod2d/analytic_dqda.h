@@ -17,13 +17,13 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-/** Helper for analytic computation of mu values. 
+/** Helper for analytic computation of da / da  values. 
 * Just for experimentation, should not be used as long term.
 */
 
 
-#ifndef ANALYTIC_MU_H_
-#define ANALYTIC_MU_H_
+#ifndef ANALYTIC_DQDA_H_
+#define ANALYTIC_DQDA_H_
 
 #include "qserl/exports.h"
 
@@ -34,22 +34,49 @@
 namespace qserl {
 namespace rod2d {
 
-struct MotionConstants
+struct MotionConstantsDqDa
 {
-  double lambda[4];
+  // general constants
+  Eigen::Vector4d lambda;
   double delta;
-  double alpha[3];
+  Eigen::Vector3d alpha;
   double k; // defined as the modulus m = k^2, as Boost elliptic functions impl. uses k instead of m
-  //double m;
+  double m;
   double n;
   double r;
   double eta;
   double tau;
   signed char epsilon_tau;
   signed char epsilon_k;
+  double gamma_0;
+  double sn_gamma_0;
+  double cn_gamma_0;
+  double dn_gamma_0;
+  double E_am_gamma_0;
+  double beta1_0;
+  double beta2_0;
+
+  // jacobian specific
+  Eigen::Vector3d dlambda2_da;
+  Eigen::Vector3d dlambda4_da;
+  Eigen::Vector3d ddelta_da;
+  Eigen::Matrix3d dalpha_da;
+  Eigen::Vector3d dm_da;
+  Eigen::Vector3d dn_da;
+  Eigen::Vector3d dr_da;
+  Eigen::Vector3d deta_da;
+  Eigen::Vector3d dtau_da;
+  Eigen::Vector3d dgamma_0_da;
+  Eigen::Vector3d dsn_gamma_0_da;
+  Eigen::Vector3d dcn_gamma_0_da;
+  Eigen::Vector3d ddn_gamma_0_da;
+  Eigen::Vector3d dE_am_gamma_0_da;
+  Eigen::Vector3d dbeta1_0_da;
+  Eigen::Vector3d dbeta2_0_da;
 
   // precomputed constants 
   //double sqrt_alpha3; // = sqrt(alpha[2])
+  //double  inv_r;
 };
 
 /**
@@ -60,24 +87,12 @@ struct MotionConstants
 *             a[2] is rod base force along y
 * \param[out] o_motionConstants Constants of motion for the rod
 */
-QSERL_EXPORT void computeMotionConstants_old(const Eigen::Vector3d& i_a, MotionConstants& o_motionConstants);
+QSERL_EXPORT bool computeMotionConstantsDqDa(const Eigen::Vector3d& i_a, MotionConstantsDqDa& o_mc);
 
-QSERL_EXPORT bool computeMotionConstants(const Eigen::Vector3d& i_a, MotionConstants& o_motionConstants);
-
-/**
-* \brief Compute internal rod wrenches (in body frame) at the position t along the rod.
-* \param[in]  i_t Normalized position t along the rod between [0,1] for computing the mu(t) values
-* \param[in]  i_motionConstants Constants of motion for the rod
-* \param[out] o_mu Internal rod wrenches (body frame) where:
-*             o_mu[0] = k(t)                             (torque)
-*             o_mu[1] = 0.5 * ( k(t)^2 + lambda2)        (force along x)
-*             o_mu[2] = -k_dot(t)                        (force along y)
-*/
-QSERL_EXPORT void computeMuAtPositionT_old(double i_t, const MotionConstants& i_motionConstants, Eigen::Vector3d& o_mu);
-
-QSERL_EXPORT bool computeMuAtPositionT(double i_t, const MotionConstants& i_motionConstants, Eigen::Vector3d& o_mu);
+QSERL_EXPORT bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& i_mc, 
+  Eigen::Matrix3d& o_dqda);
 
 }	// namespace rod2d
 }	// namespace qserl
 
-#endif // ANALYTIC_MU_H_
+#endif // ANALYTIC_DQDA_H_
