@@ -28,6 +28,7 @@
 #include <Eigen/Lgsm>
 #pragma warning( pop )
 
+namespace qserl {
 namespace util {
 
 /**
@@ -105,38 +106,6 @@ void computeMeanAndStdDev(const std::vector<T>& i_values, T& o_mean, T& o_stdDev
 	o_stdDev /= i_values.size();
 	o_stdDev = sqrt(static_cast<T>(o_stdDev));
 }
-
-/** Eigen utils */
-/** TODO doc. */
-
-inline Eigen::Matrix3d hat(const Eigen::Vector3d& i_v)
-{
-	Eigen::Matrix3d out;
-	out << 0, -i_v[2], i_v[1],
-		i_v[2], 0, -i_v[0],
-		-i_v[1], i_v[0], 0;
-	return out;
-}
-
-Eigen::Matrix4d GetHomogenousMatrix(const Eigen::Displacementd & disp);
-
-Eigen::Matrix4d GetTransformationMatrix(const Eigen::Matrix4d & H, const Eigen::Vector3d & scale);
-
-Eigen::Matrix4d GetTransformationMatrix(const Eigen::Displacementd & disp, const Eigen::Vector3d & scale);
-
-Eigen::Vector3d GetScaleFromMatrix(const Eigen::Matrix4d &TM);
-
-Eigen::Vector3d GetTranslationFromMatrix(const Eigen::Matrix4d &TM);
-
-Eigen::Rotation3d GetRotationFromMatrix(const Eigen::Matrix4d & TM);
-
-Eigen::Matrix3d rotationMatrixFromBryantAngles(double rx, double ry, double rz);
-
-Eigen::Matrix4d transformationMatrixFromByrantAngles(double x, double y, double z, double rx, double ry, double rz);
-
-void transformationMatrixToByrantAngles(const Eigen::Matrix4d& trans, double& x, double& y, double& z, double& rx, double& ry, double& rz);
-
-void rotationMatrixToByrantAngles(const Eigen::Matrix3d& rot, double& rx, double& ry, double& rz);
 
 /** Date/time tools. *
 
@@ -218,5 +187,6 @@ Eigen::Vector4f getJetColor(double v, double vmin, double vmax);
 double peaks(double x, double y);
 
 } // namespace util
+} // namespace qserl
 
 #endif // QSERL_UTIL_UTILS_H_

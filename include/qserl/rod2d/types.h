@@ -57,6 +57,17 @@ inline Eigen::Displacementd toDisplacement3D(const Displacement2D& i_disp)
 		Eigen::AngleAxisd(i_disp[2], Eigen::Vector3d::UnitZ()));
 }
 
+/**< Helper transforming a 2-dimensional pseudo-displacement into a homogeneous 3x3 matrix.
+*/
+inline void toHomogeneousMatrix(const Displacement2D& i_disp, Eigen::Matrix3d& o_mat)
+{
+  const double cos_theta = cos(i_disp[2]);
+  const double sin_theta = sin(i_disp[2]);
+	o_mat << cos_theta,  -sin_theta,  i_disp[0],
+           sin_theta,  cos_theta,  i_disp[1],
+           0.,          0.,         1.;
+}
+
 /**< Helper transforming a 2-dimensional pseudo-wrench into a 3D wrench.
 */
 inline Eigen::Wrenchd toWrench3D(const Wrench2D& i_wrench)
