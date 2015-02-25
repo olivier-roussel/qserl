@@ -85,10 +85,17 @@ struct MotionConstantsDqDa
 *             a[0] is rod base torque
 *             a[1] is rod base force along x
 *             a[2] is rod base force along y
-* \param[out] o_motionConstants Constants of motion for the rod
+* \param[out] o_motionConstants Constants of motion for the rod.
+* \return false if a(i) (i=1..3) values corresponds to a unhandled special case (then motion constants 
+*   will not be valid).
 */
 QSERL_EXPORT bool computeMotionConstantsDqDa(const Eigen::Vector3d& i_a, MotionConstantsDqDa& o_mc);
 
+/**
+* \pre a(i) (i=3..5) values corresponding to given motion constants must respect the unhandled following cases:
+*   - if Case I (includes Case III) i.e. lambda4 >= 0, then a3 != 0 and a5 != 0
+*   - if Case II i.e. lambda4 < 0, then a5 != 0 (a3 cannot be null in this case)
+*/
 QSERL_EXPORT bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& i_mc, 
   Eigen::Matrix3d& o_dqda);
 

@@ -52,7 +52,7 @@ endif()
 # Set EIGEN_DONT_ALIGN definition for 32bits platforms
 # XXX crashes if not set also under MSVC10 Win64 _ 
 #if(NOT CMAKE_CL_64)
-	add_definitions(-DEIGEN_DONT_ALIGN)
+#	add_definitions(-DEIGEN_DONT_ALIGN)
 #endif()
 
 # -------------------------------------

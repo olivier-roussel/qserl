@@ -109,29 +109,17 @@ bool computeMotionConstantsDqDa(const Eigen::Vector3d& i_a, MotionConstantsDqDa&
       const double E_arcsin_eta = boost::math::ellint_2(o_mc.k, arcsin_eta);
       o_mc.tau = o_mc.epsilon_tau * arcsn_eta * inv_r;
 
-      //if (i_a[0] != 0.)
-      //{
-      //  if (i_a[2] != 0.)
-      //  {
-          o_mc.deta_da = 0.5 * inv_eta * (sqrd_a3 * util::sqr(inv_alpha3)) * (o_mc.dalpha_da.col(2) - 
-            Eigen::Vector3d(2*o_mc.alpha[2] / i_a[0], 0., 0.));
-          const double darcsn_eta_deta = 1. / (sqrt(1. - eta_sqrd) * sqrt(1. - o_mc.m*eta_sqrd));
-          double cn_F_arcsin_eta, dn_F_arcsin_eta, dummy;
-          const double sn_F_arcsin_eta = boost::math::jacobi_elliptic(o_mc.k, arcsn_eta, 
-            &cn_F_arcsin_eta, &dn_F_arcsin_eta, &dummy); 
-          const double cd_F_arcsin_eta = cn_F_arcsin_eta / dn_F_arcsin_eta;
-          const double darcsn_eta_dm = (E_arcsin_eta - m1*arcsn_eta - o_mc.m*o_mc.eta*cd_F_arcsin_eta) /
-            (2.*m1*o_mc.m);
-          const Eigen::Vector3d darcsn_eta_da = darcsn_eta_deta * o_mc.deta_da + darcsn_eta_dm * o_mc.dm_da;
-          o_mc.dtau_da = (o_mc.epsilon_tau * inv_r) * (-inv_r * o_mc.dr_da * arcsn_eta + darcsn_eta_da);
-        //}else{
-          //// unhandled singularity for the deta_da here (eta = 0 => eta^-1 goes inf)
-          //return false;
-        //}
-      //}else{
-        //// unhandled singularity for the dtau_da here
-        //return false;
-      //}
+      o_mc.deta_da = 0.5 * inv_eta * (sqrd_a3 * util::sqr(inv_alpha3)) * (o_mc.dalpha_da.col(2) - 
+        Eigen::Vector3d(2*o_mc.alpha[2] / i_a[0], 0., 0.));
+      const double darcsn_eta_deta = 1. / (sqrt(1. - eta_sqrd) * sqrt(1. - o_mc.m*eta_sqrd));
+      double cn_F_arcsin_eta, dn_F_arcsin_eta, dummy;
+      const double sn_F_arcsin_eta = boost::math::jacobi_elliptic(o_mc.k, arcsn_eta, 
+        &cn_F_arcsin_eta, &dn_F_arcsin_eta, &dummy); 
+      const double cd_F_arcsin_eta = cn_F_arcsin_eta / dn_F_arcsin_eta;
+      const double darcsn_eta_dm = (E_arcsin_eta - m1*arcsn_eta - o_mc.m*o_mc.eta*cd_F_arcsin_eta) /
+        (2.*m1*o_mc.m);
+      const Eigen::Vector3d darcsn_eta_da = darcsn_eta_deta * o_mc.deta_da + darcsn_eta_dm * o_mc.dm_da;
+      o_mc.dtau_da = (o_mc.epsilon_tau * inv_r) * (-inv_r * o_mc.dr_da * arcsn_eta + darcsn_eta_da);
 
       // compute last intermediate constants of motions
       o_mc.gamma_0 = o_mc.r * o_mc.tau;
@@ -318,6 +306,13 @@ bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& i_mc, Eigen::
   double k_dot_t = 0.;
   if (i_mc.lambda[3] >= 0.)
   {
+    //if (abs(i_a[0]) < kEpsilonNullTorque)
+    //  return false;
+
+    //// a5 = 0 => unhandled singularity for the deta_da here (eta = 0 => eta^-1 goes inf)
+    //if (abs(i_a[2]) < kEpsilonNullForce)
+    //  return false;
+
     // case I : lambda4 > 0 (also embeds case III where lambda4 == 0)
     if (!(i_mc.lambda[3] == 0. && i_mc.lambda[1] < 0.))
     {
@@ -382,16 +377,17 @@ bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& i_mc, Eigen::
         i_mc.beta1_0 - i_mc.dbeta2_0_da * int_beta1 - dint_beta1_da * i_mc.beta2_0))).transpose();
 
 
-    }else if (i_mc.lambda[3] == 0. && i_mc.lambda[1] == 0){
-      // lambda4 == 0 and lambda2 == 0 => all a_i are nulls
-      // TODO
-      return false;
-    }else{
-      // unhandled case corresponding to a3 == a5 == 0 (abnormal case)
-      // TODO
-      return false;
     }
+    //else if (i_mc.lambda[3] == 0. && i_mc.lambda[1] == 0){
+    //  // lambda4 == 0 and lambda2 == 0 => all a_i are nulls
+    //  // TODO
+    //  return false;
+    //}
   }else if (i_mc.lambda[3] < 0.){
+    // a5 = 0 => unhandled singularity for the deta_da here (eta = 0 => eta^-1 goes inf)
+    //if (abs(i_a[2]) < kEpsilonNullForce)
+    //  return false;
+
     // case II : lambda4 < 0
     if (i_mc.k != 0.)
     {
@@ -459,11 +455,12 @@ bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& i_mc, Eigen::
       // dq3 / da (q3 is y position)
       o_dqda.row(2) = (2 * i_mc.epsilon_k *(i_mc.dbeta1_0_da * int_beta2 + i_mc.beta1_0 * 
             dint_beta2_da - i_mc.dbeta2_0_da * int_beta1 - i_mc.beta2_0 * dint_beta1_da)).transpose();
-    }else{
-      // case II.2 : a4 == 0  and a5 == 0 (i.e. m == 0)
-
-      // TODO
     }
+    //else{
+    //  // case II.2 : a4 == 0  and a5 == 0 (i.e. m == 0)
+
+    //  // TODO
+    //}
   }
   return true;
 }

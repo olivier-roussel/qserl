@@ -182,7 +182,7 @@ protected:
 			Returns false if the input wrench cannot be integrated (singular configurations). */
 	IntegrationResultT integrateFromBaseWrench(const Wrench2D& i_wrench);
 
-	bool																										m_isIntegrated;	/**< True if the state has been integrated.*/
+	bool																										m_isInitialized;/**< True if the state has been integrated.*/
 	bool																										m_isStable;			/**< True if DLO state is stable. */
 	std::vector<costate_type>																m_mu;						/**< mu : internal wrenches at each nodes in body frame (N elements). */
 	std::vector<Eigen::Matrix<double, 3, 3> >								m_M;						/**< dmu / da jacobian matrices (N elements).*/

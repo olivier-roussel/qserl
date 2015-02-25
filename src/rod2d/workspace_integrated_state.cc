@@ -42,7 +42,7 @@ WorkspaceIntegratedState::WorkspaceIntegratedState(/*unsigned int i_nnodes, */
 	const Displacement2D& i_basePosition,	const Parameters& i_rodParams):
 WorkspaceState(std::vector<Displacement2D>(), i_basePosition, i_rodParams),
 	m_integrationOptions(), // initialize to default values
-	m_isIntegrated(false)
+	m_isInitialized(false)
 {
   assert ( m_rodParameters.delta_t > 0. && "step integration time must be stricly positive" );
 	m_numNodes = m_rodParameters.numberOfNodes();
@@ -88,7 +88,7 @@ bool WorkspaceIntegratedState::init(const Wrench2D& i_wrench)
 	bool success = true;
 
 	m_isStable = false;
-	m_isIntegrated = false;
+	m_isInitialized = false;
 
 	m_mu.resize(1);
 	m_mu[0] = i_wrench;
@@ -109,7 +109,6 @@ WorkspaceStateShPtr WorkspaceIntegratedState::clone() const
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate()
 {
-	m_isIntegrated = true;
 	return integrateFromBaseWrench(m_mu[0]);
 }
 
@@ -123,7 +122,9 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 	const double dt = m_rodParameters.delta_t;
 	//const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
 
-	if (Rod::isConfigurationSingular(i_wrench))
+	m_isInitialized = true;
+
+  if (Rod::isConfigurationSingular(i_wrench))
 		return IR_SINGULAR;
 
 	// 1. solve the costate system to find mu
@@ -255,7 +256,7 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 /************************************************************************/
 bool WorkspaceIntegratedState::isStable() const
 {
-	assert( m_isIntegrated && "the state must be integrated first" );
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_isStable;
 }
 
@@ -264,7 +265,7 @@ bool WorkspaceIntegratedState::isStable() const
 /************************************************************************/
 Wrench2D WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 {
-	assert( m_isIntegrated && "the state must be integrated first" );
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_mu[i_idxNode];
 }
 
@@ -273,7 +274,7 @@ Wrench2D WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 /************************************************************************/
 const std::vector<WorkspaceIntegratedState::costate_type>& WorkspaceIntegratedState::mu() const
 {
-	assert( m_isIntegrated && "the state must be integrated first" );
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_mu;
 }
 
@@ -282,7 +283,7 @@ const std::vector<WorkspaceIntegratedState::costate_type>& WorkspaceIntegratedSt
 /************************************************************************/
 const Eigen::Matrix<double, 3, 3>& WorkspaceIntegratedState::getMMatrix(size_t i_nodeIdx) const
 {
-	assert( m_isIntegrated && "the state must be integrated first" );
+	assert( m_isInitialized && "the state must be integrated first" );
 	assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
 	return m_M[i_nodeIdx];
 }
@@ -292,7 +293,7 @@ const Eigen::Matrix<double, 3, 3>& WorkspaceIntegratedState::getMMatrix(size_t i
 /************************************************************************/
 const Eigen::Matrix<double, 3, 3>& WorkspaceIntegratedState::getJMatrix(size_t i_nodeIdx) const
 {
-	assert( m_isIntegrated && "the state must be integrated first" );
+	assert( m_isInitialized && "the state must be integrated first" );
 	assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
 	return m_J[i_nodeIdx];
 }
@@ -302,7 +303,7 @@ const Eigen::Matrix<double, 3, 3>& WorkspaceIntegratedState::getJMatrix(size_t i
 /************************************************************************/
 const std::vector<double>& WorkspaceIntegratedState::J_det() const
 {
-	assert( m_isIntegrated && "the state must be integrated first" );
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_J_det;
 }
 
@@ -347,7 +348,9 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 	//const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
 	o_tinv = -1.;
 
-	if (Rod::isConfigurationSingular(m_mu[0]))
+	m_isInitialized = true;
+
+  if (Rod::isConfigurationSingular(m_mu[0]))
 		return IR_SINGULAR;
 
 	const double stiffnessCoefficient = Rod::getStiffnessCoefficients(m_rodParameters);
