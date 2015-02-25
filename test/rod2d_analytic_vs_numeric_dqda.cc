@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_singular_a4_1)
 //}
 
 // singularity with a4 = a5 = 0 _ not handled TODO
-//BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseI_singular_a4_a5_1)
+//BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_singular_a4_a5_1)
 //{
 //  Eigen::Vector3d wrench(1., 0., 0.);
 //  static const double errorTolerance = 1.e-3; // tolerance on the error of dq(i) / da(j) between

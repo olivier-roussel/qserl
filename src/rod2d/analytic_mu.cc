@@ -79,6 +79,7 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
       o_mc.alpha[1] = 0.;
       o_mc.alpha[2] = 0.;
 
+      o_mc.m = 0.; // undefined ?
       o_mc.k = 0.; // undefined ?
       o_mc.n = 0.; // undefined ?
       o_mc.r = 0.;
@@ -100,8 +101,9 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
 
       const double sqrt_alpha3 = sqrt(o_mc.alpha[2]);
 
-      o_mc.k = sqrt(2*sqrt_delta / (o_mc.lambda[1] + sqrt_delta));
-      o_mc.n = util::sqr(o_mc.k);
+      o_mc.m = 2*sqrt_delta / (o_mc.lambda[1] + sqrt_delta);
+      o_mc.k = sqrt(o_mc.m);
+      o_mc.n = o_mc.m;
       o_mc.r = 0.5 * sqrt_alpha3;
 
       const double eta_sqrd = util::clamp((1. - sqrd_a3 / o_mc.alpha[2]) / o_mc.n, 0., 1.);
@@ -113,8 +115,9 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
       o_mc.alpha[1] = util::sqr(i_a[0]);
       o_mc.alpha[2] = o_mc.alpha[1];
 
-      o_mc.k = 0;
-      o_mc.n = 0;
+      o_mc.m = 0.;
+      o_mc.k = 0.;
+      o_mc.n = 0.;
       o_mc.r = 0.5 * i_a[0];
 
       o_mc.eta = 0.;

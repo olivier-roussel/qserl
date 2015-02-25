@@ -105,7 +105,6 @@ bool computeMotionConstantsDqDa(const Eigen::Vector3d& i_a, MotionConstantsDqDa&
       // note that arcsn_eta == F_arcsin_eta
       const double arcsin_eta = asin(o_mc.eta);
       const double arcsn_eta = boost::math::ellint_1(o_mc.k, arcsin_eta);
-      // TODO elliptics integrals of the 1st and second kind code can be factorized for the same parameters
       const double E_arcsin_eta = boost::math::ellint_2(o_mc.k, arcsin_eta);
       o_mc.tau = o_mc.epsilon_tau * arcsn_eta * inv_r;
 
@@ -188,6 +187,8 @@ bool computeMotionConstantsDqDa(const Eigen::Vector3d& i_a, MotionConstantsDqDa&
     if (abs(i_a[1]) > kEpsilonNullForce || abs(i_a[2]) > kEpsilonNullForce)
     {
       // case II.1 : a4 != 0  and a5 != 0 (i.e. m != 0)
+      //assert (abs(i_a[0]) > kEpsilonNullTorque);
+      //assert (abs(i_a[1]) > kEpsilonNullForce || abs(i_a[2]) > kEpsilonNullForce);
 
       // compute alphas (solutions of the cubic) and its derivatives
       o_mc.alpha[0] = 0.;
