@@ -22,8 +22,8 @@
 */
 
 
-#ifndef ANALYTIC_MU_H_
-#define ANALYTIC_MU_H_
+#ifndef QSERL_2D_ANALYTIC_MU_H_
+#define QSERL_2D_ANALYTIC_MU_H_
 
 #include "qserl/exports.h"
 
@@ -80,4 +80,4 @@ QSERL_EXPORT bool computeMuAtPositionT(double i_t, const MotionConstantsMu& i_mo
 }	// namespace rod2d
 }	// namespace qserl
 
-#endif // ANALYTIC_MU_H_
+#endif // QSERL_2D_ANALYTIC_MU_H_

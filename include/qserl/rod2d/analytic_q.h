@@ -22,8 +22,8 @@
 */
 
 
-#ifndef ANALYTIC_Q_H_
-#define ANALYTIC_Q_H_
+#ifndef QSERL_2D_ANALYTIC_Q_H_
+#define QSERL_2D_ANALYTIC_Q_H_
 
 #include "qserl/exports.h"
 
@@ -93,4 +93,4 @@ QSERL_EXPORT bool computeQAtPositionT(double i_t, const Eigen::Vector3d& i_a,
 }	// namespace rod2d
 }	// namespace qserl
 
-#endif // ANALYTIC_Q_H_
+#endif // QSERL_2D_ANALYTIC_Q_H_

@@ -22,8 +22,8 @@
 */
 
 
-#ifndef ANALYTIC_DQDA_H_
-#define ANALYTIC_DQDA_H_
+#ifndef QSERL_2D_ANALYTIC_DQDA_H_
+#define QSERL_2D_ANALYTIC_DQDA_H_
 
 #include "qserl/exports.h"
 
@@ -102,4 +102,4 @@ QSERL_EXPORT bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& 
 }	// namespace rod2d
 }	// namespace qserl
 
-#endif // ANALYTIC_DQDA_H_
+#endif // QSERL_2D_ANALYTIC_DQDA_H_
