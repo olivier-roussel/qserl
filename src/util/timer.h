@@ -22,6 +22,7 @@
 
 #include <boost/chrono.hpp>
 
+namespace qserl {
 namespace util {
 
 typedef boost::chrono::high_resolution_clock::time_point TimePoint;
@@ -34,5 +35,6 @@ boost::chrono::milliseconds getElapsedTimeMsec(const TimePoint& start);
 boost::chrono::seconds getElapsedTimeSec(const TimePoint& start);
 
 } // namespace util
+} // namespace qserl
 
 #endif // QSERL_UTIL_TIMER_H_

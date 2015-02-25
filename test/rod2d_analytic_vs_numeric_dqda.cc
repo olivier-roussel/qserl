@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(Analytic_DqDa_Benchmarking_Full_RandomSet)
   int successfullMotionConstants = 0;
   int successfullDqDa = 0;
 
-	util::TimePoint startBenchTime = util::getTimePoint();
+	qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
   for (size_t idxRun = 0; idxRun < numRuns; ++idxRun)
   {
     for (int k = 0; k < 3; ++k)
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE(Analytic_DqDa_Benchmarking_Full_RandomSet)
       }
     }
   }
-	double benchTimeMs = static_cast<double>(util::getElapsedTimeMsec(startBenchTime).count());
+	double benchTimeMs = static_cast<double>(qserl::util::getElapsedTimeMsec(startBenchTime).count());
 	BOOST_TEST_MESSAGE( "Num runs: " << numRuns << " / success Motion Constants:" << successfullMotionConstants 
     << " / success Jacobian:" << successfullDqDa );
 	BOOST_TEST_MESSAGE( "Benchmarking total time: " << benchTimeMs << "ms for "

@@ -19,6 +19,7 @@
 
 #include "timer.h"
 
+namespace qserl {
 namespace util {
 
 TimePoint getTimePoint()
@@ -47,3 +48,4 @@ boost::chrono::seconds getElapsedTimeSec(const TimePoint& start)
 }
 
 } // namespace util
+} // namespace qserl
