@@ -86,10 +86,13 @@ bool inverseGeometry_Newton(const Eigen::Vector3d& i_q_des, int i_maxIter, doubl
   }
 	double solveTimeUs = static_cast<double>(util::getElapsedTimeUsec(startSolveTime).count());
 
-  const bool success = !singularityFound && !isUnstable;
+  const bool success = !singularityFound && !isUnstable && iter < i_maxIter;
   if (success)
+  {
+    o_a = a_k;
     std::cout << "[PROGRESS] inverseGeometry_Newton(): succefully solved after " << iter << " iterations" <<
     " _ took " << solveTimeUs << "us" << std::endl;
+  }
   return success;
 }
 
