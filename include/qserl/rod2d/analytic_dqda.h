@@ -27,6 +27,8 @@
 
 #include "qserl/exports.h"
 
+#include "qserl/rod2d/analytic_q.h"
+
 #pragma warning( push, 0 )	
 #include <Eigen/Lgsm>
 #pragma warning( pop )	
@@ -37,24 +39,7 @@ namespace rod2d {
 struct MotionConstantsDqDa
 {
   // general constants
-  Eigen::Vector4d lambda;
-  double delta;
-  Eigen::Vector3d alpha;
-  double k; // defined as the modulus m = k^2, as Boost elliptic functions impl. uses k instead of m
-  double m;
-  double n;
-  double r;
-  double eta;
-  double tau;
-  signed char epsilon_tau;
-  signed char epsilon_k;
-  double gamma_0;
-  double sn_gamma_0;
-  double cn_gamma_0;
-  double dn_gamma_0;
-  double E_am_gamma_0;
-  double beta1_0;
-  double beta2_0;
+  MotionConstantsQ qc;
 
   // jacobian specific
   Eigen::Vector3d dlambda2_da;
