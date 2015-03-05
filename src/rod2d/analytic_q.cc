@@ -204,7 +204,8 @@ bool computeQAtPositionT(double i_t, const Eigen::Vector3d& i_a, const MotionCon
       o_qdot[1] =  i_mc.beta1_0 * beta1_t + 4 * i_mc.m * i_mc.beta2_0 * beta2_t;
       o_qdot[2] = 2 * i_mc.epsilon_k * i_mc.k * (i_mc.beta1_0 * beta2_t - beta1_t * i_mc.beta2_0);
 
-      o_q[0] = i_mc.epsilon_k * 2 * (acos(dn_gamma_t) - acos(i_mc.dn_gamma_0));
+      //o_q[0] = i_mc.epsilon_k * 2 * (acos(dn_gamma_t) - acos(i_mc.dn_gamma_0)); WRONG !
+      o_q[0] = atan2(o_qdot[2], o_qdot[1]);
       o_q[1] = i_mc.beta1_0 * int_beta1 + 4 * i_mc.m * i_mc.beta2_0 * int_beta2;
       o_q[2] = 2 * i_mc.epsilon_k * i_mc.k * (i_mc.beta1_0 * int_beta2 - i_mc.beta2_0 * int_beta1);
 

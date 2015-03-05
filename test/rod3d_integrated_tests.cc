@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 	integrationOptions.keepMMatrices = false;
 	integrationOptions.keepJMatrices = true;
 
-	util::TimePoint startBenchTime = util::getTimePoint();
+	qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
 	Eigen::Wrenchd wrench;
 	static const int numSamples = 2000;
 	int validSamples = 0;
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 		if (isNotSingular && rodState->isStable())
 			++validSamples;
 	}
-	double benchTimeMs = util::getElapsedTimeMsec(startBenchTime).count();
+	double benchTimeMs = qserl::util::getElapsedTimeMsec(startBenchTime).count();
 	BOOST_TEST_MESSAGE( "Benchmarking 3D extensible rods total time: " << benchTimeMs << "ms for " << numSamples << " integrated rods" );
 	double benchTimePerRodUs = benchTimeMs * 1.e3 / static_cast<double>(numSamples);
 	BOOST_TEST_MESSAGE( "  Avg. integration time per rod = " << benchTimePerRodUs << "us for " << rodParameters.numNodes << " nodes" );

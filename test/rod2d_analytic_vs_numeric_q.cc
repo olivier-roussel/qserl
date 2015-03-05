@@ -77,14 +77,27 @@ void compareAnalyticAndNumericQ(const Eigen::Vector3d& i_wrench, double i_errorT
       // TODO also check q_dot(t)
       // ----------------------------------
 
-      const qserl::rod2d::Displacement2D q_disp2D_num = rodState->nodes()[idxNode];
+      qserl::rod2d::Displacement2D q_disp2D_num = rodState->nodes()[idxNode];
 
-      // TODO q_disp2D_num[2] is NOT correct _ FIXME
       // thus this is discarded in the test so far
-      for (size_t j = 1; j < 3; ++j)
+      for (size_t j = 0; j < 3; ++j)
       {
         size_t jNum = j == 0 ? 2 : j-1; 
-        const double err_q_j = abs(q_al[j] - q_disp2D_num[jNum]);
+        // if testing angle theta, analytic solutions in the case II can give the total amount
+        // of twist (i.e. integration of theta_dot) instead of using normalized theta to [-pi;pi]
+        // as used in numerical integration thanks to the use of atan2
+        // Note that in the case I we have to use atan2 in analytic form of theta, see notes for more details.
+        // So to compare theta between analytic and numerical form, we normalize it to [-pi;pi]
+        // using the (costly but simple) formula: theta_norm = atan2(sin(theta), cos(theta))
+        if (j == 0)
+        {
+          q_al[j] = atan2(sin(q_al[j]), cos(q_al[j]));
+          q_disp2D_num[jNum] = atan2(sin(q_disp2D_num[jNum]), cos(q_disp2D_num[jNum]));
+        }
+        double err_q_j = abs(q_al[j] - q_disp2D_num[jNum]);
+        if (j == 0)
+          err_q_j = atan2(sin(err_q_j), cos(err_q_j));
+
         maxError = std::max(maxError, err_q_j);
         BOOST_CHECK_SMALL( err_q_j, i_errorTolerance );
       }
@@ -106,7 +119,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseI_set1)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;            // integration resolution will impact on divergence with 
+	rodParameters.delta_t = 1.e-4;            // integration resolution will impact on divergence with 
                                             // analytical forms
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
@@ -122,7 +135,23 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseI_set2)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;              // integration resolution will impact on divergence with 
+	rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with 
+                                              // analytical forms 
+
+  compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
+}
+
+BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseI_set3)
+{
+  Eigen::Vector3d wrench(2.5, 8., -16.);
+  static const double errorTolerance = 1.e-3; // tolerance on the error of dq(i) / da(j) between
+                                              // analytical and numerically integrated expressions
+  qserl::rod2d::Parameters rodParameters;
+	rodParameters.radius = 1.;
+	rodParameters.length = 1.;
+	rodParameters.integrationTime = 1.;
+	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+	rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with 
                                               // analytical forms 
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
@@ -155,7 +184,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseI_singular_a4_1)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;              // integration resolution will impact on divergence with 
+	rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with 
                                               // analytical forms
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
@@ -172,7 +201,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseI_singular_a5_1)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;
+	rodParameters.delta_t = 1.e-4;
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
 }
 
@@ -216,7 +245,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseI_close_singular_a3_1)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;
+	rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
 }
@@ -231,7 +260,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseII_set1)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;
+	rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
 }
@@ -246,7 +275,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseII_set2)
   rodParameters.length = 1.;
   rodParameters.integrationTime = 1.;
   rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-  rodParameters.delta_t = 1.e-3;
+  rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
 }
@@ -261,7 +290,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseII_set3)
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;
+	rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
 }
@@ -277,7 +306,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_Q_CaseII_singular_a4_1)
   rodParameters.length = 1.;
   rodParameters.integrationTime = 1.;
   rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-  rodParameters.delta_t = 1.e-3;
+  rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericQ(wrench, errorTolerance, rodParameters);
 }
