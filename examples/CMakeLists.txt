@@ -44,8 +44,8 @@ macro(add_example name)
 add_executable(${name} ${name}.cpp)
 target_link_libraries(${name} qserl ${Boost_LIBRARIES} )
 add_dependencies(${name} qserl)
-add_test(${name} ${name})
+#add_test(${name} ${name})
 endmacro(add_example)
+
 add_example(example0)
-
-
+add_example(generate_inverse_geometry_benchmark_dataset_2D)
