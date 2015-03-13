@@ -53,6 +53,13 @@ public:
 		IR_NUMBER_OF_INTEGRATION_RESULTS
 	};
 
+	/**< \brief Numerical integrators that can be used for the integration of the rod.*/
+  enum IntegratorT{
+    IN_RK4 = 0,                           /**< Fixed step size with 4-th order Runge Kutta. */
+    //IN_RK45,                              /**< TODO _Adaptative step size with 5-th order Runge Kutta and 4-th order estimation. */
+    IN_NUMBER_OF_INTEGRATORS
+  };
+
 	/**
 	* \brief Destructor.
 	*/
@@ -152,6 +159,13 @@ public:
 		bool									keepJdet;						/**< Default is false. */
 		bool									keepMMatrices;			/**< Default is false. */
 		bool									keepJMatrices;			/**< Default is false. */
+		bool									computeJacobians;	  /**<  True if jacobian matrices M and J should be computed.
+                                              Warning: if set to false, stability cannot be checked and resulting
+                                              shape q(t) and wrenches mu(t) of the rod might be unstable.
+                                              For internal use, this should be set to true.
+                                              Default is true. */
+    IntegratorT           integrator;         /** Integrator to be used in numerical integration.
+                                              Default is RK4.*/
 	};
 
 	/**
@@ -179,8 +193,16 @@ protected:
 
 	/** \brief Returns true if could integrate state (even if it is not a stable
 			state, in which case m_isStable attribute is set to false).
-			Returns false if the input wrench cannot be integrated (singular configurations). */
-	IntegrationResultT integrateFromBaseWrench(const Wrench2D& i_wrench);
+			Returns false if the input wrench cannot be integrated (singular configurations). 
+      Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
+	IntegrationResultT integrateFromBaseWrenchRK4(const Wrench2D& i_wrench);
+
+  /** \brief Returns true if could integrate state (even if it is not a stable
+  state, in which case m_isStable attribute is set to false).
+  Returns false if the input wrench cannot be integrated (singular configurations). 
+  Numerical integration is done through a 5-th order Runge-Kutta with 4-th order error estimation and
+  adaptative step. */
+  IntegrationResultT integrateFromBaseWrenchRK45(const Wrench2D& i_wrench);
 
 	bool																										m_isInitialized;/**< True if the state has been integrated.*/
 	bool																										m_isStable;			/**< True if DLO state is stable. */

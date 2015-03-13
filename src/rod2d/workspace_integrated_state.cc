@@ -109,13 +109,19 @@ WorkspaceStateShPtr WorkspaceIntegratedState::clone() const
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate()
 {
-	return integrateFromBaseWrench(m_mu[0]);
+  WorkspaceIntegratedState::IntegrationResultT status;
+  if (m_integrationOptions.integrator == WorkspaceIntegratedState::IN_RK4)
+	  status = integrateFromBaseWrenchRK4(m_mu[0]);
+  //else if (m_integrationOptions.integrator == WorkspaceIntegratedState::IN_RK45)
+  //  status = integrateFromBaseWrenchRK45(m_mu[0]);
+
+  return status;
 }
 
 /************************************************************************/
-/*												integrateFromBaseWrench												*/
+/*												integrateFromBaseWrenchRK4  									*/
 /************************************************************************/
-WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrench(const Wrench2D& i_wrench)
+WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench2D& i_wrench)
 {
 	static const double ktstart = 0.;													// Start integration time
 	const double ktend = m_rodParameters.integrationTime;			// End integration time
@@ -175,81 +181,249 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 		m_nodes[step_idx] = q_t;
 	}
 
-	// 3. Solve the jacobian system (and check non-degenerescence of matrix J)
-	JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);
-	boost::numeric::odeint::runge_kutta4< jacobian_state_type > jacobianStepper;
-	std::vector<Eigen::Matrix<double, 3, 3> >* M_buffer;
-	if (m_integrationOptions.keepMMatrices)
-	{
-		M_buffer = &m_M;
-		M_buffer->assign(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
-	}else{
-		M_buffer = new std::vector<Eigen::Matrix<double, 3, 3> >(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
-	}
+  if (m_integrationOptions.computeJacobians)
+  {
 
-	std::vector<Eigen::Matrix<double, 3, 3> >* J_buffer;
-	if (m_integrationOptions.keepJMatrices)
-	{
-		J_buffer = &m_J;
-		J_buffer->assign(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
-	}else{
-		J_buffer = new std::vector<Eigen::Matrix<double, 3, 3> >(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
-	}
+    // 3. Solve the jacobian system (and check non-degenerescence of matrix J)
+    JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);
+    boost::numeric::odeint::runge_kutta4< jacobian_state_type > jacobianStepper;
+    std::vector<Eigen::Matrix<double, 3, 3> >* M_buffer;
+    if (m_integrationOptions.keepMMatrices)
+    {
+      M_buffer = &m_M;
+      M_buffer->assign(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+    }else{
+      M_buffer = new std::vector<Eigen::Matrix<double, 3, 3> >(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+    }
 
-	// init M_0 to identity and J_0 to zero
-	jacobian_state_type jacobian_t;
-	Eigen::Map<Eigen::Matrix<double, 3, 3> > M_t_e(jacobian_t.data());
-	Eigen::Map<Eigen::Matrix<double, 3, 3> > J_t_e(jacobian_t.data()+9);
-	M_t_e.setIdentity();
-	J_t_e.setZero();
-	(*M_buffer)[0] = M_t_e;
-	(*J_buffer)[0] = J_t_e;
+    std::vector<Eigen::Matrix<double, 3, 3> >* J_buffer;
+    if (m_integrationOptions.keepJMatrices)
+    {
+      J_buffer = &m_J;
+      J_buffer->assign(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+    }else{
+      J_buffer = new std::vector<Eigen::Matrix<double, 3, 3> >(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+    }
 
-	step_idx = 1;
-	m_isStable = true;
-	bool isThresholdOn = false;
+    // init M_0 to identity and J_0 to zero
+    jacobian_state_type jacobian_t;
+    Eigen::Map<Eigen::Matrix<double, 3, 3> > M_t_e(jacobian_t.data());
+    Eigen::Map<Eigen::Matrix<double, 3, 3> > J_t_e(jacobian_t.data()+9);
+    M_t_e.setIdentity();
+    J_t_e.setZero();
+    (*M_buffer)[0] = M_t_e;
+    (*J_buffer)[0] = J_t_e;
 
-	std::vector<double>* J_det_buffer;
-	if (m_integrationOptions.keepJdet)
-	{
-		J_det_buffer = &m_J_det;
-		J_det_buffer->assign(m_numNodes, 0.);
-	}else
-		J_det_buffer = new std::vector<double>(m_numNodes, 0.);
+    step_idx = 1;
+    m_isStable = true;
+    bool isThresholdOn = false;
 
-	for (double t = ktstart; step_idx < m_numNodes && (!m_integrationOptions.stop_if_unstable || m_isStable) ; 
-		++step_idx, t+=dt)
-	{
-		jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
-		(*M_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data());
-		(*J_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
-		// check if stable
-		double& J_det = (*J_det_buffer)[step_idx];
-		J_det = (*J_buffer)[step_idx].determinant();
-		if (abs(J_det) > JacobianSystem::kStabilityThreshold)
-			isThresholdOn = true;
-		if (isThresholdOn && ( abs(J_det) < JacobianSystem::kStabilityTolerance ||
-			J_det * (*J_det_buffer)[step_idx-1] < 0.) )	// zero crossing
-			m_isStable = false;
-	}
+    std::vector<double>* J_det_buffer;
+    if (m_integrationOptions.keepJdet)
+    {
+      J_det_buffer = &m_J_det;
+      J_det_buffer->assign(m_numNodes, 0.);
+    }else
+      J_det_buffer = new std::vector<double>(m_numNodes, 0.);
+
+    for (double t = ktstart; step_idx < m_numNodes && (!m_integrationOptions.stop_if_unstable || m_isStable) ; 
+      ++step_idx, t+=dt)
+    {
+      jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
+      (*M_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data());
+      (*J_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
+      // check if stable
+      double& J_det = (*J_det_buffer)[step_idx];
+      J_det = (*J_buffer)[step_idx].determinant();
+      if (abs(J_det) > JacobianSystem::kStabilityThreshold)
+        isThresholdOn = true;
+      if (isThresholdOn && ( abs(J_det) < JacobianSystem::kStabilityTolerance ||
+        J_det * (*J_det_buffer)[step_idx-1] < 0.) )	// zero crossing
+        m_isStable = false;
+    }
+
+    if (!m_integrationOptions.keepJdet)
+      delete J_det_buffer;
+
+    if (!m_integrationOptions.keepMMatrices)
+      delete M_buffer;
+
+    if (!m_integrationOptions.keepJMatrices)
+      delete J_buffer;
+  }
 
 	if (!m_integrationOptions.keepMuValues)
 		delete mu_buffer;
-
-	if (!m_integrationOptions.keepJdet)
-		delete J_det_buffer;
-
-	if (!m_integrationOptions.keepMMatrices)
-		delete M_buffer;
-
-	if (!m_integrationOptions.keepJMatrices)
-		delete J_buffer;
 
 	if (!m_isStable)
 		return IR_UNSTABLE;
 
 	return IR_VALID;
 }
+
+/************************************************************************/
+/*												integrateFromBaseWrenchRK45										*/
+/************************************************************************/
+/* TODO _ WIP */
+WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrenchRK45(const Wrench2D& i_wrench)
+{
+  return WorkspaceIntegratedState::IR_NUMBER_OF_INTEGRATION_RESULTS;
+}
+//WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrenchRK45(const Wrench2D& i_wrench)
+//{
+//	static const double ktstart = 0.;													// Start integration time
+//	const double ktend = m_rodParameters.integrationTime;			// End integration time
+//	const double dt = m_rodParameters.delta_t;
+//
+//  static const double kEpsAbs = 1.e-8;
+//  static const double kEpsRel = 1.e-4;
+//
+//	m_isInitialized = true;
+//
+//  m_numNodes = 2; // WARNING ! _ only base and tip of the rod
+//
+//  if (Rod::isConfigurationSingular(i_wrench))
+//		return IR_SINGULAR;
+//
+//	// 1. solve the costate system to find mu
+//	const double stiffnessCoefficient = Rod::getStiffnessCoefficients(m_rodParameters);
+//	const double invStiffness = 1. / stiffnessCoefficient;
+//	CostateSystem costate_system(invStiffness, m_rodParameters.length, m_rodParameters.rodModel);
+//
+//	// init mu(0) = a					(base DLO wrench)
+//	costate_type mu_t = i_wrench;
+//
+//	// until C++0x, there is no convenient way to release memory of a vector 
+//	// so we use temporary allocated vectors if we do not want our instance
+//	// memory print to explode.
+//	std::vector<costate_type>* mu_buffer;
+//	if (m_integrationOptions.keepMuValues)
+//	{
+//		mu_buffer = &m_mu;
+//		mu_buffer->assign(m_numNodes, CostateSystem::defaultState());
+//		m_mu[0] = mu_t;				// store mu_0
+//	}else{
+//		mu_buffer = new std::vector<costate_type>(m_numNodes, CostateSystem::defaultState());
+//		m_mu.assign(1, mu_t); // store mu_0
+//	}
+//
+//	// integrator for costates mu
+//  typedef boost::numeric::odeint::runge_kutta_cash_karp54< costate_type > css_error_stepper_type; // we will use a 5th order Runge-Kutta method 
+//      // with 4th order error estimation and coefficients introduced by Cash and Karp
+//
+//  boost::numeric::odeint::integrate_adaptive( boost::numeric::odeint::make_controlled< css_error_stepper_type >( kEpsAbs , kEpsRel ) ,
+//                    costate_system , mu_t , ktstart , ktend , dt );
+//  m_mu[1] = mu_t;
+//
+//	// 2. solve the state system to find q 
+//	StateSystem state_system(invStiffness, m_rodParameters.length, dt, *mu_buffer, m_rodParameters.rodModel);
+//	m_nodes.resize(m_numNodes);
+//
+//	// init q_0 to identity
+//	state_type q_t = StateSystem::defaultState();
+//	m_nodes[0] = q_t;
+//
+//  typedef boost::numeric::odeint::runge_kutta_cash_karp54< costate_type > sss_error_stepper_type; // we will use a 5th order Runge-Kutta method 
+//  // with 4th order error estimation and coefficients introduced by Cash and Karp
+//
+//  boost::numeric::odeint::integrate_adaptive( boost::numeric::odeint::make_controlled< sss_error_stepper_type >( kEpsAbs , kEpsRel ) ,
+//    state_system , q_t , ktstart , ktend , dt );
+//  m_nodes[1] = q_t;
+//
+//	//boost::numeric::odeint::runge_kutta4< state_type > sss_stepper;
+//	//size_t step_idx = 1;
+//	//for (double t = ktstart; step_idx < m_numNodes ; ++step_idx, t+=dt)
+//	//{
+//	//	sss_stepper.do_step(state_system, q_t, t, dt);
+//	//	m_nodes[step_idx] = q_t;
+//	//}
+//
+//  if (m_integrationOptions.computeJacobians)
+//  {
+//    // 3. Solve the jacobian system (and check non-degenerescence of matrix J)
+//    JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);
+//    //boost::numeric::odeint::runge_kutta4< jacobian_state_type > jacobianStepper;
+//    std::vector<Eigen::Matrix<double, 3, 3> >* M_buffer;
+//    if (m_integrationOptions.keepMMatrices)
+//    {
+//      M_buffer = &m_M;
+//      M_buffer->assign(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+//    }else{
+//      M_buffer = new std::vector<Eigen::Matrix<double, 3, 3> >(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+//    }
+//
+//    std::vector<Eigen::Matrix<double, 3, 3> >* J_buffer;
+//    if (m_integrationOptions.keepJMatrices)
+//    {
+//      J_buffer = &m_J;
+//      J_buffer->assign(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+//    }else{
+//      J_buffer = new std::vector<Eigen::Matrix<double, 3, 3> >(m_numNodes, Eigen::Matrix<double, 3, 3>::Zero());
+//    }
+//
+//    // init M_0 to identity and J_0 to zero
+//    jacobian_state_type jacobian_t;
+//    Eigen::Map<Eigen::Matrix<double, 3, 3> > M_t_e(jacobian_t.data());
+//    Eigen::Map<Eigen::Matrix<double, 3, 3> > J_t_e(jacobian_t.data()+9);
+//    M_t_e.setIdentity();
+//    J_t_e.setZero();
+//    (*M_buffer)[0] = M_t_e;
+//    (*J_buffer)[0] = J_t_e;
+//
+//    //step_idx = 1;
+//    m_isStable = true;
+//    bool isThresholdOn = false;
+//
+//    std::vector<double>* J_det_buffer;
+//    if (m_integrationOptions.keepJdet)
+//    {
+//      J_det_buffer = &m_J_det;
+//      J_det_buffer->assign(m_numNodes, 0.);
+//    }else
+//      J_det_buffer = new std::vector<double>(m_numNodes, 0.);
+//
+//    typedef boost::numeric::odeint::runge_kutta_cash_karp54< jacobian_state_type > jacobian_error_stepper_type; // we will use a 5th order Runge-Kutta method 
+//    // with 4th order error estimation and coefficients introduced by Cash and Karp
+//
+//    boost::numeric::odeint::integrate_adaptive( boost::numeric::odeint::make_controlled< jacobian_error_stepper_type >( kEpsAbs , kEpsRel ) ,
+//      jacobianSystem , jacobian_t , ktstart , ktend , dt );
+//    (*M_buffer)[1] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data());
+//    (*J_buffer)[1] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
+//
+//    //for (double t = ktstart; step_idx < m_numNodes && (!m_integrationOptions.stop_if_unstable || m_isStable) ; 
+//    //  ++step_idx, t+=dt)
+//    //{
+//    //  jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
+//    //  (*M_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data());
+//    //  (*J_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 3, 3> >(jacobian_t.data()+9);
+//    //  // check if stable
+//    //  double& J_det = (*J_det_buffer)[step_idx];
+//    //  J_det = (*J_buffer)[step_idx].determinant();
+//    //  if (abs(J_det) > JacobianSystem::kStabilityThreshold)
+//    //    isThresholdOn = true;
+//    //  if (isThresholdOn && ( abs(J_det) < JacobianSystem::kStabilityTolerance ||
+//    //    J_det * (*J_det_buffer)[step_idx-1] < 0.) )	// zero crossing
+//    //    m_isStable = false;
+//    //}
+//
+//    if (!m_integrationOptions.keepJdet)
+//      delete J_det_buffer;
+//
+//    if (!m_integrationOptions.keepMMatrices)
+//      delete M_buffer;
+//
+//    if (!m_integrationOptions.keepJMatrices)
+//      delete J_buffer;
+//  }
+//
+//	if (!m_integrationOptions.keepMuValues)
+//		delete mu_buffer;
+//
+//	if (!m_isStable)
+//		return IR_UNSTABLE;
+//
+//	return IR_VALID;
+//}
 
 /************************************************************************/
 /*																isStable															*/
@@ -342,7 +516,9 @@ const WorkspaceIntegratedState::IntegrationOptions& WorkspaceIntegratedState::in
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateWhileValid(const Wrench2D& i_maxWrench, double& o_tinv)
 {
-	static const double ktstart = 0.;													// Start integration time
+  assert ( m_integrationOptions.computeJacobians && "inconsistent option as we need to check stability here" );
+	
+  static const double ktstart = 0.;													// Start integration time
 	//const double ktend = m_rodParameters.integrationTime;			// End integration time
 	const double dt = m_rodParameters.delta_t;
 	//const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
@@ -480,7 +656,9 @@ WorkspaceIntegratedState::IntegrationOptions::IntegrationOptions() :
 	keepMuValues(false),
 	keepJdet(false),
 	keepMMatrices(false),
-	keepJMatrices(false)
+	keepJMatrices(false),
+  computeJacobians(true),
+  integrator(WorkspaceIntegratedState::IN_RK4)
 {}
 
 }	// namespace rod2d

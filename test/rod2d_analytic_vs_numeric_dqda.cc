@@ -403,4 +403,79 @@ BOOST_AUTO_TEST_CASE(Analytic_DqDa_Benchmarking_Full_RandomSet)
 }
 
 BOOST_AUTO_TEST_SUITE_END();
-//#endif
+
+/* ------------------------------------------------------------------------- */
+/* Numeric benchmarking of dqda(1)                        									   */
+/* ------------------------------------------------------------------------- */
+BOOST_AUTO_TEST_SUITE(Numeric_DqDa1_Benchmarking)
+
+BOOST_AUTO_TEST_CASE(Numeric_DqDa1_Benchmarking_Full_RandomSet)
+{
+  static const size_t numRuns = 10000;
+
+  // set base A-space bounds
+	Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
+	static const double maxTorque = 6.28;
+	static const double maxForce = 100;
+
+  for (int k = 0 ; k < 2 ; ++k)
+  {
+    aSpaceUpperBounds[k] = maxForce;
+    aSpaceLowerBounds[k] = -maxForce;
+  }
+  aSpaceUpperBounds[2] = maxTorque;
+  aSpaceLowerBounds[2] = -maxTorque;
+
+  qserl::rod2d::Wrench2D wrench_XYT;
+  //qserl::rod2d::Displacement2D q1;
+  int successfull = 0;
+
+  qserl::rod2d::Parameters rodParameters;
+  // set appropriate elasticity parameters
+  rodParameters.radius = 0.01;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-3;  // with RK4: for a 1.e-3 max error on q(t) w.r.t analytic forms, should take at least 1.e-4 for delta_t
+
+  // set integration options
+	qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
+	integrationOptions.stop_if_unstable = false;
+	integrationOptions.keepMuValues = false;
+	integrationOptions.keepJdet = false;
+	integrationOptions.keepMMatrices = false;
+	integrationOptions.keepJMatrices = true;
+	integrationOptions.computeJacobians = true;
+	integrationOptions.integrator = qserl::rod2d::WorkspaceIntegratedState::IN_RK4;
+
+  static const qserl::rod2d::Displacement2D identityDisp = { { 0., 0., 0. } };
+
+	qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
+  for (size_t idxRun = 0; idxRun < numRuns; ++idxRun)
+  {
+    for (int k = 0; k < 3; ++k)
+    {
+      wrench_XYT[k] = ((rand() % 10000) * ( aSpaceUpperBounds[k] - aSpaceLowerBounds[k]) ) / 1.e4 + 
+        aSpaceUpperBounds[k];
+    }
+
+    qserl::rod2d::WorkspaceIntegratedStateShPtr rodState = qserl::rod2d::WorkspaceIntegratedState::create(wrench_XYT,
+      identityDisp, rodParameters);
+    BOOST_CHECK( rodState );	
+    rodState->integrationOptions(integrationOptions);
+    // not singular (zero volume, so should never happen by random sampling
+    qserl::rod2d::WorkspaceIntegratedState::IntegrationResultT integrationStatus = rodState->integrate();
+    //BOOST_CHECK ( integrationStatus != qserl::rod2d::WorkspaceIntegratedState::IR_SINGULAR );
+    if (integrationStatus == qserl::rod2d::WorkspaceIntegratedState::IR_VALID)
+      ++successfull;
+  }
+	double benchTimeMs = static_cast<double>(qserl::util::getElapsedTimeMsec(startBenchTime).count());
+	BOOST_TEST_MESSAGE( "Num runs: " << numRuns << " / success dqda(1):" << successfull );
+	BOOST_TEST_MESSAGE( "Benchmarking total time: " << benchTimeMs << "ms for "
+    << numRuns << " numeric (dqda) computations" );
+	double benchTimePerDqDaUs = benchTimeMs * 1.e3 / static_cast<double>(numRuns);
+	BOOST_TEST_MESSAGE( "  Avg. computation time per (dqda) = " << benchTimePerDqDaUs << "us" );
+	
+}
+
+BOOST_AUTO_TEST_SUITE_END();
