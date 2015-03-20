@@ -68,8 +68,9 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable1)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
@@ -98,8 +99,9 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
@@ -128,8 +130,9 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
@@ -158,8 +161,9 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
@@ -195,8 +199,9 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable1)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
@@ -225,8 +230,9 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
@@ -255,8 +261,9 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
@@ -285,8 +292,9 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
@@ -324,8 +332,9 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 	// set appropriate elasticity parameters
 	rodParameters.radius = 0.01;
 	rodParameters.length = 1.;
-	rodParameters.youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
-	rodParameters.shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
+	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
+  rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
 	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;

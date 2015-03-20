@@ -126,7 +126,7 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_w
 		return false;
 
 	// 1. solve the costate system to find mu
-	const Eigen::Matrix<double, 6, 1> stiffnessCoefficients = Rod::getStiffnessCoefficients(m_rodParameters);
+	const Eigen::Matrix<double, 6, 1>& stiffnessCoefficients = m_rodParameters.stiffnessCoefficients;
 	const Eigen::Matrix<double, 6, 1> invStiffness = stiffnessCoefficients.cwiseInverse();
 	CostateSystem costate_system(invStiffness, m_rodParameters.length, m_rodParameters.rodModel);
 

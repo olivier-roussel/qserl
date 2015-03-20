@@ -107,6 +107,7 @@ public:
 	
 	/**
 	* \brief Returns corresponding stifness coefficients a an extensible DLO from elasticity parameters. 
+  * \warning Deprecated. Use Parameters::getStiffnessCoefficients() instead.
 	*/
 	static Eigen::Matrix<double, 6, 1> getStiffnessCoefficients(const Parameters& i_parameters);
 

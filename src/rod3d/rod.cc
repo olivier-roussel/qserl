@@ -145,36 +145,7 @@ bool Rod::isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench)
 /************************************************************************/
 Eigen::Matrix<double, 6, 1> Rod::getStiffnessCoefficients(const Parameters& i_parameters)
 {
-	const double sectionArea = util::sqr(i_parameters.radius) * boost::math::constants::pi<double>();
-	const double I = 0.25 * util::sqr(util::sqr(i_parameters.radius)) * boost::math::constants::pi<double>();
-	const double J = 0.5 * util::sqr(util::sqr(i_parameters.radius)) * boost::math::constants::pi<double>();
-	Eigen::Matrix<double, 6, 1> rodStifness;
-	//if (i_parameters.rodModel == Parameters::RM_INEXTENSIBLE)
-	//{
-	//	rodStifness[0] = i_parameters.shearModulus * J/* * i_parameters.length*/;
-	//	rodStifness[1] = i_parameters.youngModulus * I/* * i_parameters.length*/;
-	//	rodStifness[2] = rodStifness[1];
-	//	rodStifness[3] = std::numeric_limits<double>::max();
-	//	rodStifness[4] = std::numeric_limits<double>::max();
-	//	rodStifness[5] = std::numeric_limits<double>::max();
-	//}else if(i_parameters.rodModel == Parameters::RM_EXTENSIBLE_SHEARABLE)
-	//{
-	//	rodStifness[0] = i_parameters.shearModulus * J /** i_parameters.length*/;
-	//	rodStifness[1] = i_parameters.youngModulus * I /** i_parameters.length*/;
-	//	rodStifness[2] = rodStifness[1];
-	//	rodStifness[3] = i_parameters.youngModulus * sectionArea /** (sqr(i_parameters.length))*/;
-	//	rodStifness[4] = i_parameters.shearModulus * sectionArea /** (sqr(i_parameters.length))*/;
-	//	rodStifness[5] = rodStifness[4];
-	//}else
-	//	return Eigen::Matrix<double, 6, 1>::Zero();
-
-	rodStifness[0] = i_parameters.shearModulus * J;
-	rodStifness[1] = i_parameters.youngModulus * I;
-	rodStifness[2] = rodStifness[1];
-	rodStifness[3] = i_parameters.youngModulus * sectionArea;
-	rodStifness[4] = i_parameters.shearModulus * sectionArea;
-	rodStifness[5] = rodStifness[4];
-	return rodStifness;
+  return i_parameters.stiffnessCoefficients;
 }
 
 }	// namespace rod3d

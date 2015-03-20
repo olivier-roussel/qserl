@@ -41,8 +41,9 @@ struct QSERL_EXPORT Parameters
 	Parameters() :
 		radius(0.01), 
 		length(1.), 
-		youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
-		shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
+		//youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
+		//shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
+    stiffnessCoefficients(Eigen::Matrix<double, 6, 1>::Ones()),
 		density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
 		integrationTime(1.),
 		rodModel(RM_EXTENSIBLE_SHEARABLE),
@@ -65,9 +66,8 @@ struct QSERL_EXPORT Parameters
 
 	double														radius; 
 	double														length;
-	double														youngModulus;			/** So called E Young modulus. */
-	double														shearModulus;			/** So called G shear modulus. */
-	double														density;		
+  Eigen::Matrix<double, 6, 1>       stiffnessCoefficients;
+	double														density;		        /** Unused. */
 
 	/**< These two parameters are only used when coupling inextensible/non-shearable static rod model
 	* with extensible/shearable one.
@@ -78,6 +78,9 @@ struct QSERL_EXPORT Parameters
 	//double														extensionRatio;		/**< Ratio for the young modulus (thus for extension). */
 	//double														shearingRatio;		/**< Ratio for the shear modulus (thus for shearing). */			
 
+	//double														youngModulus;			/** So called E Young modulus. */
+	//double														shearModulus;			/** So called G shear modulus. */
+
 	/**< Internal use only. */
 	double														integrationTime;	/**< Should be kept to 1 (default value). */
 
@@ -85,14 +88,37 @@ struct QSERL_EXPORT Parameters
 
 	int																numNodes;
 
+  /**
+  * \brief Returns equivalent Young modulus from stiffness coefficients.
+  * \pre Stiffness coefficients must represent transversal isotropic elasticity, i.e.
+  *   stiffnessCoefficients[1] == stiffnessCoefficients[2]    and
+  *   stiffnessCoefficients[4] == stiffnessCoefficients[5]
+  */
+  double getIsotropicYoungModulus() const;
+
+  /**
+  * \brief Returns equivalent Shear modulus from stiffness coefficients.
+  * \pre Stiffness coefficients must represent transversal isotropic elasticity, i.e.
+  *   stiffnessCoefficients[1] == stiffnessCoefficients[2]    and
+  *   stiffnessCoefficients[4] == stiffnessCoefficients[5]
+  */
+  double getIsotropicShearModulus() const;
+
+  /**
+  * \brief Set transversal isotropic stiffness coefficients from elasticity parameters described by
+  * Young modulus and shear modulus. 
+  */
+  void setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus, double i_shearModulus);
+
 	/** Serialization */
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & boost::serialization::make_nvp("radius", radius) & 
 			boost::serialization::make_nvp("length", length) & 
-			boost::serialization::make_nvp("youngModulus", youngModulus) & 
-			boost::serialization::make_nvp("shearModulus", shearModulus) & 
+			boost::serialization::make_nvp("stiffnessCoefficients", stiffnessCoefficients) & 
+			//boost::serialization::make_nvp("youngModulus", youngModulus) & 
+			//boost::serialization::make_nvp("shearModulus", shearModulus) & 
 			boost::serialization::make_nvp("density", density) & 
 			//boost::serialization::make_nvp("extensionRatio", extensionRatio) & 
 			//boost::serialization::make_nvp("shearingRatio", shearingRatio) & 
