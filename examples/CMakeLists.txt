@@ -49,3 +49,5 @@ endmacro(add_example)
 
 add_example(example0)
 add_example(generate_inverse_geometry_benchmark_dataset_2D)
+add_example(generate_stability_dataset_2D)
+
