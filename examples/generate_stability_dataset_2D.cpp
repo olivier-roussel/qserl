@@ -14,34 +14,14 @@ int main()
   static const double maxTorque = 2 * boost::math::constants::pi<double>();
 	static const double maxForce = 100;
 
-  static const int numSamplesTorque
-  static const size_t numSamples = 1000;
-  static const size_t numInitialGuesses = 100;
-  static const size_t numNodes = 1001; // discretization along the rod to check stability
+  static const int numSamplesTorque = 10;
+  static const int numSamplesForce = 10;
+
+  static const size_t numNodes = 1001;		// discretization along the rod to check stability
   static const double kStabilityThreshold = 1.e-7;				/** Threshold for Jacobian determinant. */
   static const double kStabilityTolerance = 1.e-8;			/** Tolerance for which Jacobian determinant vanishes. */
 
-
-  static const std::string samplesFilename("rod_tip_positions_set_stable_2D.txt");
-  static const std::string initialGuessesFilename("initial_guesses_stable_2D.txt");
-
-  // write headers to files
-  std::ofstream ssamples(samplesFilename, std::ofstream::out);
-  ssamples << "# Samples containing rod 'a' parameterisation values (a3, a4, a5)" << std::endl;
-  ssamples << "# and corresponding rod tip position (theta, x, y)"  << std::endl;
-  ssamples << "# All samples correspond to stable configurations" << std::endl;
-  ssamples << "# Planar rod case" << std::endl;
-  ssamples << "# Number of samples = " << numSamples << std::endl;
-  ssamples << "# a3\ta4\ta5\ttheta\tx\ty" << std::endl;
-
-  std::ofstream sguesses(initialGuessesFilename, std::ofstream::out);
-  sguesses << "# Set of initial guesses 'a' (a3, a4, a5) that could be used for inverse geometry" << std::endl;
-  sguesses << "# All samples correspond to stable configurations" << std::endl;
-  sguesses << "# Planar rod case" << std::endl;
-  sguesses << "# Number of samples = " << numInitialGuesses << std::endl;
-  sguesses << "# a3\ta4\ta5" << std::endl;
-
-  // set base A-space bounds
+	// set base A-space bounds
 	Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
 
   aSpaceUpperBounds[0] = maxTorque;
@@ -52,19 +32,30 @@ int main()
 		aSpaceLowerBounds[k] = -maxForce;
 	}
 
+  static const std::string stabilityDatasetFilename("stability_dataset_2D.txt");
+
+  // write headers to files
+  std::ofstream ssamples(stabilityDatasetFilename, std::ofstream::out);
+  ssamples << "# Planar rod case" << std::endl;
+	for (int k = 0 ; k < 3 ; ++k)
+	{
+		ssamples << "# A_low[" << k+3 << "]=" << aSpaceLowerBounds[k] << " / A_upper[" << k+3 << "]=" << aSpaceUpperBounds[k] << std::endl;
+	}
+
+	ssamples << "# Number of samples (torque) = " << numSamplesTorque << std::endl;
+	ssamples << "# Number of samples (force) = " << numSamplesForce << std::endl;
+  ssamples << "# a3 a4 a5 stable energy" << std::endl;
+
+  
   Eigen::Vector3d wrench;
-  Eigen::Vector3d q1, q1_dot;
-  Eigen::Matrix3d dqda;
-  qserl::rod2d::MotionConstantsDqDa motionConstants;
-  //int successfullMotionConstants = 0;
-  //int successfullDqDa = 0;
+  qserl::rod2d::MotionConstantsQ motionConstants;
 
   qserl::rod2d::Parameters rodParameters;
 	rodParameters.radius = 1.;
 	rodParameters.length = 1.;
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-3;
+	rodParameters.delta_t = 1. / static_cast<double>(numNodes);
 
   qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
   integrationOptions.stop_if_unstable = false;
@@ -77,19 +68,18 @@ int main()
 
   // proceed to samples of q1
   std::cout << "Starting generation of " << numSamples << " for the rod tip position...";
-  int successSamples = 0;
-  while (successSamples < numSamples)
-  {
+	for (int idxSample = 0 ; idxSample < numSamples ; 
+	{
     for (int k = 0; k < 3; ++k)
     {
       wrench[k] = ((rand() % 10000) * ( aSpaceUpperBounds[k] - aSpaceLowerBounds[k]) ) / 1.e4 + 
         aSpaceUpperBounds[k];
     }
 
-    if (qserl::rod2d::computeMotionConstantsDqDa(wrench, motionConstants))
+    if (qserl::rod2d::computeMotionConstantsQ(wrench, motionConstants))
     {
       //++successfullMotionConstants;
-      if (qserl::rod2d::computeQAtPositionT(1., wrench, motionConstants.qc, q1_dot, q1))
+      if (qserl::rod2d::computeQAtPositionT(1., wrench, motionConstants, q1_dot, q1))
       {
         //static const qserl::rod2d::Displacement2D identityDisp = { { 0., 0., 0. } };
         //qserl::rod2d::Wrench2D wrench2D;

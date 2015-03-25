@@ -36,6 +36,7 @@ namespace rod2d {
 
 struct MotionConstantsQ
 {
+	//MotionConstantsMu muc;	// TODO factorize motion constants
   double lambda[4];
   double delta;
   double alpha[3];
