@@ -25,7 +25,7 @@
 #include <boost/array.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #pragma warning( push, 0 )
-#include <Eigen/Lgsm>
+#include <unsupported/Eigen/Lgsm>
 #pragma warning( pop )
 
 namespace qserl {

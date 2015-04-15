@@ -28,7 +28,6 @@
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/version.hpp>
 
-#include "util/eigen_types_serialization.h"
 
 namespace qserl {
 namespace rod2d {
@@ -82,7 +81,6 @@ struct QSERL_EXPORT Parameters
 			boost::serialization::make_nvp("integrationTime", integrationTime) &
 			boost::serialization::make_nvp("delta_t", delta_t) &
 			boost::serialization::make_nvp("rodModel", rodModel);
-			//boost::serialization::make_nvp("numNodes", numNodes);
 	}
 };
 

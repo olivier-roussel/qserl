@@ -28,7 +28,7 @@
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/version.hpp>
 
-#include "util/eigen_types_serialization.h"
+#include "qserl/util/eigen_types_serialization.h"
 
 namespace qserl {
 namespace rod3d {

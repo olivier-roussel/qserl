@@ -23,12 +23,12 @@
 #include "qserl/exports.h"
 
 #pragma warning( push, 0 )	
-#include <Eigen/Lgsm>
+#include <unsupported/Eigen/Lgsm>
 #pragma warning( pop )	
 
 #include "qserl/rod2d/parameters.h"
 #include "qserl/rod2d/types.h"
-#include "util/forward_class.h"
+#include "qserl/util/forward_class.h"
 
 namespace qserl {
 namespace rod2d {

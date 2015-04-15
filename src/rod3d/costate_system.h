@@ -25,7 +25,7 @@
 #include <boost/function.hpp>
 
 #pragma warning( push, 0 )	
-#include <Eigen/Lgsm>
+#include <unsupported/Eigen/Lgsm>
 #pragma warning( pop )	
 
 #include "qserl/rod3d/workspace_integrated_state.h"

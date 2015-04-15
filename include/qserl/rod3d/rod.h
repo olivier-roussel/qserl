@@ -26,12 +26,12 @@
 #include <unordered_map>
 
 #pragma warning( push, 0 )	
-#include <Eigen/Lgsm>
+#include <unsupported/Eigen/Lgsm>
 #pragma warning( pop )	
 
 #include "qserl/rod3d/parameters.h"
 #include "qserl/rod3d/workspace_integrated_state.h"
-#include "util/forward_class.h"
+#include "qserl/util/forward_class.h"
 
 
 namespace qserl {

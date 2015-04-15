@@ -24,7 +24,7 @@
 #include "qserl/rod2d/inverse_geometry.h"
 
 #include "qserl/rod2d/analytic_dqda.h"
-#include "util/timer.h"
+#include "qserl/util/timer.h"
 #include "util/utils.h"
 
 namespace qserl {

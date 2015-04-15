@@ -22,7 +22,7 @@
 
 #include <boost/serialization/serialization.hpp>
 #pragma warning( push, 0 )	
-#include <Eigen/Lgsm>
+#include <unsupported/Eigen/Lgsm>
 #pragma warning( pop )	
 
 // Seriliazation for Eigen types

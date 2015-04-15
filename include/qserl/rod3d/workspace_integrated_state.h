@@ -26,7 +26,7 @@
 
 #include "qserl/rod3d/workspace_state.h"
 #include "qserl/rod3d/parameters.h"
-#include "util/forward_class.h"
+#include "qserl/util/forward_class.h"
 
 namespace qserl {
 namespace rod3d {
