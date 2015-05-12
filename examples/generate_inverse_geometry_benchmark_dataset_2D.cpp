@@ -16,8 +16,8 @@ int main()
   static const double kStabilityTolerance = 1.e-8;			/** Tolerance for which Jacobian determinant vanishes. */
 
 
-  static const std::string samplesFilename("rod_tip_positions_set_stable_2D.txt");
-  static const std::string initialGuessesFilename("initial_guesses_stable_2D.txt");
+  static const char* samplesFilename="rod_tip_positions_set_stable_2D.txt";
+  static const char* initialGuessesFilename="initial_guesses_stable_2D.txt";
 
   // write headers to files
   std::ofstream ssamples(samplesFilename, std::ofstream::out);

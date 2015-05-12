@@ -107,7 +107,7 @@ struct QSERL_EXPORT Parameters
 			boost::serialization::make_nvp("rodModel", rodModel) &
 			boost::serialization::make_nvp("numNodes", numNodes);
 			//boost::serialization::make_nvp("density", density) & 
-			boost::serialization::make_nvp("integrationTime", integrationTime) &
+			//boost::serialization::make_nvp("integrationTime", integrationTime) &
 	}
 };
 

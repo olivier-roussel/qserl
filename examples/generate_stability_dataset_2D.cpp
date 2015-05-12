@@ -47,7 +47,7 @@ int main()
   static const double da_force = 2*maxForce / static_cast<double>(numSamplesForce);
   static const double da_torque = 2*maxTorque / static_cast<double>(numSamplesTorque);
 
-  static const std::string stabilityDatasetFilename("stability_dataset_2D.txt");
+  static const char* stabilityDatasetFilename="stability_dataset_2D.txt";
 
   qserl::rod2d::Parameters rodParameters;
 	rodParameters.radius = 1.;
