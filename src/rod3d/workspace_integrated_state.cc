@@ -41,7 +41,9 @@ namespace rod3d {
 WorkspaceIntegratedState::WorkspaceIntegratedState(unsigned int i_nnodes, const Eigen::Displacementd& i_basePosition,
 	const Parameters& i_rodParams):
 WorkspaceState(std::vector<Eigen::Displacementd>(), i_basePosition, i_rodParams),
-	m_integrationOptions() // initialize to default values
+	m_integrationOptions(), // initialize to default values
+  m_isInitialized(false),
+  m_isStable(false)
 {
   assert ( i_nnodes > 1 && "rod number of nodes must be greater or equal to 2" );
 	m_numNodes = i_nnodes;
@@ -86,6 +88,7 @@ bool WorkspaceIntegratedState::init(const Eigen::Wrenchd& i_wrench)
 	bool success = true;
 
 	m_isStable = false;
+	m_isInitialized = false;
 
 	m_mu.resize(1);
 	for (int i = 0 ; i < 6 ; ++i)
@@ -105,16 +108,16 @@ WorkspaceStateShPtr WorkspaceIntegratedState::clone() const
 /************************************************************************/
 /*															integrate																*/
 /************************************************************************/
-bool WorkspaceIntegratedState::integrate()
+WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate()
 {
-	Eigen::Wrenchd mu_0(Eigen::Matrix<double, 6, 1>(m_mu[0].data()));
-	return integrateFromBaseWrench(mu_0);
+	const Eigen::Wrenchd mu_0(Eigen::Matrix<double, 6, 1>(m_mu[0].data()));
+  return integrateFromBaseWrenchRK4(mu_0);
 }
 
 /************************************************************************/
-/*												integrateFromBaseWrench												*/
+/*												integrateFromBaseWrenchRK4												*/
 /************************************************************************/
-bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_wrench)
+WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Eigen::Wrenchd& i_wrench)
 {
 
 	static const double ktstart = 0.;													// Start integration time
@@ -123,7 +126,7 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_w
 	const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
 
 	if (Rod::isConfigurationSingular(i_wrench))
-		return false;
+		return IR_SINGULAR;
 
 	// 1. solve the costate system to find mu
 	const Eigen::Matrix<double, 6, 1>& stiffnessCoefficients = m_rodParameters.stiffnessCoefficients;
@@ -265,7 +268,10 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_w
 	if (!m_integrationOptions.keepJMatrices)
 		delete J_buffer;
 
-	return true; 
+  if (!m_isStable)
+		return IR_UNSTABLE;
+
+	return IR_VALID; 
 }
 
 /************************************************************************/
@@ -289,6 +295,7 @@ bool WorkspaceIntegratedState::integrateFromBaseWrench(const Eigen::Wrenchd& i_w
 /************************************************************************/
 bool WorkspaceIntegratedState::isStable() const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_isStable;
 }
 
@@ -297,6 +304,7 @@ bool WorkspaceIntegratedState::isStable() const
 /************************************************************************/
 Eigen::Wrenchd WorkspaceIntegratedState::baseWrench() const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu_0(m_mu[0].data());
 	return Eigen::Wrenchd(mu_0);
 }
@@ -306,6 +314,7 @@ Eigen::Wrenchd WorkspaceIntegratedState::baseWrench() const
 /************************************************************************/
 Eigen::Wrenchd WorkspaceIntegratedState::tipWrench() const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu_n(m_mu.back().data());
 	return Eigen::Wrenchd(mu_n);
 }
@@ -315,6 +324,7 @@ Eigen::Wrenchd WorkspaceIntegratedState::tipWrench() const
 /************************************************************************/
 Eigen::Wrenchd WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu(m_mu[i_idxNode].data());
 	return Eigen::Wrenchd(mu);
 }
@@ -324,6 +334,7 @@ Eigen::Wrenchd WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 /************************************************************************/
 const std::vector<WorkspaceIntegratedState::costate_type>& WorkspaceIntegratedState::mu() const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_mu;
 }
 
@@ -332,6 +343,7 @@ const std::vector<WorkspaceIntegratedState::costate_type>& WorkspaceIntegratedSt
 /************************************************************************/
 const Eigen::Matrix<double, 6, 6>& WorkspaceIntegratedState::getMMatrix(size_t i_nodeIdx) const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
 	return m_M[i_nodeIdx];
 }
@@ -341,6 +353,7 @@ const Eigen::Matrix<double, 6, 6>& WorkspaceIntegratedState::getMMatrix(size_t i
 /************************************************************************/
 const Eigen::Matrix<double, 6, 6>& WorkspaceIntegratedState::getJMatrix(size_t i_nodeIdx) const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
 	return m_J[i_nodeIdx];
 }
@@ -350,6 +363,7 @@ const Eigen::Matrix<double, 6, 6>& WorkspaceIntegratedState::getJMatrix(size_t i
 /************************************************************************/
 const std::vector<double>& WorkspaceIntegratedState::J_det() const
 {
+	assert( m_isInitialized && "the state must be integrated first" );
 	return m_J_det;
 }
 
@@ -390,6 +404,7 @@ WorkspaceStateShPtr WorkspaceIntegratedState::approximateLinearlyNeighbourState(
 size_t WorkspaceIntegratedState::memUsage() const
 {
 	return WorkspaceState::memUsage() +
+		sizeof(m_isInitialized) + 
 		sizeof(m_isStable) + 
 		m_mu.capacity() * sizeof(costate_type) + 
 		//m_MJ.capacity() * sizeof(JacobianSystem::state_type) + 

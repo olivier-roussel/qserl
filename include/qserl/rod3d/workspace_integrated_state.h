@@ -44,6 +44,15 @@ public:
 																													     - M(t) is the 6x6 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 36 elements),
 																															 - J(t) is the 6x6 Jacobian matrix of the state q(t) w.r.t. initial conditions (i.e. mu(0)) (last 36 elements). */
 
+  /**< \brief Descriptors of possible status result returned by the rod integration process.*/
+	enum IntegrationResultT{
+		IR_VALID = 0,													/**< The rod configuration is valid w.r.t to given criterias (stability, max wrench, etc...) */
+		IR_SINGULAR,													/**< The rod configuration is singular, i.e. a[1] = a[2] = 0. */
+		IR_UNSTABLE,													/**< The rod configuration is unstable. */
+		IR_OUT_OF_WRENCH_BOUNDS,							/**< The rod configuration is out of maximum allowed wrench. */
+		IR_NUMBER_OF_INTEGRATION_RESULTS
+	};
+
 	/**
 	* \brief Destructor.
 	*/
@@ -68,9 +77,11 @@ public:
 
 	/**
 	* \brief Compute rod state from its base wrench by integration.
-	* \return False if could not integrate state (abnormal case).
+	* \return The corresponding integration result status (see enum IntegrationResultT).
+	*	Note that IR_OUT_OF_WRENCH_BOUNDS cannot be returned, as out of bounds detection for internal
+	* rod wrenches is not implemented yet.
 	*/
-	bool integrate();
+	IntegrationResultT integrate();
 
 	/**
 	*\brief Approximate nodes positions by linearization for a neighboring state of this.
@@ -198,12 +209,12 @@ protected:
 	*/
 	bool init(const Eigen::Wrenchd& i_wrench);
 
-	/** \brief Returns true if could integrate state (even if it is not a stable
-			state, in which case m_isStable attribute is set to false).
-			Returns false if the input wrench cannot be integrated (singular configurations). */
-	bool integrateFromBaseWrench(const Eigen::Wrenchd& i_wrench);
+	/** \brief Integrates rod state from given base wrench.. 
+      Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
+	IntegrationResultT integrateFromBaseWrenchRK4(const Eigen::Wrenchd& i_wrench);
 
 
+	bool																										m_isInitialized;/**< True if the state has been integrated.*/
 	bool																										m_isStable;		/**< True if DLO state is stable. */
 	std::vector<costate_type>																m_mu;					/**< Wrenches at each nodes (size N). */
 	std::vector<Eigen::Matrix<double, 6, 6> >								m_M;

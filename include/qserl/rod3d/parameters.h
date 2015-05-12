@@ -44,7 +44,7 @@ struct QSERL_EXPORT Parameters
 		//youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
 		//shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
     stiffnessCoefficients(Eigen::Matrix<double, 6, 1>::Ones()),
-		density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
+		//density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
 		integrationTime(1.),
 		rodModel(RM_EXTENSIBLE_SHEARABLE),
 		numNodes(100)
@@ -67,26 +67,13 @@ struct QSERL_EXPORT Parameters
 	double														radius; 
 	double														length;
   Eigen::Matrix<double, 6, 1>       stiffnessCoefficients;
-	double														density;		        /** Unused. */
-
-	/**< These two parameters are only used when coupling inextensible/non-shearable static rod model
-	* with extensible/shearable one.
-	* They are required to express the ratio between stiffness coefficients for the supposed infinite values
-	* of extension & shear elasticity values. 
-	* \deprecated
-	*/
-	//double														extensionRatio;		/**< Ratio for the young modulus (thus for extension). */
-	//double														shearingRatio;		/**< Ratio for the shear modulus (thus for shearing). */			
-
-	//double														youngModulus;			/** So called E Young modulus. */
-	//double														shearModulus;			/** So called G shear modulus. */
+	RodModelT													rodModel;
+	int																numNodes;       /** Number of discretization nodes. Related to the delta_t field 
+                                                    * used for 2D rod by delta_t = 1 / (numNodes - 1) */
+	//double														density;		        /** Unused. */
 
 	/**< Internal use only. */
 	double														integrationTime;	/**< Should be kept to 1 (default value). */
-
-	RodModelT													rodModel;
-
-	int																numNodes;
 
   /**
   * \brief Returns equivalent Young modulus from stiffness coefficients.
@@ -117,14 +104,10 @@ struct QSERL_EXPORT Parameters
 		ar & boost::serialization::make_nvp("radius", radius) & 
 			boost::serialization::make_nvp("length", length) & 
 			boost::serialization::make_nvp("stiffnessCoefficients", stiffnessCoefficients) & 
-			//boost::serialization::make_nvp("youngModulus", youngModulus) & 
-			//boost::serialization::make_nvp("shearModulus", shearModulus) & 
-			boost::serialization::make_nvp("density", density) & 
-			//boost::serialization::make_nvp("extensionRatio", extensionRatio) & 
-			//boost::serialization::make_nvp("shearingRatio", shearingRatio) & 
-			boost::serialization::make_nvp("integrationTime", integrationTime) &
 			boost::serialization::make_nvp("rodModel", rodModel) &
 			boost::serialization::make_nvp("numNodes", numNodes);
+			//boost::serialization::make_nvp("density", density) & 
+			boost::serialization::make_nvp("integrationTime", integrationTime) &
 	}
 };
 

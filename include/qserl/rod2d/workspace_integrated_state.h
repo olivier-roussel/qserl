@@ -191,15 +191,11 @@ protected:
 	*/
 	bool init(const Wrench2D& i_wrench);
 
-	/** \brief Returns true if could integrate state (even if it is not a stable
-			state, in which case m_isStable attribute is set to false).
-			Returns false if the input wrench cannot be integrated (singular configurations). 
+	/** \brief Integrates rod state from given base wrench.. 
       Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
 	IntegrationResultT integrateFromBaseWrenchRK4(const Wrench2D& i_wrench);
 
-  /** \brief Returns true if could integrate state (even if it is not a stable
-  state, in which case m_isStable attribute is set to false).
-  Returns false if the input wrench cannot be integrated (singular configurations). 
+  /** \brief Integrates rod state from given base wrench.
   Numerical integration is done through a 5-th order Runge-Kutta with 4-th order error estimation and
   adaptative step. */
   IntegrationResultT integrateFromBaseWrenchRK45(const Wrench2D& i_wrench);

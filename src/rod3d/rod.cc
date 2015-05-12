@@ -72,13 +72,14 @@ bool Rod::init(const RodWkPtr& i_weakPtr)
 /************************************************************************/
 /*												integrateStateFromBaseWrench									*/
 /************************************************************************/
-bool Rod::integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench, unsigned int i_nnodes, 
+WorkspaceIntegratedState::IntegrationResultT Rod::integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench, 
 	const Eigen::Displacementd& i_basePos, const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions)
 {
-	WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench, i_nnodes, i_basePos, m_staticParameters);
+	WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench, m_staticParameters.numNodes, 
+    i_basePos, m_staticParameters);
 	intState->integrationOptions(i_integrationOptions);
-	bool success = intState->integrate();
-	if (success)
+	WorkspaceIntegratedState::IntegrationResultT success = intState->integrate();
+	if (success == WorkspaceIntegratedState::IR_VALID)
 		m_state = intState;
 	return success;
 }

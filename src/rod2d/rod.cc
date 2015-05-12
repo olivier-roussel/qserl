@@ -75,7 +75,8 @@ bool Rod::init(const RodWkPtr& i_weakPtr)
 WorkspaceIntegratedState::IntegrationResultT Rod::integrateStateFromBaseWrench(const Wrench2D& i_wrench, 
 	const Displacement2D& i_basePos, const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions)
 {
-	WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench,/* i_nnodes,*/ i_basePos, m_staticParameters);
+	WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench, i_basePos, 
+    m_staticParameters);
 	intState->integrationOptions(i_integrationOptions);
 	WorkspaceIntegratedState::IntegrationResultT status = intState->integrate();
   if (status == WorkspaceIntegratedState::IR_VALID)

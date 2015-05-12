@@ -47,7 +47,8 @@ add_dependencies(${name} qserl)
 #add_test(${name} ${name})
 endmacro(add_example)
 
-add_example(example0)
+add_example(example_rod_2D)
+add_example(example_rod_3D)
 add_example(generate_inverse_geometry_benchmark_dataset_2D)
 add_example(generate_stability_dataset_2D)
 

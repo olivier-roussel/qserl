@@ -42,7 +42,8 @@ WorkspaceIntegratedState::WorkspaceIntegratedState(/*unsigned int i_nnodes, */
 	const Displacement2D& i_basePosition,	const Parameters& i_rodParams):
 WorkspaceState(std::vector<Displacement2D>(), i_basePosition, i_rodParams),
 	m_integrationOptions(), // initialize to default values
-	m_isInitialized(false)
+	m_isInitialized(false),
+  m_isStable(false)
 {
   assert ( m_rodParameters.delta_t > 0. && "step integration time must be stricly positive" );
 	m_numNodes = m_rodParameters.numberOfNodes();
@@ -487,6 +488,7 @@ const std::vector<double>& WorkspaceIntegratedState::J_det() const
 size_t WorkspaceIntegratedState::memUsage() const
 {
 	return WorkspaceState::memUsage() +
+		sizeof(m_isInitialized) + 
 		sizeof(m_isStable) + 
 		m_mu.capacity() * sizeof(costate_type) + 
 		m_M.capacity() * sizeof(Eigen::Matrix<double, 3, 3>) + 
