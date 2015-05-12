@@ -23,7 +23,6 @@
 #include "qserl/exports.h"
 
 #include <boost/thread.hpp>
-#include <unordered_map>
 
 #pragma warning( push, 0 )	
 #include <unsupported/Eigen/Lgsm>
