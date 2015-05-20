@@ -125,6 +125,8 @@ WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrate
 	//const double ktend = 1.;
 	const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes-1);	// Integration time step
 
+	m_isInitialized = true;
+
 	if (Rod::isConfigurationSingular(i_wrench))
 		return IR_SINGULAR;
 
