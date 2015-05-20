@@ -50,6 +50,16 @@ void serialize(Archive & ar, Eigen::Twist<Scalar>& w, const unsigned int version
 }
 
 template<class Archive, typename Scalar>
+void serialize(Archive & ar, Eigen::Matrix<Scalar, 6, 1>& v, const unsigned int version)
+{
+  for (int idxCol = 0 ; idxCol < 6 ; ++idxCol)
+  {
+    const std::string name = std::string("c") + boost::lexical_cast<std::string>(idxCol);
+    ar & boost::serialization::make_nvp(name.c_str(), v[idxCol]);
+  }
+}
+
+template<class Archive, typename Scalar>
 void serialize(Archive & ar, Eigen::Wrench<Scalar>& w, const unsigned int version)
 {
 	ar & boost::serialization::make_nvp("tx", w.tx()) & 
