@@ -33,11 +33,12 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_1)
 
 	// 1. ckeck null base wrench 
 	Eigen::Wrenchd singularWrench1(Eigen::Wrenchd::Zero());
-	qserl::rod3d::WorkspaceIntegratedStateShPtr rodIntegratedState1 = qserl::rod3d::WorkspaceIntegratedState::create(singularWrench1,
+	qserl::rod3d::WorkspaceIntegratedStateShPtr rodIntegratedState = qserl::rod3d::WorkspaceIntegratedState::create(singularWrench1,
 		rodDefaultParameters.numNodes, Eigen::Displacementd::Identity(), rodDefaultParameters);
-	BOOST_CHECK( rodIntegratedState1 );	
+	BOOST_CHECK( rodIntegratedState );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodIntegratedState->integrate();
 	// singular 
-	BOOST_CHECK( !rodIntegratedState1->integrate() );	
+	BOOST_CHECK( status == qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
 }
 
 BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_2)
@@ -48,11 +49,12 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_2)
 	Eigen::Wrenchd singularWrench2(Eigen::Wrenchd::Zero());
 	singularWrench2[0] = -1.5;
 	singularWrench2[3] = 2.;
-	qserl::rod3d::WorkspaceIntegratedStateShPtr rodIntegratedState2 = qserl::rod3d::WorkspaceIntegratedState::create(singularWrench2,
+	qserl::rod3d::WorkspaceIntegratedStateShPtr rodIntegratedState = qserl::rod3d::WorkspaceIntegratedState::create(singularWrench2,
 		rodDefaultParameters.numNodes, Eigen::Displacementd::Identity(), rodDefaultParameters);
-	BOOST_CHECK( rodIntegratedState2  );	
+	BOOST_CHECK( rodIntegratedState  );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodIntegratedState->integrate();
 	// singular 
-	BOOST_CHECK( !rodIntegratedState2->integrate()  );	
+	BOOST_CHECK( status == qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -71,7 +73,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable1)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
 	rodParameters.numNodes = 100;
@@ -87,10 +89,12 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable1)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf1,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodStableState1 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
 	// not singular 
-	BOOST_CHECK( rodStableState1->integrate() );	
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
 	// stable
 	BOOST_CHECK( rodStableState1->isStable() );
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
@@ -102,7 +106,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
 	rodParameters.numNodes = 100;
@@ -115,13 +119,15 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
 	stableConf2[3] = 0.9518;
 	stableConf2[4] = -0.8417;
 	stableConf2[5] = -0.8075;
-	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState2 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf2,
+	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf2,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
-	BOOST_CHECK( rodStableState2 );	
+	BOOST_CHECK( rodStableState1 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
 	// not singular 
-	BOOST_CHECK( rodStableState2->integrate() );	
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
 	// stable
-	BOOST_CHECK( rodStableState2->isStable() );
+	BOOST_CHECK( rodStableState1->isStable() );
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
@@ -133,7 +139,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
 	rodParameters.numNodes = 100;
@@ -149,10 +155,12 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState1 = qserl::rod3d::WorkspaceIntegratedState::create(unstableConf1,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodUnstableState1 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState1->integrate();
 	// not singular 
-	BOOST_CHECK( rodUnstableState1->integrate() );	
-	// unstable
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
+	// ubstable
 	BOOST_CHECK( !rodUnstableState1->isStable() );
+	BOOST_CHECK( status == qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
@@ -164,7 +172,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
 	rodParameters.numNodes = 100;
@@ -180,10 +188,12 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState2 = qserl::rod3d::WorkspaceIntegratedState::create(unstableConf2,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodUnstableState2 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState2->integrate();
 	// not singular 
-	BOOST_CHECK( rodUnstableState2->integrate() );	
-	// unstable
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
+	// ubstable
 	BOOST_CHECK( !rodUnstableState2->isStable() );
+	BOOST_CHECK( status == qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -202,7 +212,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable1)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
 	rodParameters.numNodes = 100;
@@ -218,10 +228,12 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable1)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf1,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodStableState1 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
 	// not singular 
-	BOOST_CHECK( rodStableState1->integrate() );	
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
 	// stable
 	BOOST_CHECK( rodStableState1->isStable() );
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
@@ -233,7 +245,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
 	rodParameters.numNodes = 100;
@@ -249,10 +261,12 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState2 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf2,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodStableState2 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState2->integrate();
 	// not singular 
-	BOOST_CHECK( rodStableState2->integrate() );	
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
 	// stable
 	BOOST_CHECK( rodStableState2->isStable() );
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
@@ -264,7 +278,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
 	rodParameters.numNodes = 100;
@@ -280,10 +294,12 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState1 = qserl::rod3d::WorkspaceIntegratedState::create(unstableConf1,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodUnstableState1 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState1->integrate();
 	// not singular 
-	BOOST_CHECK( rodUnstableState1->integrate() );	
-	// unstable
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
+	// ubstable
 	BOOST_CHECK( !rodUnstableState1->isStable() );
+	BOOST_CHECK( status == qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
@@ -295,7 +311,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
 	rodParameters.numNodes = 100;
@@ -311,10 +327,12 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
 	qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState2 = qserl::rod3d::WorkspaceIntegratedState::create(unstableConf2,
 		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
 	BOOST_CHECK( rodUnstableState2 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState2->integrate();
 	// not singular 
-	BOOST_CHECK( rodUnstableState2->integrate() );	
-	// unstable
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
+	// ubstable
 	BOOST_CHECK( !rodUnstableState2->isStable() );
+	BOOST_CHECK( status == qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -335,7 +353,7 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 	const double youngModulus = 15.4e6;  /** Default Young modulus of rubber: 15.4 MPa */
 	const double shearModulus = 5.13e6;  /** Default Shear modulus of rubber: 5.13 MPa */
   rodParameters.setIsotropicStiffnessCoefficientsFromElasticityParameters(youngModulus, shearModulus);
-	rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
+	//rodParameters.density = 1.1 * 10e3;   /** 1.10 kg/dm3 -> kg/m3, */ 
 	rodParameters.integrationTime = 1.;
 	rodParameters.rodModel = qserl::rod3d::Parameters::RM_EXTENSIBLE_SHEARABLE;
 	rodParameters.numNodes = 200;
@@ -378,7 +396,8 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 		rodState->integrationOptions(integrationOptions);
 		BOOST_CHECK( rodState );	
 		// not singular (zero volume, so should never happen by random sampling
-		bool isNotSingular = rodState->integrate();
+		qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodState->integrate();
+		bool isNotSingular = status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR;
 		BOOST_CHECK( isNotSingular );	
 		if (isNotSingular && rodState->isStable())
 			++validSamples;
@@ -399,3 +418,41 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 BOOST_AUTO_TEST_SUITE_END();
 
 #endif
+
+
+/* ------------------------------------------------------------------------- */
+/* InextensibleRod3DJacobiansTests																						 */
+/* ------------------------------------------------------------------------- */
+//BOOST_AUTO_TEST_SUITE(InextensibleRod3DJacobiansTests)
+//
+//BOOST_AUTO_TEST_CASE(InextensibleRod3DJacobiansTests_compare_external_data1)
+//{
+//	qserl::rod3d::Parameters rodParameters;
+//	// set appropriate elasticity parameters
+//	rodParameters.radius = 0.01;
+//	rodParameters.length = 1.;
+//	rodParameters.stiffnessCoefficients = Eigen::Matrix<double, 6, 1>::Ones();
+//	rodParameters.integrationTime = 1.;
+//	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
+//	rodParameters.numNodes = 1000;
+//
+//	// stable configuration
+//	Eigen::Wrenchd stableConf1;
+//	stableConf1[0] = 5.7449;
+//	stableConf1[1] = -0.1838;
+//	stableConf1[2] = 3.7734;
+//	stableConf1[3] = -71.6227;
+//	stableConf1[4] = -15.6477;
+//	stableConf1[5] = 83.1471;
+//	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf1,
+//		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
+//	BOOST_CHECK( rodStableState1 );	
+//	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
+//	// not singular 
+//	BOOST_CHECK( status != WorkspaceIntegratedState::IR_SINGULAR );	
+//	// stable
+//	BOOST_CHECK( rodStableState1->isStable() );
+//	BOOST_CHECK( status != WorkspaceIntegratedState::IR_UNSTABLE );	
+//}
+//
+//BOOST_AUTO_TEST_SUITE_END();
