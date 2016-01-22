@@ -20,7 +20,79 @@
 #include <boost/test/unit_test.hpp>
 
 #include "qserl/rod3d/workspace_integrated_state.h"
-#include "util/timer.h"
+#include "qserl/util/timer.h"
+#include "util/lie_algebra_utils.h"
+
+
+/* ------------------------------------------------------------------------- */
+/* InextensibleRod3DRawDataTests																						 */
+/* ------------------------------------------------------------------------- */
+BOOST_AUTO_TEST_SUITE(InextensibleRod3DRawDataTests)
+
+BOOST_AUTO_TEST_CASE(InextensibleRod3DRawDataTests_compare_external_data1)
+{
+	qserl::rod3d::Parameters rodParameters;
+	// set appropriate elasticity parameters
+	rodParameters.radius = 0.01;
+	rodParameters.length = 1.;
+	rodParameters.stiffnessCoefficients = Eigen::Matrix<double, 6, 1>::Ones();
+	rodParameters.integrationTime = 1.;
+	rodParameters.rodModel = qserl::rod3d::Parameters::RM_INEXTENSIBLE;
+	rodParameters.numNodes = 200000;
+
+	// stable configuration
+	Eigen::Wrenchd stableConf1;
+	stableConf1[0] = 5.7449;
+	stableConf1[1] = -0.1838;
+	stableConf1[2] = 3.7734;
+	stableConf1[3] = -71.6227;
+	stableConf1[4] = -15.6477;
+	stableConf1[5] = 83.1471;
+	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf1,
+		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
+	BOOST_CHECK( rodStableState1 );	
+	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
+	// not singular 
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_SINGULAR );	
+	// stable
+	BOOST_CHECK( rodStableState1->isStable() );
+	BOOST_CHECK( status != qserl::rod3d::WorkspaceIntegratedState::IR_UNSTABLE );	
+
+	// compare q(1)
+	Eigen::Matrix4d external_q1_mat;
+	external_q1_mat << 0.131015450583688, -0.221694028519735, -0.966271452117711, 0.502570527667144,
+										 0.670919241188877, -0.697739138440250, 0.251057844719277, 0.224474097471111,
+										 -0.729858559768751, -0.681183316364205, 0.057314761488519, -0.515527857600866,
+										 0., 0., 0., 1.;
+	const Eigen::Matrix4d impl_q1_mat = qserl::util::GetHomogenousMatrix(rodStableState1->nodes()[rodParameters.numNodes-1]);
+	for (int i = 0; i < 4;  ++i)
+	{
+		for (int j = 0; j < 4;  ++j)
+		{
+			BOOST_CHECK_CLOSE(external_q1_mat(i, j), impl_q1_mat(i, j), 0.1);
+		}
+	}
+
+	// compare J(1)
+	Eigen::Matrix<double, 6, 6> external_J1_mat;
+	external_J1_mat <<	 0.863757430643127, 0.068239275411261,  -0.311326745708524,  -0.020469934592801,   0.008818885895480,  -0.004128259697585,
+											 0.109312742029055, 0.060603348805207,  -0.110555839878126,  -0.016787411090804,   0.002089286520661,  -0.010250408399195,
+											-0.227912963349722, 0.005536330236083,   0.159710593966831,  -0.016637254942726,   0.006340580390063,   0.024850086613713,
+											-0.020469998324946, 0.008818707958365,  -0.004128975395289,  -0.001054045186435,  -0.002919725344545,   0.001802353003749,
+											-0.016788282449621, 0.002089215355955,  -0.010250316008463,   0.001747674215122,   0.005553562171767,   0.002865488168595,
+											-0.016635282303093, 0.006341004305033,   0.024849079504003,   0.004688562486302,  -0.003222635977263,   0.006209331205126;
+
+	const Eigen::Matrix<double, 6, 6>& impl_J1_mat = rodStableState1->getJMatrix(rodParameters.numNodes-1);
+	for (int i = 0; i < 6;  ++i)
+	{
+		for (int j = 0; j < 6;  ++j)
+		{
+			BOOST_CHECK_CLOSE(external_J1_mat(i, j), impl_J1_mat(i, j), 0.1);
+		}
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END();
 
 /* ------------------------------------------------------------------------- */
 /* SingularConfigurations3DTests  																						 */
@@ -418,7 +490,6 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
 BOOST_AUTO_TEST_SUITE_END();
 
 #endif
-
 
 /* ------------------------------------------------------------------------- */
 /* InextensibleRod3DJacobiansTests																						 */
