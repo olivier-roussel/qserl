@@ -22,8 +22,8 @@
 #include "qserl/rod2d/analytic_mu.h"
 #include "qserl/rod2d/workspace_integrated_state.h"
 #include "qserl/rod2d/rod.h"
+#include "qserl/util/timer.h"
 #include "util/lie_algebra_utils.h"
-#include "util/timer.h"
 
 /* ------------------------------------------------------------------------- */
 /* Analytic vs. Numeric Tests for mu values              									   */
@@ -369,4 +369,3 @@ BOOST_AUTO_TEST_CASE(Analytic_Mu_Benchmarking_Full_RandomSet)
 }
 
 BOOST_AUTO_TEST_SUITE_END();
-//#endif

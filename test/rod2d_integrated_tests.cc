@@ -21,7 +21,7 @@
 
 #include "qserl/rod2d/workspace_integrated_state.h"
 #include "qserl/rod2d/rod.h"
-#include "util/timer.h"
+#include "qserl/util/timer.h"
 
 /* ------------------------------------------------------------------------- */
 /* SingularConfigurations2DTests  																						 */
@@ -321,4 +321,3 @@ BOOST_AUTO_TEST_SUITE(Inextensible2DBencnhmarks)
 //}
 
 BOOST_AUTO_TEST_SUITE_END();
-//#endif

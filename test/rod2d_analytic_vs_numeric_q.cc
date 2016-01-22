@@ -22,8 +22,8 @@
 #include "qserl/rod2d/analytic_q.h"
 #include "qserl/rod2d/workspace_integrated_state.h"
 #include "qserl/rod2d/rod.h"
+#include "qserl/util/timer.h"
 #include "util/lie_algebra_utils.h"
-#include "util/timer.h"
 
 /* ------------------------------------------------------------------------- */
 /* Analytic vs. Numeric Tests for q values              									   */
