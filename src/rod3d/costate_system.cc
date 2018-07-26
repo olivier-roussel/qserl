@@ -19,8 +19,6 @@
 
 #include "costate_system.h"
 
-#include <boost/bind.hpp>
-
 namespace qserl {
 namespace rod3d {
 
@@ -28,7 +26,7 @@ CostateSystem::state_type
 CostateSystem::defaultState()
 {
   state_type defaultStateArray;
-  defaultStateArray.assign(0.);
+  defaultStateArray.fill(0.);
   return defaultStateArray;
 }
 
@@ -39,13 +37,15 @@ CostateSystem::CostateSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffness,
     m_length(i_length),
     m_rodModel(i_rodModel)
 {
+  using namespace std::placeholders;
+
   if(m_rodModel == Parameters::RM_INEXTENSIBLE)
   {
-    m_evaluationCallback = boost::bind(&CostateSystem::evaluateInextensible, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&CostateSystem::evaluateInextensible, this, _1, _2, _3);
   }
   else if(m_rodModel == Parameters::RM_EXTENSIBLE_SHEARABLE)
   {
-    m_evaluationCallback = boost::bind(&CostateSystem::evaluateExtensibleShearable, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&CostateSystem::evaluateExtensibleShearable, this, _1, _2, _3);
   }
   else
     assert(false && "invalid rod model");

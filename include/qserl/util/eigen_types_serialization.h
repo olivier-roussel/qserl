@@ -20,84 +20,200 @@
 #ifndef QSERL_UTIL_EIGEN_TYPES_SERIALIZATION_H_
 #define QSERL_UTIL_EIGEN_TYPES_SERIALIZATION_H_
 
-#include <boost/serialization/serialization.hpp>
-//#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
-//#pragma warning( pop )
+#include <cereal/archives/xml.hpp>
+#include <cereal/types/vector.hpp>
 
-// Seriliazation for Eigen types
+#include <Eigen/Sparse>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
 
-namespace boost {
-namespace serialization {
+// Eigen Matrix serialization
+namespace cereal {
 
-template<class Archive, typename Scalar>
-void
-serialize(Archive& ar,
-          Eigen::Matrix<Scalar, 3, 1>& v,
-          const unsigned int version)
+// Eigen matrix save helper
+template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+struct save_helper
 {
-  ar & boost::serialization::make_nvp("x", v.x()) &
-  boost::serialization::make_nvp("y", v.y()) &
-  boost::serialization::make_nvp("z", v.z());
-}
-
-template<class Archive, typename Scalar>
-void
-serialize(Archive& ar,
-          Eigen::Twist<Scalar>& w,
-          const unsigned int version)
-{
-  ar & boost::serialization::make_nvp("rx", w.rx()) &
-  boost::serialization::make_nvp("ry", w.ry()) &
-  boost::serialization::make_nvp("rz", w.rz()) &
-  boost::serialization::make_nvp("vx", w.vx()) &
-  boost::serialization::make_nvp("vy", w.vy()) &
-  boost::serialization::make_nvp("vz", w.vz());
-}
-
-template<class Archive, typename Scalar>
-void
-serialize(Archive& ar,
-          Eigen::Matrix<Scalar, 6, 1>& v,
-          const unsigned int version)
-{
-  for(int idxCol = 0; idxCol < 6; ++idxCol)
+  static void save(Archive& ar,
+                   const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m)
   {
-    const std::string name = std::string("c") + std::to_string(idxCol);
-    ar & boost::serialization::make_nvp(name.c_str(), v[idxCol]);
+    const auto num_rows = m.rows();
+    const auto num_cols = m.cols();
+    std::vector<_Scalar> data_v(m.data(), m.data() + m.size());
+    ar( make_nvp("num_rows", num_rows),
+        make_nvp("num_cols", num_cols),
+        make_nvp("data", data_v) );
   }
-}
+};
 
-template<class Archive, typename Scalar>
-void
-serialize(Archive& ar,
-          Eigen::Wrench<Scalar>& w,
-          const unsigned int version)
+// Partial specialization for 2-d vectors
+template <class Archive, typename _Scalar, int _Options, int _MaxRows, int _MaxCols>
+struct save_helper<Archive, _Scalar, 2, 1, _Options, _MaxRows, _MaxCols>
 {
-  ar & boost::serialization::make_nvp("tx", w.tx()) &
-  boost::serialization::make_nvp("ty", w.ty()) &
-  boost::serialization::make_nvp("tz", w.tz()) &
-  boost::serialization::make_nvp("fx", w.fx()) &
-  boost::serialization::make_nvp("fy", w.fy()) &
-  boost::serialization::make_nvp("fz", w.fz());
-}
+  static void save(Archive& ar,
+                   const Eigen::Matrix<_Scalar, 2, 1, _Options, _MaxRows, _MaxCols>& m)
+  {
+    ar( make_nvp("x", m.x()),
+        make_nvp("y", m.y()) );
+  }
+};
 
-template<class Archive, typename Scalar>
-void
-serialize(Archive& ar,
-          Eigen::Displacement<Scalar>& d,
-          const unsigned int version)
+// Partial specialization for 3-d vectors
+template <class Archive, typename _Scalar, int _Options, int _MaxRows, int _MaxCols>
+struct save_helper<Archive, _Scalar, 3, 1, _Options, _MaxRows, _MaxCols>
 {
-  ar & boost::serialization::make_nvp("x", d.x()) &
-  boost::serialization::make_nvp("y", d.y()) &
-  boost::serialization::make_nvp("z", d.z()) &
-  boost::serialization::make_nvp("qx", d.qx()) &
-  boost::serialization::make_nvp("qy", d.qy()) &
-  boost::serialization::make_nvp("qz", d.qz()) &
-  boost::serialization::make_nvp("qw", d.qw());
+  static void save(Archive& ar,
+                   const Eigen::Matrix<_Scalar, 3, 1, _Options, _MaxRows, _MaxCols>& m)
+  {
+    ar( make_nvp("x", m.x()),
+        make_nvp("y", m.y()),
+        make_nvp("z", m.z()) );
+  }
+};
+
+// eigen matrix load helper
+template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+struct load_helper
+{
+  static void load(Archive& ar,
+                   Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m)
+  {
+    using Index = typename Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>::Index;  Index num_rows, num_cols;
+    std::vector<_Scalar> data_v;
+    ar( make_nvp("num_rows", num_rows),
+        make_nvp("num_cols", num_cols),
+        make_nvp("data", data_v) );
+    m = Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>(data_v.data());
+  }
+};
+
+// Partial specialization for 2-d vectors
+template <class Archive, typename _Scalar, int _Options, int _MaxRows, int _MaxCols>
+struct load_helper<Archive, _Scalar, 2, 1, _Options, _MaxRows, _MaxCols>
+{
+  static void load(Archive& ar,
+                   Eigen::Matrix<_Scalar, 2, 1, _Options, _MaxRows, _MaxCols>& m)
+  {
+    ar( make_nvp("x", m.x()),
+        make_nvp("y", m.y()) );
+  }
+};
+
+// Partial specialization for 3-d vectors
+template <class Archive, typename _Scalar, int _Options, int _MaxRows, int _MaxCols>
+struct load_helper<Archive, _Scalar, 3, 1, _Options, _MaxRows, _MaxCols>
+{
+  static void load(Archive& ar,
+                   const Eigen::Matrix<_Scalar, 3, 1, _Options, _MaxRows, _MaxCols>& m)
+  {
+    ar( make_nvp("x", m.x()),
+        make_nvp("y", m.y()),
+        make_nvp("z", m.z()) );
+  }
+};
+
+template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+void
+save(Archive& ar,
+     const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m)
+{
+  save_helper<Archive, _Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>::save(ar, m);
 }
 
-} // namespace serialization
-} // namespace boost
+template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+void
+load(Archive& ar,
+     Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>& m)
+{
+  load_helper<Archive, _Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>::load(ar, m);
+}
+
+// Eigen triplets serialization (for sparse matrices)
+template <class Archive, typename _Scalar>
+void
+save(Archive& ar,
+     const Eigen::Triplet<_Scalar>& m)
+{
+  ar( make_nvp("row", m.row()),
+      make_nvp("col", m.col()),
+      make_nvp("value", m.value()) );
+}
+
+template <class Archive, typename _Scalar>
+void
+load(Archive& ar,
+     Eigen::Triplet<_Scalar>& m)
+{
+  using Index = typename Eigen::Triplet<_Scalar>::Index;
+  Index row, col;
+  _Scalar value;
+  ar( make_nvp("row", row),
+      make_nvp("col", col),
+      make_nvp("value", value) );
+  m = Eigen::Triplet<_Scalar>(row, col, value);
+}
+
+// Eigen sparse matrices serialization
+template <class Archive, typename _Scalar, int _Options, typename _Index>
+void
+save(Archive& ar,
+     const Eigen::SparseMatrix<_Scalar,_Options,_Index>& m)
+{
+  using Index = typename Eigen::SparseMatrix<_Scalar,_Options,_Index>::Index;
+  const auto inner_size = m.innerSize();
+  const auto outer_size = m.outerSize();
+  using Triplet = typename Eigen::Triplet<_Scalar>;
+  std::vector<Triplet> triplets;
+  for(Index i = 0; i < outer_size; ++i)
+  {
+    for(typename Eigen::SparseMatrix<_Scalar, _Options,_Index>::InnerIterator it(m,i);
+        it;
+        ++it)
+    {
+      triplets.push_back(Triplet{it.row(), it.col(), it.value()});
+    }
+  }
+  ar( make_nvp("inner_size", inner_size),
+      make_nvp("outer_size", outer_size),
+      make_nvp("triplets", triplets) );
+}
+
+template <class Archive, typename _Scalar, int _Options, typename _Index>
+void
+load(Archive& ar,
+     Eigen::SparseMatrix<_Scalar,_Options,_Index>& m)
+{
+  using Index = typename Eigen::SparseMatrix<_Scalar,_Options,_Index>::Index;
+  Index inner_size;
+  Index outer_size;
+  ar( make_nvp("inner_size", inner_size), make_nvp("outer_size", outer_size) );
+  const auto num_rows = m.IsRowMajor ? outer_size : inner_size;
+  const auto num_cols = m.IsRowMajor ? inner_size : outer_size;
+  m.resize(num_rows, num_cols);
+  using Triplet = typename Eigen::Triplet<_Scalar>;
+  std::vector<Triplet> triplets;
+  ar( make_nvp("triplets", triplets) );
+  m.setFromTriplets(triplets.begin(), triplets.end());
+}
+
+template <class Archive, typename _Scalar, int _Rows, int _Cols>
+void
+save(Archive& ar,
+     const Eigen::Transform<_Scalar, _Rows, _Cols>& t)
+{
+  ar( make_nvp("transform_matrix", t.matrix()) );
+}
+
+template <class Archive, typename _Scalar, int _Rows, int _Cols>
+void
+load(Archive& ar,
+     Eigen::Transform<_Scalar, _Rows, _Cols>& t)
+{
+  typename Eigen::Transform<_Scalar, _Rows, _Cols>::MatrixType mat;
+  ar( make_nvp("transform_matrix", mat) );
+  t = Eigen::Transform<_Scalar, _Rows, _Cols>(mat);
+}
+
+} // namespace cereal
 
 #endif // QSERL_UTIL_EIGEN_TYPES_SERIALIZATION_H_

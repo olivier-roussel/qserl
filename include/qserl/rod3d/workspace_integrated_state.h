@@ -21,8 +21,7 @@
 
 #include "qserl/exports.h"
 
-#include <boost/array.hpp>
-#include <boost/function.hpp>
+#include <array>
 
 #include "qserl/rod3d/workspace_state.h"
 #include "qserl/rod3d/parameters.h"
@@ -38,11 +37,9 @@ class QSERL_EXPORT WorkspaceIntegratedState : public WorkspaceState
 public:
 
   /** Rod state types. */
-  typedef boost::array<double,
-                       16> state_type;            /**< Type of 3D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(3). */
-  typedef boost::array<double,
-                       6> costate_type;          /**< Type of 3D elastic rod co-states mu(t) at position t, where mu(t) is an element of the dual Lie algebra se(3)*. */
-  typedef boost::array<double, 72> jacobian_state_type;  /**< Type of 3D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
+  typedef std::array<double, 16> state_type;            /**< Type of 3D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(3). */
+  typedef std::array<double, 6> costate_type;          /**< Type of 3D elastic rod co-states mu(t) at position t, where mu(t) is an element of the dual Lie algebra se(3)*. */
+  typedef std::array<double, 72> jacobian_state_type;  /**< Type of 3D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
 																													     - M(t) is the 6x6 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 36 elements),
 																															 - J(t) is the 6x6 Jacobian matrix of the state q(t) w.r.t. initial conditions (i.e. mu(0)) (last 36 elements). */
 

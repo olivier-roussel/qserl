@@ -19,8 +19,6 @@
 
 #include "qserl/rod3d/rod.h"
 
-#include <boost/math/constants/constants.hpp>
-
 #include "qserl/rod3d/workspace_integrated_state.h"
 #include "util/utils.h"
 

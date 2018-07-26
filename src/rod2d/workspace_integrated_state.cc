@@ -21,10 +21,8 @@
 
 #include "qserl/rod2d/workspace_integrated_state.h"
 
-//#pragma warning( push, 0 )
 #include <Eigen/Eigenvalues>
 #include <Eigen/Geometry>
-//#pragma warning( pop )
 #include <boost/numeric/odeint.hpp>
 
 #include "qserl/rod2d/rod.h"

@@ -25,35 +25,35 @@ namespace util {
 TimePoint
 getTimePoint()
 {
-  return boost::chrono::high_resolution_clock::now();
+  return std::chrono::high_resolution_clock::now();
 }
 
-boost::chrono::nanoseconds
+std::chrono::nanoseconds
 getElapsedTimeNsec(const TimePoint& start)
 {
-  return boost::chrono::duration_cast<boost::chrono::nanoseconds>(
-      boost::chrono::high_resolution_clock::now() - start);//.count();
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::high_resolution_clock::now() - start);//.count();
 }
 
-boost::chrono::microseconds
+std::chrono::microseconds
 getElapsedTimeUsec(const TimePoint& start)
 {
-  return boost::chrono::duration_cast<boost::chrono::microseconds>(
-      boost::chrono::high_resolution_clock::now() - start);//.count();
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+      std::chrono::high_resolution_clock::now() - start);//.count();
 }
 
-boost::chrono::milliseconds
+std::chrono::milliseconds
 getElapsedTimeMsec(const TimePoint& start)
 {
-  return boost::chrono::duration_cast<boost::chrono::milliseconds>(
-      boost::chrono::high_resolution_clock::now() - start);//.count();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::high_resolution_clock::now() - start);//.count();
 }
 
-boost::chrono::seconds
+std::chrono::seconds
 getElapsedTimeSec(const TimePoint& start)
 {
-  return boost::chrono::duration_cast<boost::chrono::seconds>(
-      boost::chrono::high_resolution_clock::now() - start);//.count();
+  return std::chrono::duration_cast<std::chrono::seconds>(
+      std::chrono::high_resolution_clock::now() - start);//.count();
 }
 
 } // namespace util

@@ -17,32 +17,15 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QSERL_UTIL_TIMER_H_
-#define QSERL_UTIL_TIMER_H_
-
-#include <chrono>
+#ifndef QSERL_UTIL_CONSTANTS_H_
+#define QSERL_UTIL_CONSTANTS_H_
 
 namespace qserl {
-namespace util {
+namespace constants {
 
-typedef std::chrono::high_resolution_clock::time_point TimePoint;
+constexpr double pi = 3.14159265358979323846;
 
-TimePoint
-getTimePoint();
+}  // namespace constants
+}  // namespace qserl
 
-std::chrono::nanoseconds
-getElapsedTimeNsec(const TimePoint& start);
-
-std::chrono::microseconds
-getElapsedTimeUsec(const TimePoint& start);
-
-std::chrono::milliseconds
-getElapsedTimeMsec(const TimePoint& start);
-
-std::chrono::seconds
-getElapsedTimeSec(const TimePoint& start);
-
-} // namespace util
-} // namespace qserl
-
-#endif // QSERL_UTIL_TIMER_H_
+#endif //QSERL_UTIL_CONSTANTS_H_

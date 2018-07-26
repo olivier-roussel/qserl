@@ -22,11 +22,9 @@
 
 #include "qserl/exports.h"
 
-#include <boost/function.hpp>
+#include <functional>
 
-//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-//#pragma warning( pop )
 
 #include "qserl/rod2d/workspace_integrated_state.h"
 
@@ -37,8 +35,6 @@ class QSERL_EXPORT JacobianSystem
 {
 public:
   typedef WorkspaceIntegratedState::jacobian_state_type state_type;
-
-  //static const state_type kDefaultState;				/**< Deprecated */
 
   static const double kStabilityThreshold;      /** Threshold for Jacobian determinant. */
   static const double kStabilityTolerance;      /** Tolerance for which Jacobian determinant vanishes. */
@@ -72,9 +68,9 @@ private:
   const std::vector<WorkspaceIntegratedState::costate_type>& m_mu;
   Parameters::RodModelT m_rodModel;
 
-  boost::function<void(const state_type&,
-                       state_type&,
-                       double)> m_evaluationCallback;
+  std::function<void(const state_type&,
+                     state_type&,
+                     double)> m_evaluationCallback;
 
   /**
   * Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.

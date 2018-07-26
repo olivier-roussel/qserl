@@ -23,11 +23,8 @@
 #include "qserl/exports.h"
 
 #include <Eigen/Core>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/version.hpp>
-
+#include <cereal/access.hpp>
+#include <cereal/archives/xml.hpp>
 
 namespace qserl {
 namespace rod2d {
@@ -62,33 +59,37 @@ struct QSERL_EXPORT Parameters
     return v_model_names_array[static_cast<int>(i_model)];
   }
 
-  double radius;              /**< Rod radius _ Default is 1e-2. */
-  double length;              /**< Rod length _ Must be set to 1 _ Default is 1. */
-
-  double integrationTime;    /**< Internal use _ Default is 1. */
-  double delta_t;            /**< Integration step time, defines the resolution of the rod discretization.
-																												* Default is 1e-2. */
-
-  RodModelT rodModel;
-
-  //int																numNodes;				/** Deprecated. Use numberOfNodes() instead. */
   int
   numberOfNodes() const
   {
     return static_cast<int>(std::floor(integrationTime / delta_t)) + 1;
   }
 
-  /** Serialization */
+  /**
+   * Attributes
+   */
+  double radius;              /**< Rod radius _ Default is 1e-2. */
+  double length;              /**< Rod length _ Must be set to 1 _ Default is 1. */
+
+  double integrationTime;     /**< Internal use _ Default is 1. */
+  double delta_t;             /**< Integration step time, defines the resolution of the rod discretization.
+															 * Default is 1e-2. */
+  RodModelT rodModel;
+
+  /**
+   * Serialization
+   */
   template<class Archive>
   void
   serialize(Archive& ar,
             const unsigned int version)
   {
-    ar & boost::serialization::make_nvp("radius", radius) &
-    boost::serialization::make_nvp("length", length) &
-    boost::serialization::make_nvp("integrationTime", integrationTime) &
-    boost::serialization::make_nvp("delta_t", delta_t) &
-    boost::serialization::make_nvp("rodModel", rodModel);
+    ar(cereal::make_nvp("radius", radius),
+       cereal::make_nvp("length", length),
+       cereal::make_nvp("integrationTime", integrationTime),
+       cereal::make_nvp("delta_t", delta_t),
+       cereal::make_nvp("rodModel", rodModel)
+    );
   }
 };
 

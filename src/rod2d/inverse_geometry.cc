@@ -23,6 +23,8 @@
 
 #include "qserl/rod2d/inverse_geometry.h"
 
+#include <iostream>
+
 #include "qserl/rod2d/analytic_dqda.h"
 #include "qserl/util/timer.h"
 #include "util/utils.h"

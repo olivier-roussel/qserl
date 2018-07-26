@@ -35,8 +35,9 @@ option(QSERL_BUILD_TEST ON "Build tests")
 # Dependencies
 #------------------------------------------------------------------------------
 
-find_package(Boost 1.55 REQUIRED MODULE COMPONENTS chrono system serialization)
+find_package(Boost 1.55 REQUIRED MODULE)
 find_package(EigenLgsm REQUIRED CONFIG)
+find_package(cereal REQUIRED CONFIG)
 
 #------------------------------------------------------------------------------
 # Setting up target
@@ -90,9 +91,7 @@ target_compile_options(qserl PRIVATE -Wall -Wextra)
 target_link_libraries(qserl
   PUBLIC
     Boost::boost
-    Boost::chrono
-    Boost::serialization
-    Boost::system
+    cereal
     EigenLgsm
   )
 

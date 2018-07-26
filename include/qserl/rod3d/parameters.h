@@ -23,10 +23,8 @@
 #include "qserl/exports.h"
 
 #include <Eigen/Core>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/version.hpp>
+#include <cereal/access.hpp>
+#include <cereal/archives/xml.hpp>
 
 #include "qserl/util/eigen_types_serialization.h"
 
@@ -65,17 +63,6 @@ struct QSERL_EXPORT Parameters
     return v_model_names_array[static_cast<int>(i_model)];
   }
 
-  double radius;
-  double length;
-  Eigen::Matrix<double, 6, 1> stiffnessCoefficients;
-  RodModelT rodModel;
-  int numNodes;       /** Number of discretization nodes. Related to the delta_t field
-                                                    * used for 2D rod by delta_t = 1 / (numNodes - 1) */
-  //double														density;		        /** Unused. */
-
-  /**< Internal use only. */
-  double integrationTime;  /**< Should be kept to 1 (default value). */
-
   /**
   * \brief Returns equivalent Young modulus from stiffness coefficients.
   * \pre Stiffness coefficients must represent transversal isotropic elasticity, i.e.
@@ -101,20 +88,34 @@ struct QSERL_EXPORT Parameters
   void
   setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus,
                                                             double i_shearModulus);
+  /**
+   * Attributes
+   */
+  double                        radius;
+  double                        length;
+  Eigen::Matrix<double, 6, 1>   stiffnessCoefficients;
+  RodModelT                     rodModel;
+  int                           numNodes;       /** Number of discretization nodes. Related to the delta_t field
+                                                  * used for 2D rod by delta_t = 1 / (numNodes - 1) */
+  /**< Internal use only. */
+  double                        integrationTime;  /**< Should be kept to 1 (default value). */
 
-  /** Serialization */
+  /**
+   * Serialization
+   */
   template<class Archive>
   void
   serialize(Archive& ar,
             const unsigned int version)
   {
-    ar & boost::serialization::make_nvp("radius", radius) &
-    boost::serialization::make_nvp("length", length) &
-    boost::serialization::make_nvp("stiffnessCoefficients", stiffnessCoefficients) &
-    boost::serialization::make_nvp("rodModel", rodModel) &
-    boost::serialization::make_nvp("numNodes", numNodes);
-    //boost::serialization::make_nvp("density", density) &
-    //boost::serialization::make_nvp("integrationTime", integrationTime) &
+    ar(cereal::make_nvp("radius", radius),
+       cereal::make_nvp("length", length),
+       cereal::make_nvp("stiffnessCoefficients", stiffnessCoefficients),
+       cereal::make_nvp("rodModel", rodModel),
+       cereal::make_nvp("numNodes", numNodes),
+        //cereal::make_nvp("density", density) &
+       cereal::make_nvp("integrationTime", integrationTime)
+    );
   }
 };
 

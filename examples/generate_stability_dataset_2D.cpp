@@ -4,10 +4,11 @@
 
 #include "qserl/rod2d/analytic_q.h"
 #include "qserl/rod2d/analytic_energy.h"
+#include "qserl/util/constants.h"
 
+#include <iostream>
 #include <fstream>
-#include <boost/math/constants/constants.hpp>
-#include <boost/chrono.hpp>
+#include <chrono>
 
 int
 main()
@@ -20,7 +21,7 @@ main()
 #endif
 
   // A-space bounds
-  static const double maxTorque = 3 * boost::math::constants::pi<double>();
+  static const double maxTorque = 3 * qserl::constants::pi;
   static const double maxForce = 150;
 
   static const int numSamplesTorque = 200;
@@ -69,7 +70,7 @@ main()
   std::vector<int> dataset_stability(numSamplesTotal, -1);
   std::vector<double> dataset_energy(numSamplesTotal, -1.);
 
-  boost::chrono::high_resolution_clock::time_point startBenchTime = boost::chrono::high_resolution_clock::now();
+  const auto startBenchTime = std::chrono::high_resolution_clock::now();
 
   // proceed to samples of q1
   std::cout << "Starting generation of " << numSamplesTotal << " rod configurations for stability checking..";
@@ -119,8 +120,8 @@ main()
     }
   }
   std::cout << "DONE" << std::endl;
-  double benchTimeMs = boost::chrono::duration_cast<boost::chrono::milliseconds>(
-      boost::chrono::high_resolution_clock::now() - startBenchTime).count();
+  double benchTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::high_resolution_clock::now() - startBenchTime).count();
 
   std::cout << "Total time: " << benchTimeMs << "ms for " << numSamplesTotal << " samples" << std::endl;
   std::cout << "Per sample time =" << (benchTimeMs * 1.e3 / static_cast<double>(numSamplesTotal)) << "us" << std::endl;

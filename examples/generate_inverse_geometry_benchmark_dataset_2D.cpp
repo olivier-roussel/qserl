@@ -3,10 +3,10 @@
 
 #include "qserl/rod2d/analytic_q.h"
 #include "qserl/rod2d/analytic_dqda.h"
+#include "qserl/util/constants.h"
 
 #include <iostream>
 #include <fstream>
-#include <boost/math/constants/constants.hpp>
 
 int
 main()
@@ -39,7 +39,7 @@ main()
 
   // set base A-space bounds
   Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
-  static const double maxTorque = 2 * boost::math::constants::pi<double>();
+  static const double maxTorque = 2 * qserl::constants::pi;
   static const double maxForce = 100;
 
   aSpaceUpperBounds[0] = maxTorque;

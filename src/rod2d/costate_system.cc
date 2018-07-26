@@ -19,7 +19,7 @@
 
 #include "costate_system.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 namespace qserl {
 namespace rod2d {
@@ -28,7 +28,7 @@ CostateSystem::state_type
 CostateSystem::defaultState()
 {
   state_type defaultStateArray;
-  defaultStateArray.assign(0.);
+  defaultStateArray.fill(0.);
   return defaultStateArray;
 }
 
@@ -39,9 +39,11 @@ CostateSystem::CostateSystem(double i_inv_stiffness,
     m_length(i_length),
     m_rodModel(i_rodModel)
 {
+  using namespace std::placeholders;
+
   if(m_rodModel == Parameters::RM_INEXTENSIBLE)
   {
-    m_evaluationCallback = boost::bind(&CostateSystem::evaluateInextensible, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&CostateSystem::evaluateInextensible, this, _1, _2, _3);
   }
   else
     assert(false && "invalid rod model");

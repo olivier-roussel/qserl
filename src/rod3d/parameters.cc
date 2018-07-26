@@ -19,8 +19,7 @@
 
 #include "qserl/rod3d/parameters.h"
 
-#include <boost/math/constants/constants.hpp>
-
+#include "qserl/util/constants.h"
 #include "util/utils.h"
 
 namespace qserl {
@@ -33,9 +32,9 @@ void
 Parameters::setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus,
                                                                       double i_shearModulus)
 {
-  const double sectionArea = util::sqr(radius) * boost::math::constants::pi<double>();
-  const double I = 0.25 * util::sqr(util::sqr(radius)) * boost::math::constants::pi<double>();
-  const double J = 0.5 * util::sqr(util::sqr(radius)) * boost::math::constants::pi<double>();
+  const double sectionArea = util::sqr(radius) * constants::pi;
+  const double I = 0.25 * util::sqr(util::sqr(radius)) * constants::pi;
+  const double J = 0.5 * util::sqr(util::sqr(radius)) * constants::pi;
 
   stiffnessCoefficients[0] = i_shearModulus * J;
   stiffnessCoefficients[1] = i_youngModulus * I;
@@ -54,7 +53,7 @@ Parameters::getIsotropicYoungModulus() const
   assert(stiffnessCoefficients[1] == stiffnessCoefficients[2] && stiffnessCoefficients[4] == stiffnessCoefficients[5] &&
          "rod stifness constants must represent (transversal) isotropy elasticity");
 
-  const double sectionArea = util::sqr(radius) * boost::math::constants::pi<double>();
+  const double sectionArea = util::sqr(radius) * constants::pi;
   return stiffnessCoefficients[3] / sectionArea;
 }
 
@@ -67,7 +66,7 @@ Parameters::getIsotropicShearModulus() const
   assert(stiffnessCoefficients[1] == stiffnessCoefficients[2] && stiffnessCoefficients[4] == stiffnessCoefficients[5] &&
          "rod stifness constants must represent (transversal) isotropy elasticity");
 
-  const double sectionArea = util::sqr(radius) * boost::math::constants::pi<double>();
+  const double sectionArea = util::sqr(radius) * constants::pi;
   return stiffnessCoefficients[4] / sectionArea;
 }
 

@@ -22,11 +22,8 @@
 
 #include "qserl/exports.h"
 
-#include <boost/function.hpp>
-
-//#pragma warning( push, 0 )
+#include <functional>
 #include <Eigen/Lgsm>
-//#pragma warning( pop )
 
 #include "qserl/rod3d/workspace_integrated_state.h"
 
@@ -80,9 +77,9 @@ private:
   const std::vector<WorkspaceIntegratedState::costate_type>& m_mu;
   Parameters::RodModelT m_rodModel;
 
-  boost::function<void(const state_type&,
-                       state_type&,
-                       double)> m_evaluationCallback;
+  std::function<void(const state_type&,
+                     state_type&,
+                     double)> m_evaluationCallback;
 
   /**
   * Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.

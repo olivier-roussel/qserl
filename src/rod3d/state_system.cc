@@ -19,7 +19,6 @@
 
 #include "state_system.h"
 
-#include <boost/bind.hpp>
 
 namespace qserl {
 namespace rod3d {
@@ -28,7 +27,7 @@ StateSystem::state_type
 StateSystem::defaultState()
 {
   state_type defaultStateArray;
-  defaultStateArray.assign(0.);
+  defaultStateArray.fill(0.);
   return defaultStateArray;
 }
 
@@ -44,14 +43,15 @@ StateSystem::StateSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffness,
     m_rodModel(i_rodModel)
 {
   assert (m_dt > 0. && "integration step time must be positive.");
+  using namespace std::placeholders;
 
   if(m_rodModel == Parameters::RM_INEXTENSIBLE)
   {
-    m_evaluationCallback = boost::bind(&StateSystem::evaluateInextensible, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&StateSystem::evaluateInextensible, this, _1, _2, _3);
   }
   else if(m_rodModel == Parameters::RM_EXTENSIBLE_SHEARABLE)
   {
-    m_evaluationCallback = boost::bind(&StateSystem::evaluateExtensibleShearable, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&StateSystem::evaluateExtensibleShearable, this, _1, _2, _3);
   }
   else
     assert(false && "invalid rod model");

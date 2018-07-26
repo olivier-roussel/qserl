@@ -22,11 +22,9 @@
 
 #include "qserl/exports.h"
 
-#include <boost/function.hpp>
+#include <functional>
 
-//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-//#pragma warning( pop )
 
 #include "qserl/rod3d/workspace_integrated_state.h"
 
@@ -37,8 +35,6 @@ class QSERL_EXPORT CostateSystem
 {
 public:
   typedef WorkspaceIntegratedState::costate_type state_type;
-
-  //static const state_type kDefaultState;
 
   /**
   * Constructors, destructors
@@ -60,13 +56,13 @@ public:
 
 private:
 
-  Eigen::Matrix<double, 6, 1> m_inv_c;    /**< Inverse stiffness coefficients */
-  double m_length;
-  Parameters::RodModelT m_rodModel;
+  Eigen::Matrix<double, 6, 1>               m_inv_c;    /**< Inverse stiffness coefficients */
+  double                                    m_length;
+  Parameters::RodModelT                     m_rodModel;
 
-  boost::function<void(const state_type&,
-                       state_type&,
-                       double)> m_evaluationCallback;
+  std::function<void(const state_type&,
+                     state_type&,
+                     double)>               m_evaluationCallback;
 
   /**
   * Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.

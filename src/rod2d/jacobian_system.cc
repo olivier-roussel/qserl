@@ -19,7 +19,7 @@
 
 #include "jacobian_system.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 namespace qserl {
 namespace rod2d {
@@ -31,7 +31,7 @@ JacobianSystem::state_type
 JacobianSystem::defaultState()
 {
   state_type defaultStateArray;
-  defaultStateArray.assign(0.);
+  defaultStateArray.fill(0.);
   return defaultStateArray;
 }
 
@@ -45,10 +45,11 @@ JacobianSystem::JacobianSystem(double i_inv_stiffness,
     m_rodModel(i_rodModel)
 {
   assert (m_dt > 0. && "integration step time must be positive.");
+  using namespace std::placeholders;
 
   if(m_rodModel == Parameters::RM_INEXTENSIBLE)
   {
-    m_evaluationCallback = boost::bind(&JacobianSystem::evaluateInextensible, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&JacobianSystem::evaluateInextensible, this, _1, _2, _3);
   }
   else
     assert(false && "invalid rod model");

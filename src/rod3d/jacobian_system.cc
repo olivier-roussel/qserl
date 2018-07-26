@@ -19,8 +19,6 @@
 
 #include "jacobian_system.h"
 
-#include <boost/bind.hpp>
-
 namespace qserl {
 namespace rod3d {
 
@@ -33,7 +31,7 @@ JacobianSystem::state_type
 JacobianSystem::defaultState()
 {
   state_type defaultStateArray;
-  defaultStateArray.assign(0.);
+  defaultStateArray.fill(0.);
   return defaultStateArray;
 }
 
@@ -48,6 +46,8 @@ JacobianSystem::JacobianSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffnes
 {
   assert (m_dt > 0. && "integration step time must be positive.");
 
+  using namespace std::placeholders;
+
   m_b[0] = m_inv_c[2] - m_inv_c[1];
   m_b[1] = m_inv_c[0] - m_inv_c[2];
   m_b[2] = m_inv_c[1] - m_inv_c[0];
@@ -57,11 +57,11 @@ JacobianSystem::JacobianSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffnes
 
   if(m_rodModel == Parameters::RM_INEXTENSIBLE)
   {
-    m_evaluationCallback = boost::bind(&JacobianSystem::evaluateInextensible, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&JacobianSystem::evaluateInextensible, this, _1, _2, _3);
   }
   else if(m_rodModel == Parameters::RM_EXTENSIBLE_SHEARABLE)
   {
-    m_evaluationCallback = boost::bind(&JacobianSystem::evaluateExtensibleShearable, this, _1, _2, _3);
+    m_evaluationCallback = std::bind(&JacobianSystem::evaluateExtensibleShearable, this, _1, _2, _3);
   }
   else
     assert(false && "invalid rod model");

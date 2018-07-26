@@ -32,6 +32,7 @@ add_executable(qserl-tests
     rod2d_analytic_vs_numeric_q.cc
     rod2d_integrated_tests.cc
     rod3d_integrated_tests.cc
+    parameters_serialization.cc
     )
 
 target_include_directories(qserl-tests
