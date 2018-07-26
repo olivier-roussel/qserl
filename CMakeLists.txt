@@ -31,7 +31,6 @@ option(QSERL_BUILD_SHARED ON "Build shared libraries")
 # Option for building tests
 option(QSERL_BUILD_TEST ON "Build tests")
 
-
 #------------------------------------------------------------------------------
 # Dependencies
 #------------------------------------------------------------------------------
@@ -151,4 +150,7 @@ export(PACKAGE Qserl)
 #------------------------------------------------------------------------------
 
 add_subdirectory(examples)
-add_subdirectory(test)
+
+if(QSERL_BUILD_TEST)
+  add_subdirectory(test)
+endif()
