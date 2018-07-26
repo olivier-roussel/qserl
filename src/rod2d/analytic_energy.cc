@@ -23,7 +23,7 @@
 
 #include "qserl/rod2d/analytic_energy.h"
 
-#include <boost/math/special_functions/ellint_1.hpp>
+#include <boost/math/special_functions/ellint_2.hpp>
 #include "util/jacobi_elliptic.h"
 
 #include "util/utils.h"
@@ -37,8 +37,7 @@ bool computeTotalElasticEnergy(const MotionConstantsQ& i_mc, double& o_energy)
 
 	double am_gamma_1;
 	double cn_gamma_1_dummy, dn_gamma_1_dummy;
-	const double sn_gamma_1_dummy = boost::math::jacobi_elliptic(i_mc.k, gamma_1, &cn_gamma_1_dummy, 
-		&dn_gamma_1_dummy, &am_gamma_1); 
+	boost::math::jacobi_elliptic(i_mc.k, gamma_1, &cn_gamma_1_dummy, &dn_gamma_1_dummy, &am_gamma_1);
 	const double E_am_gamma_1 = boost::math::ellint_2(i_mc.k, am_gamma_1);
 
 	if (i_mc.lambda[3] >= 0.)

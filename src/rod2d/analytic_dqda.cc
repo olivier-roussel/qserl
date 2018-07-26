@@ -26,8 +26,6 @@
 #include <boost/math/special_functions/ellint_1.hpp>
 #include <boost/math/special_functions/ellint_2.hpp>
 #include <boost/math/special_functions/acosh.hpp>
-//#include <boost/math/special_functions/jacobi_elliptic.hpp>
-
 #include "util/jacobi_elliptic.h"
 #include "util/utils.h"
 
