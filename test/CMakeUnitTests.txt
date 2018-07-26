@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2018 CNRS
 # Author: Olivier Roussel
 #
 # This file is part of the qserl package.

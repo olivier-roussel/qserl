@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2012-2014 CNRS
+* Copyright (c) 2012-2018 CNRS
 * Author: Olivier Roussel
 *
 * This file is part of the qserl package.
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_SUITE(Analytic_Mu_Benchmarking)
 
 BOOST_AUTO_TEST_CASE(Analytic_Mu_Benchmarking_Full_RandomSet)
 {
-  static const size_t numRuns = 100000;
+  static const size_t numRuns = 10000;
 
   // set base A-space bounds
 	Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
