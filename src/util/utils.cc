@@ -19,27 +19,13 @@
 
 #include "utils.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
-
 namespace qserl {
 namespace util {
 
-std::string formatTime(boost::posix_time::ptime now)
-{
-  using namespace boost::posix_time;
-  static std::locale loc(std::wcout.getloc(),
-                         new boost::posix_time::time_facet("%Y%m%d_%H%M%S"));
-
-  //std::basic_stringstream<wchar_t> wss;
-  std::basic_stringstream<char> wss;
-  wss.imbue(loc);
-  wss << now;
-  return wss.str();
-}
-
 /** Do not use this one directly. */
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems)
+std::vector<std::string> &split(const std::string &s,
+                                char delim,
+                                std::vector<std::string> &elems)
 {
     std::stringstream ss(s);
     std::string item;
@@ -49,32 +35,24 @@ std::vector<std::string> &split(const std::string &s, char delim, std::vector<st
     return elems;
 }
 
-std::vector<std::string> split(const std::string &s, char delim)
+std::vector<std::string> split(const std::string &s,
+                               char delim)
 {
     std::vector<std::string> elems;
     split(s, delim, elems);
     return elems;
 }
 
-bool createDirAndParents(const std::string& i_path)
-{
-	boost::filesystem::path dir(i_path);
-
-	if (!boost::filesystem::exists(dir))
-	{
-		if (!boost::filesystem::create_directories(dir))
-			return false;
-	}
-	return true;
-}
-
-double rand_interval(double rmin, double rmax)
+double rand_interval(double rmin,
+                     double rmax)
 {
   double t = rand() / ((double)RAND_MAX + 1);
   return (t * (rmax - rmin) + rmin);
 }
 
-Eigen::Vector4f getJetColor(double v, double vmin, double vmax)
+Eigen::Vector4f getJetColor(double v,
+                            double vmin,
+                            double vmax)
 {
    Eigen::Vector4f c(1.0f, 1.0f, 1.0f, 1.f); 
    double dv;
@@ -102,13 +80,6 @@ Eigen::Vector4f getJetColor(double v, double vmin, double vmax)
    return c;
 }
 
-double peaks(double i_x, double i_y)
-{
-	const double x = 0.3 * i_x;
-	const double y = 0.3 * i_y;
-	return 3*sqr(1-x) * exp(-sqr(x) - sqr(y+1)) -10*(0.2*x - pow(x,3) - pow(y,5)) * 
-		exp(-sqr(x)-sqr(y)) - (1/3)*exp(-sqr(x+1) - sqr(y));
-}
 
 } // namespace util
 } // namespace qserl

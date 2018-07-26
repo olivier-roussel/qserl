@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2018 CNRS
 # Author: Olivier Roussel
 #
 # This file is part of the qserl package.
@@ -15,76 +15,45 @@
 # qserl.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-include_directories("${PROJECT_SOURCE_DIR}/src")
-
-# -------------------------------------
+#------------------------------------------------------------------------------
 # Dependencies
-# -------------------------------------
+#------------------------------------------------------------------------------
 
-# Use Boost
-if(MSVC)
-	add_definitions(-DBOOST_ALL_DYN_LINK)
-endif(MSVC)
-if(IS_ICPC)
-    set(Boost_USE_STATIC_LIBS ON CACHE STRING "Use statically linked Boost libraries")
-else(IS_ICPC)
-    # Ensure dynamic linking with boost unit_test_framework
-    add_definitions(-DBOOST_TEST_DYN_LINK)
-endif(IS_ICPC)
-find_package(Boost 1.55 COMPONENTS chrono date_time filesystem program_options regex serialization system thread unit_test_framework REQUIRED)
-if (Boost_FOUND)
-  include_directories("${Boost_INCLUDE_DIR}")
-  set(LIBS ${LIBS} ${Boost_LIBRARIES}) 
-else()
-  message("Could not find Boost")
-endif()
+find_package(Boost 1.55 REQUIRED MODULE COMPONENTS unit_test_framework)
 
-# Use Eigen3 (with LGSM module)
-if (NOT $ENV{EIGEN3_INCLUDE_DIR} STREQUAL "")
-  set(EIGEN3_INCLUDE_DIR $ENV{EIGEN3_INCLUDE_DIR})
-endif()
-find_package(Eigen3 REQUIRED)
-if (EIGEN3_FOUND)
-  include_directories(${EIGEN3_INCLUDE_DIR})
-else()
-  message("Could not find Eigen3")
-endif()
-# Set EIGEN_DONT_ALIGN definition for 32bits platforms
-# XXX crashes if not set also under MSVC10 Win64 _ 
-#if(NOT CMAKE_CL_64)
-	add_definitions(-DEIGEN_DONT_ALIGN)
-#endif()
-
-# -------------------------------------
+#------------------------------------------------------------------------------
 # Setting up target
-# -------------------------------------
- 
-set(EXECUTABLE_NAME qserl-tests)
+#------------------------------------------------------------------------------
 
-# Getting sources
-SOURCE_FROM_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR})
-set(${EXECUTABLE_NAME}_SOURCES ${SOURCE_FILES})
-set(${EXECUTABLE_NAME}_HEADERS ${HEADER_FILES})
+add_executable(qserl-tests
+  main.cc
+  rod2d_analytic_vs_numeric_dqda.cc
+  rod2d_analytic_vs_numeric_mu.cc
+  rod2d_analytic_vs_numeric_q.cc
+  rod2d_integrated_tests.cc
+  rod3d_integrated_tests.cc
+  )
 
-get_property(${PROJECT_NAME}_LIBRARY_RELEASE TARGET qserl PROPERTY LOCATION_RELEASE)
-get_property(${PROJECT_NAME}_LIBRARY_DEBUG TARGET qserl PROPERTY LOCATION_DEBUG)
-set(${PROJECT_NAME}_LIBRARIES ${${PROJECT_NAME}_LIBRARIES}
-	"debug" ${${PROJECT_NAME}_LIBRARY_DEBUG})
-set(${PROJECT_NAME}_LIBRARIES ${${PROJECT_NAME}_LIBRARIES}
-	"optimized" ${${PROJECT_NAME}_LIBRARY_RELEASE})
+target_include_directories(qserl-tests
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+  )
 
-add_executable(${EXECUTABLE_NAME} 
-  ${${EXECUTABLE_NAME}_SOURCES} 
-  ${${EXECUTABLE_NAME}_HEADERS} )
+target_compile_features(qserl-tests PRIVATE cxx_auto_type)
 
-target_link_libraries(${EXECUTABLE_NAME} ${LIBS} ${${PROJECT_NAME}_LIBRARIES})
+target_link_libraries(qserl-tests
+    PRIVATE
+      qserl
+      Boost::unit_test_framework
+    )
 
 include(CMakeUnitTests.txt)
 
-add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
-	COMMAND ${EXECUTABLE_NAME} 
-	--log_level=test_suite
-	--result_code=no 
-	--report_level=confirm 
-	--detect_memory_leak=1) 
+add_custom_command(TARGET qserl-tests POST_BUILD
+  COMMAND qserl-tests
+    --log_level=test_suite
+    --result_code=no
+    --report_level=confirm
+    --detect_memory_leak=1
+  )
 

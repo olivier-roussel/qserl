@@ -1,0 +1,17 @@
+get_filename_component(Qserl_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(CMakeFindDependencyMacro)
+
+list(APPEND CMAKE_MODULE_PATH ${Qserl_CMAKE_DIR})
+
+# ----------------------------------------
+find_dependency(Boost 1.55 REQUIRED MODULE COMPONENTS chrono system serialization)
+find_dependency(EigenLgsm REQUIRED CONFIG)
+# ----------------------------------------
+
+list(REMOVE_AT CMAKE_MODULE_PATH -1)
+
+if(NOT TARGET Qserl)
+  include("${Qserl_CMAKE_DIR}/QserlTargets.cmake")
+endif()
+
+set(Qserl_LIBRARIES Qserl)

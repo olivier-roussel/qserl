@@ -121,7 +121,7 @@ WorkspaceStateShPtr Rod::state() const
 /************************************************************************/
 WorkspaceIntegratedStateShPtr Rod::integratedState() const
 {
-	WorkspaceIntegratedStateShPtr integratedState = boost::dynamic_pointer_cast<WorkspaceIntegratedState>(m_state);
+	WorkspaceIntegratedStateShPtr integratedState = std::dynamic_pointer_cast<WorkspaceIntegratedState>(m_state);
 	return integratedState;
 }
 

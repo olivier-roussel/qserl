@@ -22,7 +22,7 @@
 
 #include <boost/serialization/serialization.hpp>
 #pragma warning( push, 0 )	
-#include <unsupported/Eigen/Lgsm>
+#include <Eigen/Lgsm>
 #pragma warning( pop )	
 
 // Seriliazation for Eigen types
@@ -54,7 +54,7 @@ void serialize(Archive & ar, Eigen::Matrix<Scalar, 6, 1>& v, const unsigned int 
 {
   for (int idxCol = 0 ; idxCol < 6 ; ++idxCol)
   {
-    const std::string name = std::string("c") + boost::lexical_cast<std::string>(idxCol);
+    const std::string name = std::string("c") + std::to_string(idxCol);
     ar & boost::serialization::make_nvp(name.c_str(), v[idxCol]);
   }
 }

@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2014 CNRS
+# Copyright (c) 2012-2018 CNRS
 # Author: Olivier Roussel
 #
 # This file is part of the qserl package.
@@ -15,69 +15,140 @@
 # qserl.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-# Check for minimum version
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.8.2)
 
-include(cmake/detect_msvc_versions.cmake)
-include(cmake/common.cmake)
-include(cmake/install.cmake)
-
-set(PROJECT_NAME "qserl")
-set(PROJECT_VERSION 1.0)
-set(PROJECT_SOVERSION 0)
-set(PROJECT_DESCRIPTION
-  "Quasi-static Elastic Rods model library.")
-set(PROJECT_URL "")
-
-project(${PROJECT_NAME})
-
-if(MSVC)
-	DETECT_MSVC_VERSION()
-endif(MSVC)
-
-# Define & include header directory
-set(${PROJECT_NAME}_HEADER_DIR qserl)
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_INSTALL_PREFIX}"/include/)
+project(libqserl VERSION 1.1.0 LANGUAGES CXX)
 
 # Use cmake/ dir for user modules
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-# Auto-install
-set(CMAKE_INSTALL_PREFIX "$ENV{DEVEL_DIR}/install/unstable/" CACHE PATH "Prefix prepended to install directories." FORCE)
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
 
 # Option for building shared lib
 # XXX Building shared DLL library is disabled since the library exposes directly interfaces
 # using the STL library
-#option(QSERL_BUILD_SHARED OFF "Build shared libraries")
+# FIXME
+option(QSERL_BUILD_SHARED ON "Build shared libraries")
 
 # Option for building tests
 option(QSERL_BUILD_TEST ON "Build tests")
 
-# -------------------------------------
-# Visit subdirectories
-# -------------------------------------
 
-if(NOT SUBMODULE_MODE)
-	# Standalone mode
-	set(SUBMODULE_MODE ON)
-	
-	set(PROJECT_GROUP "Modules")
-	
-	# add submodules if any
+#------------------------------------------------------------------------------
+# Dependencies
+#------------------------------------------------------------------------------
 
-	# Source directory
-	set(PROJECT_GROUP "")
-	add_subdirectory(src)
-	add_subdirectory(examples)
-	
-	if (QSERL_BUILD_TEST)
-		enable_testing()
-		add_subdirectory(test)
-		
-	endif(QSERL_BUILD_TEST)
+find_package(Boost 1.55 REQUIRED MODULE COMPONENTS chrono system serialization)
+find_package(EigenLgsm REQUIRED CONFIG)
 
+#------------------------------------------------------------------------------
+# Setting up target
+#------------------------------------------------------------------------------
+
+set(qserl_SOURCES
+  src/rod2d/analytic_dqda.cc
+  src/rod2d/analytic_energy.cc
+  src/rod2d/analytic_mu.cc
+  src/rod2d/analytic_q.cc
+  src/rod2d/costate_system.cc
+  src/rod2d/inverse_geometry.cc
+  src/rod2d/jacobian_system.cc
+  src/rod2d/rod.cc
+  src/rod2d/state_system.cc
+  src/rod2d/workspace_integrated_state.cc
+  src/rod2d/workspace_state.cc
+  src/rod3d/costate_system.cc
+  src/rod3d/jacobian_system.cc
+  src/rod3d/parameters.cc
+  src/rod3d/rod.cc
+  src/rod3d/state_system.cc
+  src/rod3d/workspace_integrated_state.cc
+  src/rod3d/workspace_state.cc
+  src/util/lie_algebra_utils.cc
+  src/util/timer.cc
+  src/util/utils.cc
+  )
+
+if(QSERL_BUILD_SHARED)
+	add_definitions(-DQSERL_DLL_EXPORTS)
+	add_definitions(-DQSERL_USE_SHARED)
+	add_library(qserl SHARED
+    ${qserl_SOURCES})
 else()
-	# Source directory
-	add_subdirectory(src)
-	add_subdirectory(examples)
+	add_library(qserl STATIC
+    ${qserl_SOURCES})
 endif()
+
+target_include_directories(qserl
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+  )
+
+target_compile_features(qserl PRIVATE cxx_std_11)
+
+target_link_libraries(qserl
+  PUBLIC
+    Boost::boost
+    Boost::chrono
+    Boost::serialization
+    Boost::system
+    EigenLgsm
+  )
+
+#------------------------------------------------------------------------------
+# Installation rules
+#------------------------------------------------------------------------------
+
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Qserl)
+
+install(TARGETS qserl
+  EXPORT qserl-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+
+set_target_properties(PROPERTIES EXPORT_NAME Qserl)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Export the targets to a script
+install(EXPORT qserl-targets
+  FILE
+  QserlTargets.cmake
+  DESTINATION
+  ${INSTALL_CONFIGDIR}
+  )
+
+# Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/QserlConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+  )
+
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/QserlConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/QserlConfig.cmake
+  INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+  )
+
+# Install the config, configversion and custom find modules
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/QserlConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/QserlConfigVersion.cmake
+  DESTINATION ${INSTALL_CONFIGDIR}
+  )
+
+export(EXPORT qserl-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/QserlTargets.cmake)
+
+# Register package in user's package registry
+export(PACKAGE Qserl)
+
+#------------------------------------------------------------------------------
+# Add subdirectories
+#------------------------------------------------------------------------------
+
+add_subdirectory(examples)
+add_subdirectory(test)

@@ -52,12 +52,12 @@ int main ()
     for (std::vector<Displacement2D>::const_iterator itNode = integratedState1->nodes().begin();
       itNode != integratedState1->nodes().end(); ++itNode)
     {
-                // we will tranform our 2D 'pseudo'-displacement to 3D displacements
-                // which will make transformations and manipulation easier
-                const Eigen::Displacementd node3D = toDisplacement3D(*itNode);
-                const Eigen::Displacementd node3DGlobal = base3D * node3D;
+      // we will tranform our 2D 'pseudo'-displacement to 3D displacements
+      // which will make transformations and manipulation easier
+      const Eigen::Displacementd node3D = toDisplacement3D(*itNode);
+      const Eigen::Displacementd node3DGlobal = base3D * node3D;
 
-                // ... do something with the current rod node position ...
+      // ... do something with the current rod node position ...
     }
 
   }

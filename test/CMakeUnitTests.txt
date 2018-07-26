@@ -17,4 +17,4 @@
 
 # Add the unit test files to allow test inside build tree
 
-ADD_TEST(qserl-unit-tests ${EXECUTABLE_NAME})
+ADD_TEST(qserl-unit-tests qserl-tests)

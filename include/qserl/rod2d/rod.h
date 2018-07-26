@@ -22,10 +22,8 @@
 
 #include "qserl/exports.h"
 
-#include <boost/thread.hpp>
-
-#pragma warning( push, 0 )	
-#include <unsupported/Eigen/Lgsm>
+#pragma warning( push, 0 )
+#include <Eigen/Lgsm>
 #pragma warning( pop )	
 
 #include "qserl/rod2d/parameters.h"

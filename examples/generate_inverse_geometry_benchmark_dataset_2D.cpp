@@ -4,6 +4,7 @@
 #include "qserl/rod2d/analytic_q.h"
 #include "qserl/rod2d/analytic_dqda.h"
 
+#include <iostream>
 #include <fstream>
 #include <boost/math/constants/constants.hpp>
 

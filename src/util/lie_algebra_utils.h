@@ -22,7 +22,7 @@
 #define QSERL_UTIL_LIE_ALGEBRA_UTILS_H_
 
 #pragma warning( push, 0 )
-#include <unsupported/Eigen/Lgsm>
+#include <Eigen/Lgsm>
 #pragma warning( pop )
 
 namespace qserl {

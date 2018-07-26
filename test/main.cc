@@ -18,8 +18,6 @@
 **/
 
 #define BOOST_TEST_MODULE qserl_unit_tests
-#ifdef LINUX
-# define BOOST_TEST_DYN_LINK
-#endif
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>

@@ -23,7 +23,7 @@
 #include "qserl/exports.h"
 
 #pragma warning( push, 0 )	
-#include <unsupported/Eigen/Lgsm>
+#include <Eigen/Lgsm>
 #pragma warning( pop )	
 
 #include "qserl/rod2d/parameters.h"
