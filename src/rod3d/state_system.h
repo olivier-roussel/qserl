@@ -24,9 +24,9 @@
 
 #include <boost/function.hpp>
 
-#pragma warning( push, 0 )	
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+//#pragma warning( pop )
 
 #include "qserl/rod3d/workspace_integrated_state.h"
 
@@ -36,46 +36,61 @@ namespace rod3d {
 class QSERL_EXPORT StateSystem
 {
 public:
-	typedef WorkspaceIntegratedState::state_type state_type;
+  typedef WorkspaceIntegratedState::state_type state_type;
 
-	//static const state_type kDefaultState;
+  //static const state_type kDefaultState;
 
-	/**
-	* Constructors, destructors
-	*/
-	StateSystem(const Eigen::Matrix<double,6, 1>& i_inv_stiffness, double i_length,  
-		double i_dt, const std::vector<WorkspaceIntegratedState::costate_type>& i_mu,
-		Parameters::RodModelT i_rodModel);
+  /**
+  * Constructors, destructors
+  */
+  StateSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffness,
+              double i_length,
+              double i_dt,
+              const std::vector<WorkspaceIntegratedState::costate_type>& i_mu,
+              Parameters::RodModelT i_rodModel);
+
   virtual ~StateSystem();
 
-	void operator() (const state_type& i_q, state_type& o_dqdt, double i_t);
+  void
+  operator()(const state_type& i_q,
+             state_type& o_dqdt,
+             double i_t);
 
-	/** Returns default state value. */
-	static state_type defaultState();
+  /** Returns default state value. */
+  static state_type
+  defaultState();
 
 private:
 
-	Eigen::Matrix<double,6, 1>																				m_inv_c;			/**< Inverse stiffness coefficients */
-	double																														m_dt;			
-	const std::vector<WorkspaceIntegratedState::costate_type>&				m_mu;
-	double																														m_length;
-	Parameters::RodModelT																							m_rodModel;
+  Eigen::Matrix<double, 6, 1> m_inv_c;      /**< Inverse stiffness coefficients */
+  double m_dt;
+  const std::vector<WorkspaceIntegratedState::costate_type>& m_mu;
+  double m_length;
+  Parameters::RodModelT m_rodModel;
 
-	boost::function<void(const state_type&, state_type&, double)>			m_evaluationCallback;
+  boost::function<void(const state_type&,
+                       state_type&,
+                       double)> m_evaluationCallback;
 
-	/** 
-	* Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
-	*/
-	void evaluateInextensible(const state_type& i_q, state_type& o_dqdt, double i_t);
-	
-	/** 
-	* Derivative evaluation at time t for the inextensible (RM_EXTENSIBLE_SHEARABLE) rod model.
-	*/
-	void evaluateExtensibleShearable(const state_type& i_q, state_type& o_dqdt, double i_t);
+  /**
+  * Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
+  */
+  void
+  evaluateInextensible(const state_type& i_q,
+                       state_type& o_dqdt,
+                       double i_t);
+
+  /**
+  * Derivative evaluation at time t for the inextensible (RM_EXTENSIBLE_SHEARABLE) rod model.
+  */
+  void
+  evaluateExtensibleShearable(const state_type& i_q,
+                              state_type& o_dqdt,
+                              double i_t);
 };
 
-}	// namespace rod3d
-}	// namespace qserl
+}  // namespace rod3d
+}  // namespace qserl
 
 #endif // QSERL_3D_STATE_SYSTEM_H_
 

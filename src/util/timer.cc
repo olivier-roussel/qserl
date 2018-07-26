@@ -22,29 +22,38 @@
 namespace qserl {
 namespace util {
 
-TimePoint getTimePoint()
+TimePoint
+getTimePoint()
 {
-	return boost::chrono::high_resolution_clock::now();
+  return boost::chrono::high_resolution_clock::now();
 }
 
-boost::chrono::nanoseconds getElapsedTimeNsec(const TimePoint& start)
+boost::chrono::nanoseconds
+getElapsedTimeNsec(const TimePoint& start)
 {
-	return boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::high_resolution_clock::now()-start);//.count();
+  return boost::chrono::duration_cast<boost::chrono::nanoseconds>(
+      boost::chrono::high_resolution_clock::now() - start);//.count();
 }
 
-boost::chrono::microseconds getElapsedTimeUsec(const TimePoint& start)
+boost::chrono::microseconds
+getElapsedTimeUsec(const TimePoint& start)
 {
-	return boost::chrono::duration_cast<boost::chrono::microseconds>(boost::chrono::high_resolution_clock::now()-start);//.count();
+  return boost::chrono::duration_cast<boost::chrono::microseconds>(
+      boost::chrono::high_resolution_clock::now() - start);//.count();
 }
 
-boost::chrono::milliseconds getElapsedTimeMsec(const TimePoint& start)
+boost::chrono::milliseconds
+getElapsedTimeMsec(const TimePoint& start)
 {
-	return boost::chrono::duration_cast<boost::chrono::milliseconds>(boost::chrono::high_resolution_clock::now()-start);//.count();
+  return boost::chrono::duration_cast<boost::chrono::milliseconds>(
+      boost::chrono::high_resolution_clock::now() - start);//.count();
 }
 
-boost::chrono::seconds getElapsedTimeSec(const TimePoint& start)
+boost::chrono::seconds
+getElapsedTimeSec(const TimePoint& start)
 {
-	return boost::chrono::duration_cast<boost::chrono::seconds>(boost::chrono::high_resolution_clock::now()-start);//.count();
+  return boost::chrono::duration_cast<boost::chrono::seconds>(
+      boost::chrono::high_resolution_clock::now() - start);//.count();
 }
 
 } // namespace util

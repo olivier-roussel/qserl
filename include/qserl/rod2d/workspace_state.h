@@ -22,9 +22,9 @@
 
 #include "qserl/exports.h"
 
-#pragma warning( push, 0 )	
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+//#pragma warning( pop )
 
 #include "qserl/rod2d/parameters.h"
 #include "qserl/rod2d/types.h"
@@ -33,91 +33,101 @@
 namespace qserl {
 namespace rod2d {
 
-DECLARE_CLASS( WorkspaceState );
+DECLARE_CLASS(WorkspaceState);
 
-DECLARE_CLASS( WorkspaceIntegratedState );
+DECLARE_CLASS(WorkspaceIntegratedState);
 
 class QSERL_EXPORT WorkspaceState
 {
 public:
 
-	/**
-	\brief Destructor.
-	*/
-	virtual ~WorkspaceState();
+  /**
+  \brief Destructor.
+  */
+  virtual ~WorkspaceState();
 
-	/**
-	\brief Constructor.
-	* Compute rod directly from its geometry and its static parameters.
-	*/
-	static WorkspaceStateShPtr create(const std::vector<Displacement2D>& i_nodes, const Displacement2D& i_basePosition, 
-		const Parameters& i_rodParams);
+  /**
+  \brief Constructor.
+  * Compute rod directly from its geometry and its static parameters.
+  */
+  static WorkspaceStateShPtr
+  create(const std::vector<Displacement2D>& i_nodes,
+         const Displacement2D& i_basePosition,
+         const Parameters& i_rodParams);
 
-	/**
-	* \brief Returns a copy of itself.
-	*/
-	virtual WorkspaceStateShPtr clone() const;
+  /**
+  * \brief Returns a copy of itself.
+  */
+  virtual WorkspaceStateShPtr
+  clone() const;
 
-	/**
-	* \brief Returns the number of nodes of the rod.
-	*/
-	size_t numNodes() const;
+  /**
+  * \brief Returns the number of nodes of the rod.
+  */
+  size_t
+  numNodes() const;
 
-	/**
-	* \brief Returns a vector of rod nodes positions, if initialized, in <b>base</b> frame.
-	* Else returns an empty vector.
-	*/
-	const std::vector<Displacement2D>& nodes() const;
+  /**
+  * \brief Returns a vector of rod nodes positions, if initialized, in <b>base</b> frame.
+  * Else returns an empty vector.
+  */
+  const std::vector<Displacement2D>&
+  nodes() const;
 
-	/**
-	* \brief Accessor to rod base position (in world frame).
-	*/
-	const Displacement2D& base() const;
+  /**
+  * \brief Accessor to rod base position (in world frame).
+  */
+  const Displacement2D&
+  base() const;
 
-	/**
-	* \brief Seter for the rod base position (in world frame).
-	* ? deprecated ?
-	*/
-	void base(const Displacement2D& i_base);
+  /**
+  * \brief Seter for the rod base position (in world frame).
+  * ? deprecated ?
+  */
+  void
+  base(const Displacement2D& i_base);
 
-	/**
-	* \brief Returns a vector of rod nodes positions, if initialized, in <b>world</b> frame.
-	* Else returns an empty vector.
-	*/
-	//std::vector<Eigen::Vector2d> nodesAbsolutePositions() const;
+  /**
+  * \brief Returns a vector of rod nodes positions, if initialized, in <b>world</b> frame.
+  * Else returns an empty vector.
+  */
+  //std::vector<Eigen::Vector2d> nodesAbsolutePositions() const;
 
   /**
 	* \brief Returns a vector of rod nodes displacements, if initialized, in <b>world</b> frame.
 	* Else returns an empty vector.
 	*/
-	//std::vector<Displacement2D> nodesAbsoluteDisplacements() const;
+  //std::vector<Displacement2D> nodesAbsoluteDisplacements() const;
 
-	/** \brief Const accessor to rod static paramaters. */
-	const Parameters& staticParameters() const;
+  /** \brief Const accessor to rod static paramaters. */
+  const Parameters&
+  staticParameters() const;
 
-	size_t memUsage() const;
+  size_t
+  memUsage() const;
 
-	/** \note WorkspaceIntegratedState needs a way to access protected members of other 
-	* instances of this class. 
-	*/
-	friend class WorkspaceIntegratedState;
+  /** \note WorkspaceIntegratedState needs a way to access protected members of other
+  * instances of this class.
+  */
+  friend class WorkspaceIntegratedState;
 
 protected:
-	
-	/**
-	\brief Constructor
-	*/
-	WorkspaceState(const std::vector<Displacement2D>& i_nodes, const Displacement2D& i_basePosition, 
-		const Parameters& i_rodParams);
 
-	size_t																									m_numNodes;		/**< Number of nodes N. */
-	std::vector<Displacement2D>															m_nodes;			/**< Position of each node (size N), in base frame. */
-	Displacement2D																					m_base;				/**< DLO base position, in world frame (absolute). */
+  /**
+  \brief Constructor
+  */
+  WorkspaceState(const std::vector<Displacement2D>& i_nodes,
+                 const Displacement2D& i_basePosition,
+                 const Parameters& i_rodParams);
 
-	Parameters  																						m_rodParameters;
+  size_t m_numNodes;    /**< Number of nodes N. */
+  std::vector<Displacement2D> m_nodes;      /**< Position of each node (size N), in base frame. */
+  Displacement2D m_base;        /**< DLO base position, in world frame (absolute). */
+
+  Parameters m_rodParameters;
 };
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_WORKSPACE_STATE_H_

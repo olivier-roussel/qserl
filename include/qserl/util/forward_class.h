@@ -22,11 +22,11 @@
 
 #include <memory>
 
-#define DECLARE_CLASS(C)																							 \
+#define DECLARE_CLASS(C)                                               \
     class C;                                                           \
-    typedef std::shared_ptr<C> C##ShPtr;														 \
-    typedef std::weak_ptr<C> C##WkPtr;															 \
-    typedef std::shared_ptr<const C> C##ConstShPtr;									 \
+    typedef std::shared_ptr<C> C##ShPtr;                             \
+    typedef std::weak_ptr<C> C##WkPtr;                               \
+    typedef std::shared_ptr<const C> C##ConstShPtr;                   \
     typedef std::weak_ptr<const C> C##ConstWkPtr
 
 #endif // QSERL_UTIL_FORWARD_CLASS_H_

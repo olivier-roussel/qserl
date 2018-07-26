@@ -27,12 +27,20 @@ namespace util {
 
 typedef boost::chrono::high_resolution_clock::time_point TimePoint;
 
-TimePoint getTimePoint();
+TimePoint
+getTimePoint();
 
-boost::chrono::nanoseconds getElapsedTimeNsec(const TimePoint& start);
-boost::chrono::microseconds getElapsedTimeUsec(const TimePoint& start);
-boost::chrono::milliseconds getElapsedTimeMsec(const TimePoint& start);
-boost::chrono::seconds getElapsedTimeSec(const TimePoint& start);
+boost::chrono::nanoseconds
+getElapsedTimeNsec(const TimePoint& start);
+
+boost::chrono::microseconds
+getElapsedTimeUsec(const TimePoint& start);
+
+boost::chrono::milliseconds
+getElapsedTimeMsec(const TimePoint& start);
+
+boost::chrono::seconds
+getElapsedTimeSec(const TimePoint& start);
 
 } // namespace util
 } // namespace qserl

@@ -28,17 +28,17 @@
 #define QSERL_EXPORTS_H_
 
 #if defined(WIN32) && defined(QSERL_USE_SHARED)
-	#if defined(QSERL_DLL_EXPORTS)
-		#undef QSERL_DLL_EXPORTS                      
-		#define QSERL_EXPORT __declspec(dllexport)
-		#define QSER_EXPIMP_TEMPLATE
-	#else
-		#define QSERL_EXPORT __declspec(dllimport)
-		#define QSER_EXPIMP_TEMPLATE extern
-	#endif
+#if defined(QSERL_DLL_EXPORTS)
+#undef QSERL_DLL_EXPORTS
+#define QSERL_EXPORT __declspec(dllexport)
+#define QSER_EXPIMP_TEMPLATE
 #else
-	#undef QSERL_DLL_EXPORTS
-	#define QSERL_EXPORT
+#define QSERL_EXPORT __declspec(dllimport)
+#define QSER_EXPIMP_TEMPLATE extern
+#endif
+#else
+#undef QSERL_DLL_EXPORTS
+#define QSERL_EXPORT
 #endif
 
 #endif // QSERL_EXPORTS_H_

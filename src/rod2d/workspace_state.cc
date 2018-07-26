@@ -27,14 +27,15 @@ namespace rod2d {
 /************************************************************************/
 /*													Constructor																	*/
 /************************************************************************/
-WorkspaceState::WorkspaceState(const std::vector<Displacement2D>& i_nodes, 
-	const Displacement2D& i_basePosition, const Parameters& i_rodParams):
-	m_numNodes(i_nodes.size()),
-	m_nodes(i_nodes),
-	m_base(i_basePosition),
-	m_rodParameters(i_rodParams)
+WorkspaceState::WorkspaceState(const std::vector<Displacement2D>& i_nodes,
+                               const Displacement2D& i_basePosition,
+                               const Parameters& i_rodParams) :
+    m_numNodes(i_nodes.size()),
+    m_nodes(i_nodes),
+    m_base(i_basePosition),
+    m_rodParameters(i_rodParams)
 {
-	//assert(m_numNodes > 0 && "number of rod nodes must be strictly positive");
+  //assert(m_numNodes > 0 && "number of rod nodes must be strictly positive");
 }
 
 /************************************************************************/
@@ -47,23 +48,26 @@ WorkspaceState::~WorkspaceState()
 /************************************************************************/
 /*														create																		*/
 /************************************************************************/
-WorkspaceStateShPtr WorkspaceState::create(const std::vector<Displacement2D>& i_nodes, 
-	const Displacement2D& i_basePosition, const Parameters& i_rodParams)
+WorkspaceStateShPtr
+WorkspaceState::create(const std::vector<Displacement2D>& i_nodes,
+                       const Displacement2D& i_basePosition,
+                       const Parameters& i_rodParams)
 {
-	WorkspaceStateShPtr shPtr(new WorkspaceState(i_nodes, i_basePosition, i_rodParams));
+  WorkspaceStateShPtr shPtr(new WorkspaceState(i_nodes, i_basePosition, i_rodParams));
 
-	//if (!shPtr->init(shPtr))
-	//	shPtr.reset();
+  //if (!shPtr->init(shPtr))
+  //	shPtr.reset();
 
-	return shPtr;
+  return shPtr;
 }
 
 /************************************************************************/
 /*														 clone																		*/
 /************************************************************************/
-WorkspaceStateShPtr WorkspaceState::clone() const
+WorkspaceStateShPtr
+WorkspaceState::clone() const
 {
-	return WorkspaceStateShPtr(new WorkspaceState(*this));;
+  return WorkspaceStateShPtr(new WorkspaceState(*this));;
 }
 
 /************************************************************************/
@@ -82,33 +86,37 @@ WorkspaceStateShPtr WorkspaceState::clone() const
 /************************************************************************/
 /*																numNodes															*/
 /************************************************************************/
-size_t WorkspaceState::numNodes() const
+size_t
+WorkspaceState::numNodes() const
 {
-	return m_numNodes;
+  return m_numNodes;
 }
 
 /************************************************************************/
 /*																	nodes																*/
 /************************************************************************/
-const std::vector<Displacement2D>& WorkspaceState::nodes() const
+const std::vector<Displacement2D>&
+WorkspaceState::nodes() const
 {
-	return m_nodes;
+  return m_nodes;
 }
 
 /************************************************************************/
 /*																base																	*/
 /************************************************************************/
-const Displacement2D& WorkspaceState::base() const
+const Displacement2D&
+WorkspaceState::base() const
 {
-	return m_base;
+  return m_base;
 }
 
 /************************************************************************/
 /*																base																	*/
 /************************************************************************/
-void WorkspaceState::base(const Displacement2D& i_base)
+void
+WorkspaceState::base(const Displacement2D& i_base)
 {
-	m_base = i_base;
+  m_base = i_base;
 }
 
 /************************************************************************/
@@ -138,22 +146,24 @@ void WorkspaceState::base(const Displacement2D& i_base)
 /************************************************************************/
 /*													staticParameters														*/
 /************************************************************************/
-const Parameters& WorkspaceState::staticParameters() const
+const Parameters&
+WorkspaceState::staticParameters() const
 {
-	return m_rodParameters;
+  return m_rodParameters;
 }
 
 /************************************************************************/
 /*																	memUsage														*/
 /************************************************************************/
-size_t WorkspaceState::memUsage() const
+size_t
+WorkspaceState::memUsage() const
 {
-	return sizeof(m_numNodes) + 
-		m_nodes.capacity() * sizeof(Eigen::Displacementd) + 
-		sizeof(m_base) + 
-		sizeof(m_rodParameters);/* + 
+  return sizeof(m_numNodes) +
+         m_nodes.capacity() * sizeof(Eigen::Displacementd) +
+         sizeof(m_base) +
+         sizeof(m_rodParameters);/* +
 		sizeof(m_weakPtr);*/
 }
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl

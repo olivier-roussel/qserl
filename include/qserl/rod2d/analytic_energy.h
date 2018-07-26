@@ -25,9 +25,9 @@
 
 #include "qserl/rod2d/analytic_q.h"
 
-#pragma warning( push, 0 )	
+////#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+////#pragma warning( pop )
 
 namespace qserl {
 namespace rod2d {
@@ -39,9 +39,11 @@ namespace rod2d {
 * \pre a(i) (i=3..5) values corresponding to given motion constants must respect the unhandled following cases:
 *   - if Case I (includes Case III) i.e. lambda4 >= 0, then a3 != 0 and a5 != 0
 */
-QSERL_EXPORT bool computeTotalElasticEnergy(const MotionConstantsQ& i_motionConstants, double& o_energy);
+QSERL_EXPORT bool
+computeTotalElasticEnergy(const MotionConstantsQ& i_motionConstants,
+                          double& o_energy);
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_ANALYTIC_ENERGY_H_

@@ -24,9 +24,9 @@
 
 #include <boost/function.hpp>
 
-#pragma warning( push, 0 )	
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+//#pragma warning( pop )
 
 #include "qserl/rod3d/workspace_integrated_state.h"
 
@@ -36,32 +36,39 @@ namespace rod3d {
 class QSERL_EXPORT JacobianSystem
 {
 public:
-	typedef WorkspaceIntegratedState::jacobian_state_type state_type;
+  typedef WorkspaceIntegratedState::jacobian_state_type state_type;
 
-	//static const state_type kDefaultState;				/**< Deprecated */
+  //static const state_type kDefaultState;				/**< Deprecated */
 
-	static const double kStabilityThreshold;			/** Threshold for Jacobian determinant. */
-	static const double kStabilityTolerance;			/** Tolerance for which Jacobian determinant vanishes. */
+  static const double kStabilityThreshold;      /** Threshold for Jacobian determinant. */
+  static const double kStabilityTolerance;      /** Tolerance for which Jacobian determinant vanishes. */
 
-	/**
-	* Constructors, destructors
-	*/
-	JacobianSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffness, double i_dt, 
-		const std::vector<WorkspaceIntegratedState::costate_type>& i_mu, Parameters::RodModelT i_rodModel);
+  /**
+  * Constructors, destructors
+  */
+  JacobianSystem(const Eigen::Matrix<double, 6, 1>& i_inv_stiffness,
+                 double i_dt,
+                 const std::vector<WorkspaceIntegratedState::costate_type>& i_mu,
+                 Parameters::RodModelT i_rodModel);
+
   virtual ~JacobianSystem();
 
-	/**
-	* Derivative evaluation at time t.
-	*/
-	void operator() (const state_type& MJ, state_type& dMJdt, double t);
+  /**
+  * Derivative evaluation at time t.
+  */
+  void
+  operator()(const state_type& MJ,
+             state_type& dMJdt,
+             double t);
 
-	/** Returns default state value. */
-	static state_type defaultState();
+  /** Returns default state value. */
+  static state_type
+  defaultState();
 
 private:
 
-	Eigen::Matrix<double, 6, 1>																			m_inv_c;	/**< inverse stiffness coefficients */
-	Eigen::Matrix<double, 6, 1>																			m_b;			/**<	Precomputed values from inverse stiffness coefficients, where:
+  Eigen::Matrix<double, 6, 1> m_inv_c;  /**< inverse stiffness coefficients */
+  Eigen::Matrix<double, 6, 1> m_b;      /**<	Precomputed values from inverse stiffness coefficients, where:
 																																									b(1) = inv_c(3) - inv_c(2) 
 																																									b(2) = inv_c(1) - inv_c(3) 
 																																									b(3) = inv_c(2) - inv_c(1) 
@@ -69,25 +76,33 @@ private:
 																																									b(5) = inv_c(4) - inv_c(6) 
 																																									b(6) = inv_c(5) - inv_c(4) 
 																																									*/
-	double																													m_dt;			
-	const std::vector<WorkspaceIntegratedState::costate_type>&			m_mu;
-	Parameters::RodModelT																						m_rodModel;
+  double m_dt;
+  const std::vector<WorkspaceIntegratedState::costate_type>& m_mu;
+  Parameters::RodModelT m_rodModel;
 
-	boost::function<void(const state_type&, state_type&, double)>		m_evaluationCallback;
+  boost::function<void(const state_type&,
+                       state_type&,
+                       double)> m_evaluationCallback;
 
-	/** 
-	* Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
-	*/
-	void evaluateInextensible(const state_type& MJ, state_type& dMJdt, double t);
-	
-	/** 
-	* Derivative evaluation at time t for the inextensible (RM_EXTENSIBLE_SHEARABLE) rod model.
-	*/
-	void evaluateExtensibleShearable(const state_type& MJ, state_type& dMJdt, double t);
+  /**
+  * Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
+  */
+  void
+  evaluateInextensible(const state_type& MJ,
+                       state_type& dMJdt,
+                       double t);
+
+  /**
+  * Derivative evaluation at time t for the inextensible (RM_EXTENSIBLE_SHEARABLE) rod model.
+  */
+  void
+  evaluateExtensibleShearable(const state_type& MJ,
+                              state_type& dMJdt,
+                              double t);
 };
 
-}	// namespace rod3d
+}  // namespace rod3d
 
-}	// namespace qserl
+}  // namespace qserl
 
 #endif // QSERL_3D_JACOBIAN_SYSTEM_H_

@@ -16,7 +16,7 @@
 * qserl.  If not, see
 * <http://www.gnu.org/licenses/>.
 **/
-	
+
 #include "costate_system.h"
 
 #include <boost/bind.hpp>
@@ -24,42 +24,52 @@
 namespace qserl {
 namespace rod2d {
 
-CostateSystem::state_type CostateSystem::defaultState()
+CostateSystem::state_type
+CostateSystem::defaultState()
 {
-	state_type defaultStateArray;
-	defaultStateArray.assign(0.);
-	return defaultStateArray;
+  state_type defaultStateArray;
+  defaultStateArray.assign(0.);
+  return defaultStateArray;
 }
 
-CostateSystem::CostateSystem(double i_inv_stiffness, double i_length,
-	Parameters::RodModelT i_rodModel) :
-	m_inv_c(i_inv_stiffness),
-	m_length(i_length),
-	m_rodModel(i_rodModel)
-	{
-		if (m_rodModel == Parameters::RM_INEXTENSIBLE)
-			m_evaluationCallback = boost::bind(&CostateSystem::evaluateInextensible, this, _1, _2, _3);
-		else
-			assert(false && "invalid rod model");
-	}
+CostateSystem::CostateSystem(double i_inv_stiffness,
+                             double i_length,
+                             Parameters::RodModelT i_rodModel) :
+    m_inv_c(i_inv_stiffness),
+    m_length(i_length),
+    m_rodModel(i_rodModel)
+{
+  if(m_rodModel == Parameters::RM_INEXTENSIBLE)
+  {
+    m_evaluationCallback = boost::bind(&CostateSystem::evaluateInextensible, this, _1, _2, _3);
+  }
+  else
+    assert(false && "invalid rod model");
+}
 
 CostateSystem::~CostateSystem()
 {
 }
 
-void CostateSystem::operator() (const state_type& i_mu, state_type& o_dmudt, double i_t)
+void
+CostateSystem::operator()(const state_type& i_mu,
+                          state_type& o_dmudt,
+                          double i_t)
 {
-	return m_evaluationCallback(i_mu, o_dmudt, i_t);
+  return m_evaluationCallback(i_mu, o_dmudt, i_t);
 }
 
-void CostateSystem::evaluateInextensible(const state_type& i_mu, state_type& o_dmudt, double i_t)
+void
+CostateSystem::evaluateInextensible(const state_type& i_mu,
+                                    state_type& o_dmudt,
+                                    double /*i_t*/)
 {
-	const double u =  i_mu[2] * m_inv_c;
+  const double u = i_mu[2] * m_inv_c;
 
-	o_dmudt[0] = i_mu[1] * u;
-	o_dmudt[1] = -i_mu[0] * u;
-	o_dmudt[2] = -i_mu[1];
+  o_dmudt[0] = i_mu[1] * u;
+  o_dmudt[1] = -i_mu[0] * u;
+  o_dmudt[2] = -i_mu[1];
 }
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl

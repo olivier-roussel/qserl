@@ -31,25 +31,29 @@
 namespace qserl {
 namespace rod2d {
 
-bool computeTotalElasticEnergy(const MotionConstantsQ& i_mc, double& o_energy)
+bool
+computeTotalElasticEnergy(const MotionConstantsQ& i_mc,
+                          double& o_energy)
 {
-	const double gamma_1 = i_mc.r * (1. + i_mc.tau);
+  const double gamma_1 = i_mc.r * (1. + i_mc.tau);
 
-	double am_gamma_1;
-	double cn_gamma_1_dummy, dn_gamma_1_dummy;
-	boost::math::jacobi_elliptic(i_mc.k, gamma_1, &cn_gamma_1_dummy, &dn_gamma_1_dummy, &am_gamma_1);
-	const double E_am_gamma_1 = boost::math::ellint_2(i_mc.k, am_gamma_1);
+  double am_gamma_1;
+  double cn_gamma_1_dummy, dn_gamma_1_dummy;
+  boost::math::jacobi_elliptic(i_mc.k, gamma_1, &cn_gamma_1_dummy, &dn_gamma_1_dummy, &am_gamma_1);
+  const double E_am_gamma_1 = boost::math::ellint_2(i_mc.k, am_gamma_1);
 
-	if (i_mc.lambda[3] >= 0.)
-	{
-		// Case I: lambda_4 > 0 (includes case III : lambda_4 = 0 )
-		o_energy = i_mc.alpha[2] * 0.5 / (i_mc.m * i_mc.r) * ( E_am_gamma_1 - i_mc.E_am_gamma_0 - i_mc.r * (1 - i_mc.m) );
-	}else{
-		// Case II: lambda_4 < 0 
-		o_energy = i_mc.alpha[2] * 0.5 / (i_mc.r) * ( E_am_gamma_1 - i_mc.E_am_gamma_0 );
-	}
-	return true;
+  if(i_mc.lambda[3] >= 0.)
+  {
+    // Case I: lambda_4 > 0 (includes case III : lambda_4 = 0 )
+    o_energy = i_mc.alpha[2] * 0.5 / (i_mc.m * i_mc.r) * (E_am_gamma_1 - i_mc.E_am_gamma_0 - i_mc.r * (1 - i_mc.m));
+  }
+  else
+  {
+    // Case II: lambda_4 < 0
+    o_energy = i_mc.alpha[2] * 0.5 / (i_mc.r) * (E_am_gamma_1 - i_mc.E_am_gamma_0);
+  }
+  return true;
 }
- 
-}	// namespace rod2d
-}	// namespace qserl
+
+}  // namespace rod2d
+}  // namespace qserl

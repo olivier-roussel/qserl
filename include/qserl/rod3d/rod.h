@@ -22,9 +22,9 @@
 
 #include "qserl/exports.h"
 
-#pragma warning( push, 0 )
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+//#pragma warning( pop )
 
 #include "qserl/rod3d/parameters.h"
 #include "qserl/rod3d/workspace_integrated_state.h"
@@ -34,107 +34,118 @@
 namespace qserl {
 namespace rod3d {
 
-DECLARE_CLASS( WorkspaceState );
+DECLARE_CLASS(WorkspaceState);
 
-DECLARE_CLASS( Rod );
+DECLARE_CLASS(Rod);
 
 class QSERL_EXPORT Rod
 {
 public:
 
-	/**
-	* \brief Destructor.
-	*/
-	virtual ~Rod();
+  /**
+  * \brief Destructor.
+  */
+  virtual ~Rod();
 
-	/**
-	* \brief Constructor.
-	*/
-	static RodShPtr create(const Parameters& parameters);
+  /**
+  * \brief Constructor.
+  */
+  static RodShPtr
+  create(const Parameters& parameters);
 
-	/**
-	* \brief Returns the radius of the DLO.
-	* \deprecated Kept for compatibilty
-	*/
-	double radius() const;
+  /**
+  * \brief Returns the radius of the DLO.
+  * \deprecated Kept for compatibilty
+  */
+  double
+  radius() const;
 
-	/**
-	* \brief Returns the length of the DLO.
-	* \deprecated Kept for compatibilty
-	*/
-	double length() const;
+  /**
+  * \brief Returns the length of the DLO.
+  * \deprecated Kept for compatibilty
+  */
+  double
+  length() const;
 
-	/**
-	* \brief Returns the set of parameters of the DLO.
-	*/
-	const Parameters& parameters() const;
+  /**
+  * \brief Returns the set of parameters of the DLO.
+  */
+  const Parameters&
+  parameters() const;
 
-	/************************************************************************/
-	/*										State accessors & modifiers                       */
-	/************************************************************************/
+  /************************************************************************/
+  /*										State accessors & modifiers                       */
+  /************************************************************************/
 
-	/**
-	* \brief Accessor to rod state.
-	*/
-	WorkspaceStateShPtr state() const;
+  /**
+  * \brief Accessor to rod state.
+  */
+  WorkspaceStateShPtr
+  state() const;
 
-	/**
-	* \brief Accessor to rod integrated state if exists, or null pointer otherwise
-	*/
-	WorkspaceIntegratedStateShPtr integratedState() const;
+  /**
+  * \brief Accessor to rod integrated state if exists, or null pointer otherwise
+  */
+  WorkspaceIntegratedStateShPtr
+  integratedState() const;
 
 
-	/**
-	* \brief Compute rod state from its base wrench.
-	* Rod base is independant from this as node positions are computed in local base frame.
-  * The corresponding rod state will be updated only if the result of integration leads to 
+  /**
+  * \brief Compute rod state from its base wrench.
+  * Rod base is independant from this as node positions are computed in local base frame.
+  * The corresponding rod state will be updated only if the result of integration leads to
   * WorkspaceIntegratedState::IR_VALID (see enum WorkspaceIntegratedState::IntegrationResultT).
-	* \return The corresponding integration result status (see enum WorkspaceIntegratedState::IntegrationResultT).
-	*	Note that IR_OUT_OF_WRENCH_BOUNDS cannot be returned, as out of bounds detection for internal
-	* rod wrenches is not implemented yet.
-	*/
-	WorkspaceIntegratedState::IntegrationResultT integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench,
-		const Eigen::Displacementd& i_basePos, const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
+  * \return The corresponding integration result status (see enum WorkspaceIntegratedState::IntegrationResultT).
+  *	Note that IR_OUT_OF_WRENCH_BOUNDS cannot be returned, as out of bounds detection for internal
+  * rod wrenches is not implemented yet.
+  */
+  WorkspaceIntegratedState::IntegrationResultT
+  integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench,
+                               const Eigen::Displacementd& i_basePos,
+                               const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
 
-	/************************************************************************/
-	/*														Static members														*/
-	/************************************************************************/
+  /************************************************************************/
+  /*														Static members														*/
+  /************************************************************************/
 
-	/**
-	* \brief Returns true iif rod configuration is singular, 
-	* (i.e. (a0.y, a0.z, a0.ry, a0.rz) = (0, 0, 0, 0)
-	*/
-	static bool isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench);
-	
-	/**
-	* \brief Returns corresponding stifness coefficients a an extensible DLO from elasticity parameters. 
+  /**
+  * \brief Returns true iif rod configuration is singular,
+  * (i.e. (a0.y, a0.z, a0.ry, a0.rz) = (0, 0, 0, 0)
+  */
+  static bool
+  isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench);
+
+  /**
+  * \brief Returns corresponding stifness coefficients a an extensible DLO from elasticity parameters.
   * \warning Deprecated. Use Parameters::getStiffnessCoefficients() instead.
-	*/
-	static Eigen::Matrix<double, 6, 1> getStiffnessCoefficients(const Parameters& i_parameters);
+  */
+  static Eigen::Matrix<double, 6, 1>
+  getStiffnessCoefficients(const Parameters& i_parameters);
 
 protected:
-	
-	/**
-	\brief Constructor
-	*/
-	Rod(const Parameters& parameters);
 
-	/**
-	\brief Init function
-	\param i_weakPtr The weak pointer to the Rod.
-	*/
-	bool init(const RodWkPtr& i_weakPtr);
+  /**
+  \brief Constructor
+  */
+  Rod(const Parameters& parameters);
+
+  /**
+  \brief Init function
+  \param i_weakPtr The weak pointer to the Rod.
+  */
+  bool
+  init(const RodWkPtr& i_weakPtr);
 
 private:
-	RodWkPtr								m_weakPtr;
+  RodWkPtr m_weakPtr;
 
-	Parameters							m_staticParameters;
+  Parameters m_staticParameters;
 
-	WorkspaceStateShPtr			m_state;		
+  WorkspaceStateShPtr m_state;
 
 };
 
-}	// namespace rod3d
-}	// namespace qserl
+}  // namespace rod3d
+}  // namespace qserl
 
 #endif // QSERL_3D_ROD_H_

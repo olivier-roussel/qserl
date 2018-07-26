@@ -29,7 +29,9 @@ namespace rod3d {
 /************************************************************************/
 /*		 setIsotropicStiffnessCoefficientsFromElasticityParameters				*/
 /************************************************************************/
-void Parameters::setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus, double i_shearModulus)
+void
+Parameters::setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus,
+                                                                      double i_shearModulus)
 {
   const double sectionArea = util::sqr(radius) * boost::math::constants::pi<double>();
   const double I = 0.25 * util::sqr(util::sqr(radius)) * boost::math::constants::pi<double>();
@@ -46,10 +48,11 @@ void Parameters::setIsotropicStiffnessCoefficientsFromElasticityParameters(doubl
 /************************************************************************/
 /*												getIsotropicYoungModulus											*/
 /************************************************************************/
-double Parameters::getIsotropicYoungModulus() const
+double
+Parameters::getIsotropicYoungModulus() const
 {
-  assert( stiffnessCoefficients[1] == stiffnessCoefficients[2] && stiffnessCoefficients[4] == stiffnessCoefficients[5] &&
-    "rod stifness constants must represent (transversal) isotropy elasticity" );
+  assert(stiffnessCoefficients[1] == stiffnessCoefficients[2] && stiffnessCoefficients[4] == stiffnessCoefficients[5] &&
+         "rod stifness constants must represent (transversal) isotropy elasticity");
 
   const double sectionArea = util::sqr(radius) * boost::math::constants::pi<double>();
   return stiffnessCoefficients[3] / sectionArea;
@@ -58,14 +61,15 @@ double Parameters::getIsotropicYoungModulus() const
 /************************************************************************/
 /*												getIsotropicShearModulus											*/
 /************************************************************************/
-double Parameters::getIsotropicShearModulus() const
+double
+Parameters::getIsotropicShearModulus() const
 {
-  assert( stiffnessCoefficients[1] == stiffnessCoefficients[2] && stiffnessCoefficients[4] == stiffnessCoefficients[5] &&
-    "rod stifness constants must represent (transversal) isotropy elasticity" );
+  assert(stiffnessCoefficients[1] == stiffnessCoefficients[2] && stiffnessCoefficients[4] == stiffnessCoefficients[5] &&
+         "rod stifness constants must represent (transversal) isotropy elasticity");
 
   const double sectionArea = util::sqr(radius) * boost::math::constants::pi<double>();
   return stiffnessCoefficients[4] / sectionArea;
 }
 
-}	// namespace rod3d
-}	// namespace qserl
+}  // namespace rod3d
+}  // namespace qserl

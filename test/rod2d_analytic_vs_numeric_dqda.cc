@@ -30,20 +30,22 @@
 /* ------------------------------------------------------------------------- */
 /* Analytic vs. Numeric Tests for the Jacobian dq / da  									   */
 /* ------------------------------------------------------------------------- */
-void compareAnalyticAndNumericDqDa(const Eigen::Vector3d& i_wrench, double i_errorTolerance,
-  const qserl::rod2d::Parameters& i_rodParameters)
+void
+compareAnalyticAndNumericDqDa(const Eigen::Vector3d& i_wrench,
+                              double i_errorTolerance,
+                              const qserl::rod2d::Parameters& i_rodParameters)
 {
   // Integrate numerically the jacobian dq / da
   // ----------------------------------
 
-	static const qserl::rod2d::Displacement2D identityDisp = { { 0., 0., 0. } };
+  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
   // set integration options
   qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
   integrationOptions.stop_if_unstable = false;
-	integrationOptions.keepMuValues = true;
-	integrationOptions.keepJdet = true;
-	integrationOptions.keepMMatrices = false;
-	integrationOptions.keepJMatrices = true;
+  integrationOptions.keepMuValues = true;
+  integrationOptions.keepJdet = true;
+  integrationOptions.keepMMatrices = false;
+  integrationOptions.keepJMatrices = true;
 
   qserl::rod2d::Wrench2D wrench2D;
   wrench2D[0] = i_wrench[1];
@@ -51,29 +53,30 @@ void compareAnalyticAndNumericDqDa(const Eigen::Vector3d& i_wrench, double i_err
   wrench2D[2] = i_wrench[0];
 
   qserl::rod2d::WorkspaceIntegratedStateShPtr rodState = qserl::rod2d::WorkspaceIntegratedState::create(wrench2D,
-    identityDisp, i_rodParameters);
-		rodState->integrationOptions(integrationOptions);
+                                                                                                        identityDisp,
+                                                                                                        i_rodParameters);
+  rodState->integrationOptions(integrationOptions);
   qserl::rod2d::WorkspaceIntegratedState::IntegrationResultT integrationStatus = rodState->integrate();
-  BOOST_CHECK( integrationStatus == qserl::rod2d::WorkspaceIntegratedState::IR_VALID );	
+  BOOST_CHECK(integrationStatus == qserl::rod2d::WorkspaceIntegratedState::IR_VALID);
 
   // Compute analytically the jacobian dq / da
   // ----------------------------------
   qserl::rod2d::MotionConstantsDqDa motionConstants;
   bool motionConstantsSuccess = qserl::rod2d::computeMotionConstantsDqDa(i_wrench, motionConstants);
 
-  BOOST_CHECK( motionConstantsSuccess );	
+  BOOST_CHECK(motionConstantsSuccess);
 
-  if (motionConstantsSuccess)
+  if(motionConstantsSuccess)
   {
     const size_t numNodes = i_rodParameters.numberOfNodes();
     double maxError = 0.;
-    for (size_t idxNode = 0; idxNode < numNodes; ++idxNode)
+    for(size_t idxNode = 0; idxNode < numNodes; ++idxNode)
     {
-      const double t =  static_cast<double>(idxNode) / static_cast<double>(numNodes - 1);
+      const double t = static_cast<double>(idxNode) / static_cast<double>(numNodes - 1);
       Eigen::Matrix3d dqda_al;
       bool dqdaSuccess = qserl::rod2d::computeDqDaAtPositionT(t, motionConstants, dqda_al);
 
-      BOOST_CHECK( dqdaSuccess );	
+      BOOST_CHECK(dqdaSuccess);
 
       // Compare analytic vs. numerically integrated jacobians dq / da
       // ----------------------------------
@@ -91,36 +94,36 @@ void compareAnalyticAndNumericDqDa(const Eigen::Vector3d& i_wrench, double i_err
       Eigen::Matrix3d q_mat;
       qserl::rod2d::toHomogeneousMatrix(q_disp2D, q_mat);
       Eigen::Vector3d dtheta_da; // dtheta_da(j) for j=1..3
-      for (size_t j = 0; j < 3; ++j)
+      for(size_t j = 0; j < 3; ++j)
       {
         qserl::util::hat_SE2(J_num_Te_Body.col(j), J_num_Te_Body_Skew_SE2[j]);
         J_num_Tq[j] = q_mat * J_num_Te_Body_Skew_SE2[j];
-        const double dsin_theta_da = J_num_Tq[j](1,0);
-        const double sin_theta = q_mat(1,0);
-        const double dcos_theta_da = J_num_Tq[j](0,0);
-        const double cos_theta = q_mat(0,0);
+        const double dsin_theta_da = J_num_Tq[j](1, 0);
+        const double sin_theta = q_mat(1, 0);
+        const double dcos_theta_da = J_num_Tq[j](0, 0);
+        const double cos_theta = q_mat(0, 0);
         dtheta_da[j] = dsin_theta_da * cos_theta - dcos_theta_da * sin_theta;
       }
 
-      for (size_t j = 0; j < 3; ++j)
+      for(size_t j = 0; j < 3; ++j)
       {
-        size_t jNum = j == 0 ? 2 : j-1; 
+        size_t jNum = j == 0 ? 2 : j - 1;
         // compare dq1 / da (i.e. dtheta / da)
-        const double err_dq1 = abs(dqda_al(0,j) - dtheta_da[jNum]);
+        const double err_dq1 = abs(dqda_al(0, j) - dtheta_da[jNum]);
         maxError = std::max(maxError, err_dq1);
-        BOOST_CHECK_SMALL( err_dq1, i_errorTolerance );
+        BOOST_CHECK_SMALL(err_dq1, i_errorTolerance);
         // compare dq2 / da (i.e. dx / da)
-        const double err_dq2 = abs(dqda_al(1,j) - J_num_Tq[jNum](0,2));
+        const double err_dq2 = abs(dqda_al(1, j) - J_num_Tq[jNum](0, 2));
         maxError = std::max(maxError, err_dq2);
-        BOOST_CHECK_SMALL( err_dq2, i_errorTolerance );
+        BOOST_CHECK_SMALL(err_dq2, i_errorTolerance);
         // compare dq3 / da (i.e. dy / da)
-        const double err_dq3 = abs(dqda_al(2,j) - J_num_Tq[jNum](1,2));
+        const double err_dq3 = abs(dqda_al(2, j) - J_num_Tq[jNum](1, 2));
         maxError = std::max(maxError, err_dq3);
-        BOOST_CHECK_SMALL( err_dq3, i_errorTolerance );
+        BOOST_CHECK_SMALL(err_dq3, i_errorTolerance);
       }
-    }	
+    }
 
-    BOOST_TEST_MESSAGE( "  Max error = " << maxError << " (must be less than " << i_errorTolerance << ")" );
+    BOOST_TEST_MESSAGE("  Max error = " << maxError << " (must be less than " << i_errorTolerance << ")");
   }
 }
 
@@ -130,14 +133,14 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseI_set1)
 {
   Eigen::Vector3d wrench(2.3777, -49.6303, -9.8917);
   static const double errorTolerance = 1.e-4; // tolerance on the error of dq(i) / da(j) between
-                                              // analytical and numerically integrated expressions
+  // analytical and numerically integrated expressions
   qserl::rod2d::Parameters rodParameters;
-	rodParameters.radius = 1.;
-	rodParameters.length = 1.;
-	rodParameters.integrationTime = 1.;
-	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-4;            // integration resolution will impact on divergence with 
-                                            // analytical forms
+  rodParameters.radius = 1.;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-4;            // integration resolution will impact on divergence with
+  // analytical forms
 
   compareAnalyticAndNumericDqDa(wrench, errorTolerance, rodParameters);
 }
@@ -146,14 +149,14 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseI_set2)
 {
   Eigen::Vector3d wrench(-1.2339, -21.8067, -12.0168);
   static const double errorTolerance = 1.e-4; // tolerance on the error of dq(i) / da(j) between
-                                              // analytical and numerically integrated expressions
+  // analytical and numerically integrated expressions
   qserl::rod2d::Parameters rodParameters;
-	rodParameters.radius = 1.;
-	rodParameters.length = 1.;
-	rodParameters.integrationTime = 1.;
-	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with 
-                                              // analytical forms 
+  rodParameters.radius = 1.;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with
+  // analytical forms
 
   compareAnalyticAndNumericDqDa(wrench, errorTolerance, rodParameters);
 }
@@ -179,14 +182,14 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseI_singular_a4_1)
   Eigen::Vector3d wrench(2., 0., 6.);
   // XXX high deviation on dq1 / da here from numerical solutions 
   static const double errorTolerance = 1.e-3; // tolerance on the error of dq(i) / da(j) between
-                                              // analytical and numerically integrated expressions
+  // analytical and numerically integrated expressions
   qserl::rod2d::Parameters rodParameters;
-	rodParameters.radius = 1.;
-	rodParameters.length = 1.;
-	rodParameters.integrationTime = 1.;
-	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with 
-                                              // analytical forms
+  rodParameters.radius = 1.;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-4;              // integration resolution will impact on divergence with
+  // analytical forms
 
   compareAnalyticAndNumericDqDa(wrench, errorTolerance, rodParameters);
 }
@@ -242,13 +245,13 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseI_close_singular_a3_1)
   // warning _ as a[0] (i.e. a3) is close to zero, we are getting closer to singularity 
   // and both solutions diverge _ so the error tolerance is here lowered to 0.01
   static const double errorTolerance = 1.e-4; // tolerance on the error of dq(i) / da(j) between
-                                              // analytical and numerically integrated expressions
+  // analytical and numerically integrated expressions
   qserl::rod2d::Parameters rodParameters;
-	rodParameters.radius = 1.;
-	rodParameters.length = 1.;
-	rodParameters.integrationTime = 1.;
-	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-4;
+  rodParameters.radius = 1.;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericDqDa(wrench, errorTolerance, rodParameters);
 }
@@ -256,14 +259,14 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseI_close_singular_a3_1)
 BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_set1)
 {
   Eigen::Vector3d wrench(-4.1337, 87.7116, 18.0966);
-  static const double errorTolerance = 1.e-3; 
+  static const double errorTolerance = 1.e-3;
 
   qserl::rod2d::Parameters rodParameters;
-	rodParameters.radius = 1.;
-	rodParameters.length = 1.;
-	rodParameters.integrationTime = 1.;
-	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-4;
+  rodParameters.radius = 1.;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericDqDa(wrench, errorTolerance, rodParameters);
 }
@@ -271,7 +274,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_set1)
 BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_set2)
 {
   Eigen::Vector3d wrench(4.1748, 23.4780, 4.0259);
-  static const double errorTolerance = 1.e-3; 
+  static const double errorTolerance = 1.e-3;
 
   qserl::rod2d::Parameters rodParameters;
   rodParameters.radius = 1.;
@@ -286,14 +289,14 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_set2)
 BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_set3)
 {
   Eigen::Vector3d wrench(1., 4., 0.5);
-  static const double errorTolerance = 1.e-4; 
+  static const double errorTolerance = 1.e-4;
 
   qserl::rod2d::Parameters rodParameters;
-	rodParameters.radius = 1.;
-	rodParameters.length = 1.;
-	rodParameters.integrationTime = 1.;
-	rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
-	rodParameters.delta_t = 1.e-4;
+  rodParameters.radius = 1.;
+  rodParameters.length = 1.;
+  rodParameters.integrationTime = 1.;
+  rodParameters.rodModel = qserl::rod2d::Parameters::RM_INEXTENSIBLE;
+  rodParameters.delta_t = 1.e-4;
 
   compareAnalyticAndNumericDqDa(wrench, errorTolerance, rodParameters);
 }
@@ -303,7 +306,7 @@ BOOST_AUTO_TEST_CASE(AnalyticVsNumericTest_DqDa_CaseII_singular_a4_1)
 {
   Eigen::Vector3d wrench(3., 0., -4.);
   static const double errorTolerance = 1.e-3; // tolerance on the error of dq(i) / da(j) between
-                                              // analytical and numerically integrated expressions
+  // analytical and numerically integrated expressions
   qserl::rod2d::Parameters rodParameters;
   rodParameters.radius = 1.;
   rodParameters.length = 1.;
@@ -356,17 +359,17 @@ BOOST_AUTO_TEST_CASE(Analytic_DqDa_Benchmarking_Full_RandomSet)
   static const size_t numRuns = 10000;
 
   // set base A-space bounds
-	Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
-	static const double maxTorque = 6.28;
-	static const double maxForce = 100;
+  Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
+  static const double maxTorque = 6.28;
+  static const double maxForce = 100;
 
   aSpaceUpperBounds[0] = maxTorque;
   aSpaceLowerBounds[0] = -maxTorque;
-	for (int k = 1 ; k < 3 ; ++k)
-	{
-		aSpaceUpperBounds[k] = maxForce;
-		aSpaceLowerBounds[k] = -maxForce;
-	}
+  for(int k = 1; k < 3; ++k)
+  {
+    aSpaceUpperBounds[k] = maxForce;
+    aSpaceLowerBounds[k] = -maxForce;
+  }
 
   Eigen::Vector3d wrench;
   Eigen::Matrix3d dqda;
@@ -374,33 +377,33 @@ BOOST_AUTO_TEST_CASE(Analytic_DqDa_Benchmarking_Full_RandomSet)
   int successfullMotionConstants = 0;
   int successfullDqDa = 0;
 
-	qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
-  for (size_t idxRun = 0; idxRun < numRuns; ++idxRun)
+  qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
+  for(size_t idxRun = 0; idxRun < numRuns; ++idxRun)
   {
-    for (int k = 0; k < 3; ++k)
+    for(int k = 0; k < 3; ++k)
     {
-      wrench[k] = ((rand() % 10000) * ( aSpaceUpperBounds[k] - aSpaceLowerBounds[k]) ) / 1.e4 + 
-        aSpaceUpperBounds[k];
+      wrench[k] = ((rand() % 10000) * (aSpaceUpperBounds[k] - aSpaceLowerBounds[k])) / 1.e4 +
+                  aSpaceUpperBounds[k];
     }
 
-    if (qserl::rod2d::computeMotionConstantsDqDa(wrench, motionConstants))
+    if(qserl::rod2d::computeMotionConstantsDqDa(wrench, motionConstants))
     {
       ++successfullMotionConstants;
       static const double t = 1.;
-      if (qserl::rod2d::computeDqDaAtPositionT(t, motionConstants, dqda))
+      if(qserl::rod2d::computeDqDaAtPositionT(t, motionConstants, dqda))
       {
         ++successfullDqDa;
       }
     }
   }
-	double benchTimeMs = static_cast<double>(qserl::util::getElapsedTimeMsec(startBenchTime).count());
-	BOOST_TEST_MESSAGE( "Num runs: " << numRuns << " / success Motion Constants:" << successfullMotionConstants 
-    << " / success Jacobian:" << successfullDqDa );
-	BOOST_TEST_MESSAGE( "Benchmarking total time: " << benchTimeMs << "ms for "
-    << numRuns << " analytic jacobians dq / da computations" );
-	double benchTimePerJacobianUs = benchTimeMs * 1.e3 / static_cast<double>(numRuns);
-	BOOST_TEST_MESSAGE( "  Avg. computation time per jacobian = " << benchTimePerJacobianUs << "us" );
-	
+  double benchTimeMs = static_cast<double>(qserl::util::getElapsedTimeMsec(startBenchTime).count());
+  BOOST_TEST_MESSAGE("Num runs: " << numRuns << " / success Motion Constants:" << successfullMotionConstants
+                                  << " / success Jacobian:" << successfullDqDa);
+  BOOST_TEST_MESSAGE("Benchmarking total time: " << benchTimeMs << "ms for "
+                                                 << numRuns << " analytic jacobians dq / da computations");
+  double benchTimePerJacobianUs = benchTimeMs * 1.e3 / static_cast<double>(numRuns);
+  BOOST_TEST_MESSAGE("  Avg. computation time per jacobian = " << benchTimePerJacobianUs << "us");
+
 }
 
 BOOST_AUTO_TEST_SUITE_END();
@@ -415,11 +418,11 @@ BOOST_AUTO_TEST_CASE(Numeric_DqDa1_Benchmarking_Full_RandomSet)
   static const size_t numRuns = 10000;
 
   // set base A-space bounds
-	Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
-	static const double maxTorque = 6.28;
-	static const double maxForce = 100;
+  Eigen::Matrix<double, 3, 1> aSpaceUpperBounds, aSpaceLowerBounds;
+  static const double maxTorque = 6.28;
+  static const double maxForce = 100;
 
-  for (int k = 0 ; k < 2 ; ++k)
+  for(int k = 0; k < 2; ++k)
   {
     aSpaceUpperBounds[k] = maxForce;
     aSpaceLowerBounds[k] = -maxForce;
@@ -440,43 +443,46 @@ BOOST_AUTO_TEST_CASE(Numeric_DqDa1_Benchmarking_Full_RandomSet)
   rodParameters.delta_t = 1.e-3;  // with RK4: for a 1.e-3 max error on q(t) w.r.t analytic forms, should take at least 1.e-4 for delta_t
 
   // set integration options
-	qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
-	integrationOptions.stop_if_unstable = false;
-	integrationOptions.keepMuValues = false;
-	integrationOptions.keepJdet = false;
-	integrationOptions.keepMMatrices = false;
-	integrationOptions.keepJMatrices = true;
-	integrationOptions.computeJacobians = true;
-	integrationOptions.integrator = qserl::rod2d::WorkspaceIntegratedState::IN_RK4;
+  qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
+  integrationOptions.stop_if_unstable = false;
+  integrationOptions.keepMuValues = false;
+  integrationOptions.keepJdet = false;
+  integrationOptions.keepMMatrices = false;
+  integrationOptions.keepJMatrices = true;
+  integrationOptions.computeJacobians = true;
+  integrationOptions.integrator = qserl::rod2d::WorkspaceIntegratedState::IN_RK4;
 
-  static const qserl::rod2d::Displacement2D identityDisp = { { 0., 0., 0. } };
+  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
 
-	qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
-  for (size_t idxRun = 0; idxRun < numRuns; ++idxRun)
+  qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
+  for(size_t idxRun = 0; idxRun < numRuns; ++idxRun)
   {
-    for (int k = 0; k < 3; ++k)
+    for(int k = 0; k < 3; ++k)
     {
-      wrench_XYT[k] = ((rand() % 10000) * ( aSpaceUpperBounds[k] - aSpaceLowerBounds[k]) ) / 1.e4 + 
-        aSpaceUpperBounds[k];
+      wrench_XYT[k] = ((rand() % 10000) * (aSpaceUpperBounds[k] - aSpaceLowerBounds[k])) / 1.e4 +
+                      aSpaceUpperBounds[k];
     }
 
     qserl::rod2d::WorkspaceIntegratedStateShPtr rodState = qserl::rod2d::WorkspaceIntegratedState::create(wrench_XYT,
-      identityDisp, rodParameters);
-    BOOST_CHECK( rodState );	
+                                                                                                          identityDisp,
+                                                                                                          rodParameters);
+    BOOST_CHECK(rodState);
     rodState->integrationOptions(integrationOptions);
     // not singular (zero volume, so should never happen by random sampling
     qserl::rod2d::WorkspaceIntegratedState::IntegrationResultT integrationStatus = rodState->integrate();
     //BOOST_CHECK ( integrationStatus != qserl::rod2d::WorkspaceIntegratedState::IR_SINGULAR );
-    if (integrationStatus == qserl::rod2d::WorkspaceIntegratedState::IR_VALID)
+    if(integrationStatus == qserl::rod2d::WorkspaceIntegratedState::IR_VALID)
+    {
       ++successfull;
+    }
   }
-	double benchTimeMs = static_cast<double>(qserl::util::getElapsedTimeMsec(startBenchTime).count());
-	BOOST_TEST_MESSAGE( "Num runs: " << numRuns << " / success dqda(1):" << successfull );
-	BOOST_TEST_MESSAGE( "Benchmarking total time: " << benchTimeMs << "ms for "
-    << numRuns << " numeric (dqda) computations" );
-	double benchTimePerDqDaUs = benchTimeMs * 1.e3 / static_cast<double>(numRuns);
-	BOOST_TEST_MESSAGE( "  Avg. computation time per (dqda) = " << benchTimePerDqDaUs << "us" );
-	
+  double benchTimeMs = static_cast<double>(qserl::util::getElapsedTimeMsec(startBenchTime).count());
+  BOOST_TEST_MESSAGE("Num runs: " << numRuns << " / success dqda(1):" << successfull);
+  BOOST_TEST_MESSAGE("Benchmarking total time: " << benchTimeMs << "ms for "
+                                                 << numRuns << " numeric (dqda) computations");
+  double benchTimePerDqDaUs = benchTimeMs * 1.e3 / static_cast<double>(numRuns);
+  BOOST_TEST_MESSAGE("  Avg. computation time per (dqda) = " << benchTimePerDqDaUs << "us");
+
 }
 
 BOOST_AUTO_TEST_SUITE_END();

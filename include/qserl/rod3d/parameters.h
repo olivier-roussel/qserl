@@ -38,42 +38,43 @@ namespace rod3d {
 */
 struct QSERL_EXPORT Parameters
 {
-	Parameters() :
-		radius(0.01), 
-		length(1.), 
-		//youngModulus(15.4e6),  /** Default Young modulus of rubber: 15.4 MPa */
-		//shearModulus(5.13e6),  /** Default Shear modulus of rubber: 5.13 MPa */
-    stiffnessCoefficients(Eigen::Matrix<double, 6, 1>::Ones()),
-		//density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */ 
-		integrationTime(1.),
-		rodModel(RM_EXTENSIBLE_SHEARABLE),
-		numNodes(100)
-	{}
+  Parameters() :
+      radius(0.01),
+      length(1.),
+      stiffnessCoefficients(Eigen::Matrix<double, 6, 1>::Ones()),
+      //density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */
+      rodModel(RM_EXTENSIBLE_SHEARABLE),
+      numNodes(100),
+      integrationTime(1.)
+  {
+  }
 
-	enum RodModelT
-	{
-		RM_INEXTENSIBLE = 0,
-		RM_EXTENSIBLE_SHEARABLE,
-		RM_NUMBER_OF_ROD_MODELS
-	};
+  enum RodModelT
+  {
+    RM_INEXTENSIBLE = 0,
+    RM_EXTENSIBLE_SHEARABLE,
+    RM_NUMBER_OF_ROD_MODELS
+  };
 
-	static const std::string getRodModelName(RodModelT i_model)
-	{
-		const static char * const model_names_array[] = { "INEXTENSIBLE", "EXTENSIBLE_SHEARABLE" };
-		const static std::vector<std::string> v_model_names_array(model_names_array, model_names_array + RM_NUMBER_OF_ROD_MODELS);
-		return v_model_names_array[static_cast<int>(i_model)];
-	}
+  static const std::string
+  getRodModelName(RodModelT i_model)
+  {
+    const static char* const model_names_array[] = {"INEXTENSIBLE", "EXTENSIBLE_SHEARABLE"};
+    const static std::vector<std::string> v_model_names_array(model_names_array,
+                                                              model_names_array + RM_NUMBER_OF_ROD_MODELS);
+    return v_model_names_array[static_cast<int>(i_model)];
+  }
 
-	double														radius; 
-	double														length;
-  Eigen::Matrix<double, 6, 1>       stiffnessCoefficients;
-	RodModelT													rodModel;
-	int																numNodes;       /** Number of discretization nodes. Related to the delta_t field 
+  double radius;
+  double length;
+  Eigen::Matrix<double, 6, 1> stiffnessCoefficients;
+  RodModelT rodModel;
+  int numNodes;       /** Number of discretization nodes. Related to the delta_t field
                                                     * used for 2D rod by delta_t = 1 / (numNodes - 1) */
-	//double														density;		        /** Unused. */
+  //double														density;		        /** Unused. */
 
-	/**< Internal use only. */
-	double														integrationTime;	/**< Should be kept to 1 (default value). */
+  /**< Internal use only. */
+  double integrationTime;  /**< Should be kept to 1 (default value). */
 
   /**
   * \brief Returns equivalent Young modulus from stiffness coefficients.
@@ -81,7 +82,8 @@ struct QSERL_EXPORT Parameters
   *   stiffnessCoefficients[1] == stiffnessCoefficients[2]    and
   *   stiffnessCoefficients[4] == stiffnessCoefficients[5]
   */
-  double getIsotropicYoungModulus() const;
+  double
+  getIsotropicYoungModulus() const;
 
   /**
   * \brief Returns equivalent Shear modulus from stiffness coefficients.
@@ -89,29 +91,34 @@ struct QSERL_EXPORT Parameters
   *   stiffnessCoefficients[1] == stiffnessCoefficients[2]    and
   *   stiffnessCoefficients[4] == stiffnessCoefficients[5]
   */
-  double getIsotropicShearModulus() const;
+  double
+  getIsotropicShearModulus() const;
 
   /**
   * \brief Set transversal isotropic stiffness coefficients from elasticity parameters described by
   * Young modulus and shear modulus. 
   */
-  void setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus, double i_shearModulus);
+  void
+  setIsotropicStiffnessCoefficientsFromElasticityParameters(double i_youngModulus,
+                                                            double i_shearModulus);
 
-	/** Serialization */
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & boost::serialization::make_nvp("radius", radius) & 
-			boost::serialization::make_nvp("length", length) & 
-			boost::serialization::make_nvp("stiffnessCoefficients", stiffnessCoefficients) & 
-			boost::serialization::make_nvp("rodModel", rodModel) &
-			boost::serialization::make_nvp("numNodes", numNodes);
-			//boost::serialization::make_nvp("density", density) & 
-			//boost::serialization::make_nvp("integrationTime", integrationTime) &
-	}
+  /** Serialization */
+  template<class Archive>
+  void
+  serialize(Archive& ar,
+            const unsigned int version)
+  {
+    ar & boost::serialization::make_nvp("radius", radius) &
+    boost::serialization::make_nvp("length", length) &
+    boost::serialization::make_nvp("stiffnessCoefficients", stiffnessCoefficients) &
+    boost::serialization::make_nvp("rodModel", rodModel) &
+    boost::serialization::make_nvp("numNodes", numNodes);
+    //boost::serialization::make_nvp("density", density) &
+    //boost::serialization::make_nvp("integrationTime", integrationTime) &
+  }
 };
 
-}	// namespace rod3d
-}	// namespace qserl
+}  // namespace rod3d
+}  // namespace qserl
 
 #endif // QSERL_3D_PARAMETERS_H_

@@ -27,9 +27,9 @@
 
 #include "qserl/exports.h"
 
-#pragma warning( push, 0 )	
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+//#pragma warning( pop )
 
 namespace qserl {
 namespace rod2d {
@@ -50,10 +50,15 @@ namespace rod2d {
 *             a[2] is rod base force along y
 * \return true if successfull, false if unstability or singularity found.
 */
-QSERL_EXPORT bool inverseGeometry_Newton(const Eigen::Vector3d& i_q_des, int i_maxIter, double i_maxNormError, 
-  const Eigen::Vector3d& i_a0, double i_alpha, Eigen::Vector3d& o_a);
+QSERL_EXPORT bool
+inverseGeometry_Newton(const Eigen::Vector3d& i_q_des,
+                       int i_maxIter,
+                       double i_maxNormError,
+                       const Eigen::Vector3d& i_a0,
+                       double i_alpha,
+                       Eigen::Vector3d& o_a);
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_ROD2_INVERSE_GEOMETRY_Q_H_

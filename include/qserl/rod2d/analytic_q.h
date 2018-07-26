@@ -27,16 +27,16 @@
 
 #include "qserl/exports.h"
 
-#pragma warning( push, 0 )	
+////#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+////#pragma warning( pop )
 
 namespace qserl {
 namespace rod2d {
 
 struct MotionConstantsQ
 {
-	//MotionConstantsMu muc;	// TODO factorize motion constants
+  //MotionConstantsMu muc;	// TODO factorize motion constants
   double lambda[4];
   double delta;
   double alpha[3];
@@ -71,7 +71,9 @@ struct MotionConstantsQ
 * \return false if a(i) (i=1..3) values corresponds to a unhandled special case (then motion constants 
 *   will not be valid).
 */
-QSERL_EXPORT bool computeMotionConstantsQ(const Eigen::Vector3d& i_a, MotionConstantsQ& o_motionConstants);
+QSERL_EXPORT bool
+computeMotionConstantsQ(const Eigen::Vector3d& i_a,
+                        MotionConstantsQ& o_motionConstants);
 
 /**
 * \brief Compute rod geometry q (in body frame) at the position t along the rod.
@@ -88,10 +90,14 @@ QSERL_EXPORT bool computeMotionConstantsQ(const Eigen::Vector3d& i_a, MotionCons
 * \pre a(i) (i=3..5) values corresponding to given motion constants must respect the unhandled following cases:
 *   - if Case I (includes Case III) i.e. lambda4 >= 0, then a3 != 0 and a5 != 0
 */
-QSERL_EXPORT bool computeQAtPositionT(double i_t, const Eigen::Vector3d& i_a, 
-  const MotionConstantsQ& i_mc, Eigen::Vector3d& o_qdot, Eigen::Vector3d& o_q);
+QSERL_EXPORT bool
+computeQAtPositionT(double i_t,
+                    const Eigen::Vector3d& i_a,
+                    const MotionConstantsQ& i_mc,
+                    Eigen::Vector3d& o_qdot,
+                    Eigen::Vector3d& o_q);
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_ANALYTIC_Q_H_

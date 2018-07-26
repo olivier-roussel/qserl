@@ -24,9 +24,9 @@
 
 #include <boost/function.hpp>
 
-#pragma warning( push, 0 )	
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+//#pragma warning( pop )
 
 #include "qserl/rod2d/workspace_integrated_state.h"
 
@@ -36,45 +36,57 @@ namespace rod2d {
 class QSERL_EXPORT JacobianSystem
 {
 public:
-	typedef WorkspaceIntegratedState::jacobian_state_type state_type;
+  typedef WorkspaceIntegratedState::jacobian_state_type state_type;
 
-	//static const state_type kDefaultState;				/**< Deprecated */
+  //static const state_type kDefaultState;				/**< Deprecated */
 
-	static const double kStabilityThreshold;			/** Threshold for Jacobian determinant. */
-	static const double kStabilityTolerance;			/** Tolerance for which Jacobian determinant vanishes. */
+  static const double kStabilityThreshold;      /** Threshold for Jacobian determinant. */
+  static const double kStabilityTolerance;      /** Tolerance for which Jacobian determinant vanishes. */
 
-	/**
-	* Constructors, destructors
-	*/
-	JacobianSystem(double i_inv_stiffness, double i_dt, 
-		const std::vector<WorkspaceIntegratedState::costate_type>& i_mu, Parameters::RodModelT i_rodModel);
+  /**
+  * Constructors, destructors
+  */
+  JacobianSystem(double i_inv_stiffness,
+                 double i_dt,
+                 const std::vector<WorkspaceIntegratedState::costate_type>& i_mu,
+                 Parameters::RodModelT i_rodModel);
+
   virtual ~JacobianSystem();
 
-	/**
-	* Derivative evaluation at time t.
-	*/
-	void operator() (const state_type& MJ, state_type& dMJdt, double t);
+  /**
+  * Derivative evaluation at time t.
+  */
+  void
+  operator()(const state_type& MJ,
+             state_type& dMJdt,
+             double t);
 
-	/** Returns default state value. */
-	static state_type defaultState();
+  /** Returns default state value. */
+  static state_type
+  defaultState();
 
 private:
 
-	double																													m_inv_c;	/**< inverse stiffness coefficients */
-	double																													m_dt;			
-	const std::vector<WorkspaceIntegratedState::costate_type>&			m_mu;
-	Parameters::RodModelT																						m_rodModel;
+  double m_inv_c;  /**< inverse stiffness coefficients */
+  double m_dt;
+  const std::vector<WorkspaceIntegratedState::costate_type>& m_mu;
+  Parameters::RodModelT m_rodModel;
 
-	boost::function<void(const state_type&, state_type&, double)>		m_evaluationCallback;
+  boost::function<void(const state_type&,
+                       state_type&,
+                       double)> m_evaluationCallback;
 
-	/** 
-	* Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
-	*/
-	void evaluateInextensible(const state_type& MJ, state_type& dMJdt, double t);
+  /**
+  * Derivative evaluation at time t for the inextensible (RM_INEXTENSIBLE) rod model.
+  */
+  void
+  evaluateInextensible(const state_type& MJ,
+                       state_type& dMJdt,
+                       double t);
 
 };
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_JACOBIAN_SYSTEM_H_

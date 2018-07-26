@@ -1,7 +1,8 @@
 // Requires the header "qserl/rod3d/rod.h"
 #include <qserl/rod3d/rod.h>
 
-int main ()
+int
+main()
 {
   using namespace qserl;
   using namespace rod3d;
@@ -11,13 +12,13 @@ int main ()
   rodParameters.radius = 0.01;                            // radius of the rod
   rodParameters.rodModel = Parameters::RM_INEXTENSIBLE;   // in 3D, could be inextensible rod model or extensible and shearable one.
   rodParameters.numNodes = 100;                          // The number of discretized rod nodes N where
-                                                          // N = (1/dt) + 1. Default value of 1e-2 should be sufficient for
-                                                          // most usages. As we are integrating numerically on a manifold, 
-                                                          // keep in mind the error is not handled properly here.
+  // N = (1/dt) + 1. Default value of 1e-2 should be sufficient for
+  // most usages. As we are integrating numerically on a manifold,
+  // keep in mind the error is not handled properly here.
   rodParameters.stiffnessCoefficients = Eigen::Matrix<double, 6, 1>::Ones();  // stiffness coefficients each deformation axis.
-                                                          // if inextensible model is used only the three first are relevant.
-                                                          // see documentation for more details.
-                                                          
+  // if inextensible model is used only the three first are relevant.
+  // see documentation for more details.
+
   // Create the rod
   RodShPtr rod = Rod::create(rodParameters);
 
@@ -31,7 +32,8 @@ int main ()
   baseWrench.fz() = 83.1471;
 
   // ... the rod base position (here identity element of SE(3) ) ...
-  const Eigen::Displacementd rodBasePosition(Eigen::Displacementd::Identity());
+  const Eigen::Displacementd
+  rodBasePosition(Eigen::Displacementd::Identity());
 
   // ... some integration options if needed ...
   // for example, here we want in addition to the rod geometry its internal wrenches
@@ -43,10 +45,11 @@ int main ()
   // ... and compute corresponding configuration
   // note that the given coordinates must not be singular (otherwise the returned
   // boolean isNotSingular will be false). See Rod::isConfigurationSingular() for details.
-	WorkspaceIntegratedState::IntegrationResultT intResult = rod->integrateStateFromBaseWrench(baseWrench,
-    rodBasePosition, integrationOptions);
+  WorkspaceIntegratedState::IntegrationResultT intResult = rod->integrateStateFromBaseWrench(baseWrench,
+                                                                                             rodBasePosition,
+                                                                                             integrationOptions);
 
-	if (intResult != WorkspaceIntegratedState::IR_SINGULAR)
+  if(intResult != WorkspaceIntegratedState::IR_SINGULAR)
   {
     WorkspaceIntegratedStateShPtr integratedState1 = rod->integratedState();
 
@@ -56,8 +59,8 @@ int main ()
     // For example, we can express the rod geometry (node by node) in the global frame
     // instead of rod base frame this way
     // Note this could be also directly given by the method WorkspaceState::nodesAbsolute6DPositions()
-    for (std::vector<Eigen::Displacementd>::const_iterator itNode = integratedState1->nodes().begin();
-      itNode != integratedState1->nodes().end(); ++itNode)
+    for(std::vector<Eigen::Displacementd>::const_iterator itNode = integratedState1->nodes().begin();
+        itNode != integratedState1->nodes().end(); ++itNode)
     {
       const Eigen::Displacementd nodeAbsolutePosition = rodBasePosition * (*itNode);
 

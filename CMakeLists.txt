@@ -85,6 +85,7 @@ target_include_directories(qserl
   )
 
 target_compile_features(qserl PRIVATE cxx_std_11)
+target_compile_options(qserl PRIVATE -Wall -Wextra)
 
 target_link_libraries(qserl
   PUBLIC

@@ -29,9 +29,9 @@
 
 #include "qserl/rod2d/analytic_q.h"
 
-#pragma warning( push, 0 )	
+////#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+////#pragma warning( pop )
 
 namespace qserl {
 namespace rod2d {
@@ -74,17 +74,21 @@ struct MotionConstantsDqDa
 * \return false if a(i) (i=1..3) values corresponds to a unhandled special case (then motion constants 
 *   will not be valid).
 */
-QSERL_EXPORT bool computeMotionConstantsDqDa(const Eigen::Vector3d& i_a, MotionConstantsDqDa& o_mc);
+QSERL_EXPORT bool
+computeMotionConstantsDqDa(const Eigen::Vector3d& i_a,
+                           MotionConstantsDqDa& o_mc);
 
 /**
 * \pre a(i) (i=3..5) values corresponding to given motion constants must respect the unhandled following cases:
 *   - if Case I (includes Case III) i.e. lambda4 >= 0, then a3 != 0 and a5 != 0
 *   - if Case II i.e. lambda4 < 0, then a5 != 0 (a3 cannot be null in this case)
 */
-QSERL_EXPORT bool computeDqDaAtPositionT(double i_t, const MotionConstantsDqDa& i_mc, 
-  Eigen::Matrix3d& o_dqda);
+QSERL_EXPORT bool
+computeDqDaAtPositionT(double i_t,
+                       const MotionConstantsDqDa& i_mc,
+                       Eigen::Matrix3d& o_dqda);
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_ANALYTIC_DQDA_H_

@@ -37,54 +37,62 @@ namespace rod2d {
 */
 struct QSERL_EXPORT Parameters
 {
-	Parameters() :
-		radius(0.01), 
-		length(1.), 
-		integrationTime(1.),
-		delta_t(0.01),
-		rodModel(RM_INEXTENSIBLE)
-	{}
+  Parameters() :
+      radius(0.01),
+      length(1.),
+      integrationTime(1.),
+      delta_t(0.01),
+      rodModel(RM_INEXTENSIBLE)
+  {
+  }
 
-	enum RodModelT
-	{
-		RM_INEXTENSIBLE = 0,
-		//RM_EXTENSIBLE,	/**< Not implemented yet */
-		RM_NUMBER_OF_ROD_MODELS
-	};
+  enum RodModelT
+  {
+    RM_INEXTENSIBLE = 0,
+    //RM_EXTENSIBLE,	/**< Not implemented yet */
+        RM_NUMBER_OF_ROD_MODELS
+  };
 
-	static const std::string getRodModelName(RodModelT i_model)
-	{
-		const static char * const model_names_array[] = { "INEXTENSIBLE" };
-		const static std::vector<std::string> v_model_names_array(model_names_array, model_names_array + RM_NUMBER_OF_ROD_MODELS);
-		return v_model_names_array[static_cast<int>(i_model)];
-	}
+  static const std::string
+  getRodModelName(RodModelT i_model)
+  {
+    const static char* const model_names_array[] = {"INEXTENSIBLE"};
+    const static std::vector<std::string> v_model_names_array(model_names_array,
+                                                              model_names_array + RM_NUMBER_OF_ROD_MODELS);
+    return v_model_names_array[static_cast<int>(i_model)];
+  }
 
-	double														radius;							/**< Rod radius _ Default is 1e-2. */
-	double														length;							/**< Rod length _ Must be set to 1 _ Default is 1. */
+  double radius;              /**< Rod radius _ Default is 1e-2. */
+  double length;              /**< Rod length _ Must be set to 1 _ Default is 1. */
 
-	double														integrationTime;		/**< Internal use _ Default is 1. */
-	double														delta_t;						/**< Integration step time, defines the resolution of the rod discretization. 
+  double integrationTime;    /**< Internal use _ Default is 1. */
+  double delta_t;            /**< Integration step time, defines the resolution of the rod discretization.
 																												* Default is 1e-2. */
 
-	RodModelT													rodModel;
+  RodModelT rodModel;
 
-	//int																numNodes;				/** Deprecated. Use numberOfNodes() instead. */
-	int	numberOfNodes() const
-	{ return static_cast<int>(std::floor(integrationTime/delta_t)) + 1; }
+  //int																numNodes;				/** Deprecated. Use numberOfNodes() instead. */
+  int
+  numberOfNodes() const
+  {
+    return static_cast<int>(std::floor(integrationTime / delta_t)) + 1;
+  }
 
-	/** Serialization */
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & boost::serialization::make_nvp("radius", radius) & 
-			boost::serialization::make_nvp("length", length) & 
-			boost::serialization::make_nvp("integrationTime", integrationTime) &
-			boost::serialization::make_nvp("delta_t", delta_t) &
-			boost::serialization::make_nvp("rodModel", rodModel);
-	}
+  /** Serialization */
+  template<class Archive>
+  void
+  serialize(Archive& ar,
+            const unsigned int version)
+  {
+    ar & boost::serialization::make_nvp("radius", radius) &
+    boost::serialization::make_nvp("length", length) &
+    boost::serialization::make_nvp("integrationTime", integrationTime) &
+    boost::serialization::make_nvp("delta_t", delta_t) &
+    boost::serialization::make_nvp("rodModel", rodModel);
+  }
 };
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_PARAMETERS_H_

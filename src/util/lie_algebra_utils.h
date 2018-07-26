@@ -21,49 +21,80 @@
 #ifndef QSERL_UTIL_LIE_ALGEBRA_UTILS_H_
 #define QSERL_UTIL_LIE_ALGEBRA_UTILS_H_
 
-#pragma warning( push, 0 )
+//#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )
+//#pragma warning( pop )
 
 namespace qserl {
 namespace util {
 
 // TODO: pass matrix as output parameter instead of returned value
-inline Eigen::Matrix3d hat(const Eigen::Vector3d& i_v)
+inline Eigen::Matrix3d
+hat(const Eigen::Vector3d& i_v)
 {
-	Eigen::Matrix3d out;
-	out << 0.,      -i_v[2], i_v[1],
-		     i_v[2],  0.,      -i_v[0],
-		     -i_v[1], i_v[0],  0.;
-	return out;
+  Eigen::Matrix3d out;
+  out << 0., -i_v[2], i_v[1],
+      i_v[2], 0., -i_v[0],
+      -i_v[1], i_v[0], 0.;
+  return out;
 }
 
-inline void hat_SE2(const Eigen::Vector3d& i_v, Eigen::Matrix3d& o_mat)
+inline void
+hat_SE2(const Eigen::Vector3d& i_v,
+        Eigen::Matrix3d& o_mat)
 {
-	o_mat << 0.,      -i_v[2], i_v[0],
-		       i_v[2],  0.,      i_v[1],
-		       0.,      0.,      0.;
+  o_mat << 0., -i_v[2], i_v[0],
+      i_v[2], 0., i_v[1],
+      0., 0., 0.;
 }
 
-Eigen::Matrix4d GetHomogenousMatrix(const Eigen::Displacementd & disp);
+Eigen::Matrix4d
+GetHomogenousMatrix(const Eigen::Displacementd& disp);
 
-Eigen::Matrix4d GetTransformationMatrix(const Eigen::Matrix4d & H, const Eigen::Vector3d & scale);
+Eigen::Matrix4d
+GetTransformationMatrix(const Eigen::Matrix4d& H,
+                        const Eigen::Vector3d& scale);
 
-Eigen::Matrix4d GetTransformationMatrix(const Eigen::Displacementd & disp, const Eigen::Vector3d & scale);
+Eigen::Matrix4d
+GetTransformationMatrix(const Eigen::Displacementd& disp,
+                        const Eigen::Vector3d& scale);
 
-Eigen::Vector3d GetScaleFromMatrix(const Eigen::Matrix4d &TM);
+Eigen::Vector3d
+GetScaleFromMatrix(const Eigen::Matrix4d& TM);
 
-Eigen::Vector3d GetTranslationFromMatrix(const Eigen::Matrix4d &TM);
+Eigen::Vector3d
+GetTranslationFromMatrix(const Eigen::Matrix4d& TM);
 
-Eigen::Rotation3d GetRotationFromMatrix(const Eigen::Matrix4d & TM);
+Eigen::Rotation3d
+GetRotationFromMatrix(const Eigen::Matrix4d& TM);
 
-Eigen::Matrix3d rotationMatrixFromBryantAngles(double rx, double ry, double rz);
+Eigen::Matrix3d
+rotationMatrixFromBryantAngles(double rx,
+                               double ry,
+                               double rz);
 
-Eigen::Matrix4d transformationMatrixFromBryantAngles(double x, double y, double z, double rx, double ry, double rz);
+Eigen::Matrix4d
+transformationMatrixFromBryantAngles(double x,
+                                     double y,
+                                     double z,
+                                     double rx,
+                                     double ry,
+                                     double rz);
 
-void transformationMatrixToBryantAngles(const Eigen::Matrix4d& trans, double& x, double& y, double& z, double& rx, double& ry, double& rz);
+void
+transformationMatrixToBryantAngles(const Eigen::Matrix4d& trans,
+                                   double& x,
+                                   double& y,
+                                   double& z,
+                                   double& rx,
+                                   double& ry,
+                                   double& rz);
 
-void rotationMatrixToBryantAngles(const Eigen::Matrix3d& rot, double& rx, double& ry, double& rz);
+void
+rotationMatrixToBryantAngles(const Eigen::Matrix3d& rot,
+                             double& rx,
+                             double& ry,
+                             double& rz);
 
 } // namespace util
 } // namespace qserl

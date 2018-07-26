@@ -23,61 +23,77 @@ namespace qserl {
 namespace util {
 
 /** Do not use this one directly. */
-std::vector<std::string> &split(const std::string &s,
-                                char delim,
-                                std::vector<std::string> &elems)
+std::vector<std::string>&
+split(const std::string& s,
+      char delim,
+      std::vector<std::string>& elems)
 {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
+  std::stringstream ss(s);
+  std::string item;
+  while(std::getline(ss, item, delim))
+  {
+    elems.push_back(item);
+  }
+  return elems;
 }
 
-std::vector<std::string> split(const std::string &s,
-                               char delim)
+std::vector<std::string>
+split(const std::string& s,
+      char delim)
 {
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
+  std::vector<std::string> elems;
+  split(s, delim, elems);
+  return elems;
 }
 
-double rand_interval(double rmin,
-                     double rmax)
+double
+rand_interval(double rmin,
+              double rmax)
 {
-  double t = rand() / ((double)RAND_MAX + 1);
+  double t = rand() / ((double) RAND_MAX + 1);
   return (t * (rmax - rmin) + rmin);
 }
 
-Eigen::Vector4f getJetColor(double v,
-                            double vmin,
-                            double vmax)
+Eigen::Vector4f
+getJetColor(double v,
+            double vmin,
+            double vmax)
 {
-   Eigen::Vector4f c(1.0f, 1.0f, 1.0f, 1.f); 
-   double dv;
+  Eigen::Vector4f c(1.0f, 1.0f, 1.0f, 1.f);
+  double dv;
 
-   if (v < vmin)
-      v = vmin;
-   if (v > vmax)
-      v = vmax;
-   dv = vmax - vmin;
+  if(v < vmin)
+  {
+    v = vmin;
+  }
+  if(v > vmax)
+  {
+    v = vmax;
+  }
+  dv = vmax - vmin;
 
-   if (v < (vmin + 0.25 * dv)) {
-      c[0] = 0.;
-      c[1] = static_cast<float>(4. * (v - vmin) / dv);
-   } else if (v < (vmin + 0.5 * dv)) {
-      c[0] = 0.;
-      c[2] = static_cast<float>(1. + 4. * (vmin + 0.25 * dv - v) / dv);
-   } else if (v < (vmin + 0.75 * dv)) {
-      c[0] = static_cast<float>(4. * (v - vmin - 0.5 * dv) / dv);
-      c[2] = 0.;
-   } else {
-      c[1] = static_cast<float>(1. + 4. * (vmin + 0.75 * dv - v) / dv);
-      c[2] = 0.;
-   }
+  if(v < (vmin + 0.25 * dv))
+  {
+    c[0] = 0.;
+    c[1] = static_cast<float>(4. * (v - vmin) / dv);
+  }
+  else if(v < (vmin + 0.5 * dv))
+  {
+    c[0] = 0.;
+    c[2] = static_cast<float>(1. + 4. * (vmin + 0.25 * dv - v) / dv);
+  }
+  else if(v < (vmin + 0.75 * dv))
+  {
+    c[0] = static_cast<float>(4. * (v - vmin - 0.5 * dv) / dv);
+    c[2] = 0.;
+  }
+  else
+  {
+    c[1] = static_cast<float>(1. + 4. * (vmin + 0.75 * dv - v) / dv);
+    c[2] = 0.;
+  }
 
-   return c;
+  return c;
 }
 
 

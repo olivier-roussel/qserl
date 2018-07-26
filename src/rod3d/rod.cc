@@ -31,8 +31,9 @@ namespace rod3d {
 /*													Constructor																	*/
 /************************************************************************/
 Rod::Rod(const Parameters& i_parameters) :
-	m_state(),
-	m_staticParameters(i_parameters)
+    m_weakPtr{},
+    m_staticParameters{i_parameters},
+    m_state{}
 {
 }
 
@@ -46,108 +47,129 @@ Rod::~Rod()
 /************************************************************************/
 /*														create																		*/
 /************************************************************************/
-RodShPtr Rod::create(const Parameters& i_parameters)
+RodShPtr
+Rod::create(const Parameters& i_parameters)
 {
-	RodShPtr shPtr(new Rod(i_parameters));
+  RodShPtr shPtr(new Rod(i_parameters));
 
-	if (!shPtr->init(shPtr))
-		shPtr.reset();
+  if(!shPtr->init(shPtr))
+  {
+    shPtr.reset();
+  }
 
-	return shPtr;
+  return shPtr;
 }
 
 /************************************************************************/
 /*														init																			*/
 /************************************************************************/
-bool Rod::init(const RodWkPtr& i_weakPtr)
+bool
+Rod::init(const RodWkPtr& i_weakPtr)
 {
-	bool success = true;
+  bool success = true;
 
-	if (success)
-		m_weakPtr = i_weakPtr;
+  if(success)
+  {
+    m_weakPtr = i_weakPtr;
+  }
 
-	return success;
+  return success;
 }
 
 /************************************************************************/
 /*												integrateStateFromBaseWrench									*/
 /************************************************************************/
-WorkspaceIntegratedState::IntegrationResultT Rod::integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench, 
-	const Eigen::Displacementd& i_basePos, const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions)
+WorkspaceIntegratedState::IntegrationResultT
+Rod::integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench,
+                                  const Eigen::Displacementd& i_basePos,
+                                  const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions)
 {
-	WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench, m_staticParameters.numNodes, 
-    i_basePos, m_staticParameters);
-	intState->integrationOptions(i_integrationOptions);
-	WorkspaceIntegratedState::IntegrationResultT success = intState->integrate();
-	if (success == WorkspaceIntegratedState::IR_VALID)
-		m_state = intState;
-	return success;
+  WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench, m_staticParameters.numNodes,
+                                                                            i_basePos, m_staticParameters);
+  intState->integrationOptions(i_integrationOptions);
+  WorkspaceIntegratedState::IntegrationResultT success = intState->integrate();
+  if(success == WorkspaceIntegratedState::IR_VALID)
+  {
+    m_state = intState;
+  }
+  return success;
 }
 
 /************************************************************************/
 /*												radius																				*/
 /************************************************************************/
-double Rod::radius() const
+double
+Rod::radius() const
 {
-	return m_staticParameters.radius;
+  return m_staticParameters.radius;
 }
 
 /************************************************************************/
 /*												length																				*/
 /************************************************************************/
-double Rod::length() const
+double
+Rod::length() const
 {
-	return m_staticParameters.length;
+  return m_staticParameters.length;
 }
 
 /************************************************************************/
 /*													parameters																	*/
 /************************************************************************/
-const Parameters& Rod::parameters() const
+const Parameters&
+Rod::parameters() const
 {
-	return m_staticParameters;
+  return m_staticParameters;
 }
 
 /************************************************************************/
 /*													state																				*/
 /************************************************************************/
-WorkspaceStateShPtr Rod::state() const
+WorkspaceStateShPtr
+Rod::state() const
 {
-	return m_state;
+  return m_state;
 }
 
 /************************************************************************/
 /*													integratedState															*/
 /************************************************************************/
-WorkspaceIntegratedStateShPtr Rod::integratedState() const
+WorkspaceIntegratedStateShPtr
+Rod::integratedState() const
 {
-	WorkspaceIntegratedStateShPtr integratedState = std::dynamic_pointer_cast<WorkspaceIntegratedState>(m_state);
-	return integratedState;
+  WorkspaceIntegratedStateShPtr integratedState = std::dynamic_pointer_cast<WorkspaceIntegratedState>(m_state);
+  return integratedState;
 }
 
 /************************************************************************/
 /*											isConfigurationSingular													*/
 /************************************************************************/
-bool Rod::isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench)
+bool
+Rod::isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench)
 {
-	static const double kWrenchTolerance = 1.e-6;
+  static const double kWrenchTolerance = 1.e-6;
 
-		if (fabs(i_cfgWrench[1]) > kWrenchTolerance ||
-			fabs(i_cfgWrench[2]) > kWrenchTolerance || 
-			fabs(i_cfgWrench[4]) > kWrenchTolerance ||
-			fabs(i_cfgWrench[5]) > kWrenchTolerance)
-			return false;
-		else
-			return true;
+  if(fabs(i_cfgWrench[1]) > kWrenchTolerance ||
+     fabs(i_cfgWrench[2]) > kWrenchTolerance ||
+     fabs(i_cfgWrench[4]) > kWrenchTolerance ||
+     fabs(i_cfgWrench[5]) > kWrenchTolerance)
+  {
+    return false;
+  }
+  else
+  {
+    return true;
+  }
 }
 
 /************************************************************************/
 /*												getStiffnessCoefficients											*/
 /************************************************************************/
-Eigen::Matrix<double, 6, 1> Rod::getStiffnessCoefficients(const Parameters& i_parameters)
+Eigen::Matrix<double, 6, 1>
+Rod::getStiffnessCoefficients(const Parameters& i_parameters)
 {
   return i_parameters.stiffnessCoefficients;
 }
 
-}	// namespace rod3d
-}	// namespace qserl
+}  // namespace rod3d
+}  // namespace qserl

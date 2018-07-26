@@ -32,34 +32,36 @@
 namespace qserl {
 namespace rod2d {
 
-  
-bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_mc)
+bool
+computeMotionConstantsMu(const Eigen::Vector3d& i_a,
+                         MotionConstantsMu& o_mc)
 {
   static const double kEpsilonNullTorque = 1.e-10;
   static const double kEpsilonNullForce = 1.e-10;
-  static const double kEpsilonLambda = 1.e-12;
 
   const double sqrd_a3 = util::sqr(i_a[0]);
   o_mc.lambda[0] = 0.; // lambda1
-  o_mc.lambda[1] = sqrd_a3 + 2*i_a[1]; // lambda2
+  o_mc.lambda[1] = sqrd_a3 + 2 * i_a[1]; // lambda2
   o_mc.lambda[2] = 0.; // lambda3
-  o_mc.lambda[3] = util::sqr(i_a[2]) - sqrd_a3*(0.25*sqrd_a3 + i_a[1]); // lambda4
+  o_mc.lambda[3] = util::sqr(i_a[2]) - sqrd_a3 * (0.25 * sqrd_a3 + i_a[1]); // lambda4
 
   o_mc.epsilon_tau = util::sigpos(i_a[0]) * util::sigpos(i_a[2]);
   o_mc.epsilon_k = util::sigpos(i_a[0]);
 
-  o_mc.delta = util::sqr(o_mc.lambda[1]) + 4*o_mc.lambda[3];
+  o_mc.delta = util::sqr(o_mc.lambda[1]) + 4 * o_mc.lambda[3];
   const double sqrt_delta = sqrt(o_mc.delta);
 
-  if (o_mc.lambda[3] >= 0.)
+  if(o_mc.lambda[3] >= 0.)
   {
     // unhandled special case corresponding to a3 = a5 = 0 
     // which is equivalent to lambda4 = 0 and lambda2 < 0 when a4 < 0 (Case III.2)
-    if (abs(i_a[0]) < kEpsilonNullTorque && abs(i_a[2]) < kEpsilonNullForce)
+    if(abs(i_a[0]) < kEpsilonNullTorque && abs(i_a[2]) < kEpsilonNullForce)
+    {
       return false;
+    }
 
     // case I : lambda4 > 0 (also embeds case III where lambda4 == 0)
-    if (!(o_mc.lambda[3] == 0. && o_mc.lambda[1] < 0.))
+    if(!(o_mc.lambda[3] == 0. && o_mc.lambda[1] < 0.))
     {
       o_mc.alpha[0] = -(o_mc.lambda[1] - sqrt_delta);
       o_mc.alpha[1] = 0.;
@@ -73,7 +75,9 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
       const double eta_sqrd = util::clamp(1. - sqrd_a3 / o_mc.alpha[2], 0., 1.);
       o_mc.eta = sqrt(eta_sqrd);
       o_mc.tau = o_mc.epsilon_tau * boost::math::ellint_1(o_mc.k, asin(o_mc.eta)) / o_mc.r;
-    }else if (o_mc.lambda[3] == 0. && o_mc.lambda[1] == 0){
+    }
+    else if(o_mc.lambda[3] == 0. && o_mc.lambda[1] == 0)
+    {
       // lambda4 == 0 and lambda2 == 0 => all a_i are nulls
       o_mc.alpha[0] = 0.;
       o_mc.alpha[1] = 0.;
@@ -90,9 +94,11 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
 
       o_mc.tau = 0.; // undefined ?
     }
-  }else if (o_mc.lambda[3] < 0.){
+  }
+  else if(o_mc.lambda[3] < 0.)
+  {
     // case II : lambda4 < 0
-    if (abs(i_a[1]) > kEpsilonNullForce || abs(i_a[2]) > kEpsilonNullForce)
+    if(abs(i_a[1]) > kEpsilonNullForce || abs(i_a[2]) > kEpsilonNullForce)
     {
       // case II.1 : a4 != 0  and a5 != 0 (i.e. m != 0)
       o_mc.alpha[0] = 0.;
@@ -101,7 +107,7 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
 
       const double sqrt_alpha3 = sqrt(o_mc.alpha[2]);
 
-      o_mc.m = 2*sqrt_delta / (o_mc.lambda[1] + sqrt_delta);
+      o_mc.m = 2 * sqrt_delta / (o_mc.lambda[1] + sqrt_delta);
       o_mc.k = sqrt(o_mc.m);
       o_mc.n = o_mc.m;
       o_mc.r = 0.5 * sqrt_alpha3;
@@ -109,7 +115,9 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
       const double eta_sqrd = util::clamp((1. - sqrd_a3 / o_mc.alpha[2]) / o_mc.n, 0., 1.);
       o_mc.eta = sqrt(eta_sqrd);
       o_mc.tau = o_mc.epsilon_tau * boost::math::ellint_1(o_mc.k, asin(o_mc.eta)) / o_mc.r;
-    }else{
+    }
+    else
+    {
       // case II.2 : a4 == 0  and a5 == 0 (i.e. m == 0)
       o_mc.alpha[0] = 0.;
       o_mc.alpha[1] = util::sqr(i_a[0]);
@@ -128,13 +136,14 @@ bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_m
 }
 
 
-bool computeMuAtPositionT(double i_t, const MotionConstantsMu& i_mc, Eigen::Vector3d& o_mu)
+bool
+computeMuAtPositionT(double i_t,
+                     const MotionConstantsMu& i_mc,
+                     Eigen::Vector3d& o_mu)
 {
-  static const double kEpsilonLambda = 1.e-12;
-
   double k_t = 0.;      // k(t) is rod curvature at position t
   double k_dot_t = 0.;
-  if (i_mc.lambda[3] >= 0.)
+  if(i_mc.lambda[3] >= 0.)
   {
     // unhandled special case corresponding to a3 = a5 = 0 
     // which is equivalent to lambda4 = 0 and lambda2 < 0 when a4 < 0 (Case III.2)
@@ -142,32 +151,38 @@ bool computeMuAtPositionT(double i_t, const MotionConstantsMu& i_mc, Eigen::Vect
     //  return false;
 
     // case I : lambda4 > 0 (also embeds case III where lambda4 == 0)
-    if (!(i_mc.lambda[3] == 0. && i_mc.lambda[1] < 0.))
+    if(!(i_mc.lambda[3] == 0. && i_mc.lambda[1] < 0.))
     {
       const double sqrt_alpha3 = sqrt(i_mc.alpha[2]);
-      const double gamma_t = i_mc.r*(i_t + i_mc.tau);
+      const double gamma_t = i_mc.r * (i_t + i_mc.tau);
       // as we need all three elliptic jacobi functions sn, cn and dn, it is faster to compute the three together
       double cn_gamma_t, dn_gamma_t;
-      const double sn_gamma_t = boost::math::jacobi_elliptic(i_mc.k, gamma_t, &cn_gamma_t, &dn_gamma_t); 
+      const double sn_gamma_t = boost::math::jacobi_elliptic(i_mc.k, gamma_t, &cn_gamma_t, &dn_gamma_t);
       k_t = i_mc.epsilon_k * sqrt_alpha3 * cn_gamma_t;
       k_dot_t = -i_mc.epsilon_k * i_mc.r * sqrt_alpha3 * sn_gamma_t * dn_gamma_t;
-    }else if (i_mc.lambda[3] == 0. && i_mc.lambda[1] == 0){
+    }
+    else if(i_mc.lambda[3] == 0. && i_mc.lambda[1] == 0)
+    {
       // lambda4 == 0 and lambda2 == 0 => all a_i are nulls
       // k_t = 0 and k_dot_t = 0 => no op
     }
-  }else if (i_mc.lambda[3] < 0.){
+  }
+  else if(i_mc.lambda[3] < 0.)
+  {
     // case II : lambda4 < 0
-    if (i_mc.k != 0.)
+    if(i_mc.k != 0.)
     {
       // case II.1 : a4 != 0  and a5 != 0 (i.e. m != 0)
       const double sqrt_alpha3 = sqrt(i_mc.alpha[2]);
-      const double gamma_t = i_mc.r*(i_t + i_mc.tau);
+      const double gamma_t = i_mc.r * (i_t + i_mc.tau);
       // as we need all three elliptic jacobi functions sn, cn and dn, it is faster to compute the three together
       double cn_gamma_t, dn_gamma_t;
-      const double sn_gamma_t = boost::math::jacobi_elliptic(i_mc.k, gamma_t, &cn_gamma_t, &dn_gamma_t); 
+      const double sn_gamma_t = boost::math::jacobi_elliptic(i_mc.k, gamma_t, &cn_gamma_t, &dn_gamma_t);
       k_t = i_mc.epsilon_k * sqrt_alpha3 * dn_gamma_t;
       k_dot_t = -i_mc.epsilon_k * util::sqr(i_mc.k) * i_mc.alpha[2] * 0.5 * sn_gamma_t * cn_gamma_t;
-    }else{
+    }
+    else
+    {
       // case II.2 : a4 == 0  and a5 == 0 (i.e. m == 0)
       k_t = 2. * i_mc.r; // == a3
       k_dot_t = 0.;
@@ -181,5 +196,5 @@ bool computeMuAtPositionT(double i_t, const MotionConstantsMu& i_mc, Eigen::Vect
   return true;
 }
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl

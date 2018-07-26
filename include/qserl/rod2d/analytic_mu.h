@@ -27,9 +27,9 @@
 
 #include "qserl/exports.h"
 
-#pragma warning( push, 0 )	
+////#pragma warning( push, 0 )
 #include <Eigen/Lgsm>
-#pragma warning( pop )	
+////#pragma warning( pop )
 
 namespace qserl {
 namespace rod2d {
@@ -62,7 +62,9 @@ struct MotionConstantsMu
 * \return false if a(i) (i=1..3) values corresponds to a unhandled special case (then motion constants 
 *   will not be valid).
 */
-QSERL_EXPORT bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionConstantsMu& o_motionConstants);
+QSERL_EXPORT bool
+computeMotionConstantsMu(const Eigen::Vector3d& i_a,
+                         MotionConstantsMu& o_motionConstants);
 
 /**
 * \brief Compute internal rod wrenches (in body frame) at the position t along the rod.
@@ -75,9 +77,12 @@ QSERL_EXPORT bool computeMotionConstantsMu(const Eigen::Vector3d& i_a, MotionCon
 * \pre a(i) (i=3..5) values corresponding to given motion constants must respect the unhandled following cases:
 *   - if Case I (includes Case III) i.e. lambda4 >= 0, then a3 != 0 and a5 != 0
 */
-QSERL_EXPORT bool computeMuAtPositionT(double i_t, const MotionConstantsMu& i_motionConstants, Eigen::Vector3d& o_mu);
+QSERL_EXPORT bool
+computeMuAtPositionT(double i_t,
+                     const MotionConstantsMu& i_motionConstants,
+                     Eigen::Vector3d& o_mu);
 
-}	// namespace rod2d
-}	// namespace qserl
+}  // namespace rod2d
+}  // namespace qserl
 
 #endif // QSERL_2D_ANALYTIC_MU_H_
