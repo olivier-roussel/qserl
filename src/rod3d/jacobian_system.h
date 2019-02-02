@@ -23,7 +23,7 @@
 #include "qserl/exports.h"
 
 #include <functional>
-#include <Eigen/Lgsm>
+//#include <Eigen/Lgsm>
 
 #include "qserl/rod3d/workspace_integrated_state.h"
 

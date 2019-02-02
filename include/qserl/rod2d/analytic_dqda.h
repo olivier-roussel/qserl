@@ -30,7 +30,7 @@
 #include "qserl/rod2d/analytic_q.h"
 
 ////#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
+//#include <Eigen/Lgsm>
 ////#pragma warning( pop )
 
 namespace qserl {

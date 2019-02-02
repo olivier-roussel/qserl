@@ -22,11 +22,8 @@
 
 #include "qserl/exports.h"
 
-//#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
-//#pragma warning( pop )
-
 #include "qserl/rod3d/parameters.h"
+#include "qserl/rod3d/types.h"
 #include "qserl/rod3d/workspace_integrated_state.h"
 #include "qserl/util/forward_class.h"
 
@@ -100,8 +97,8 @@ public:
   * rod wrenches is not implemented yet.
   */
   WorkspaceIntegratedState::IntegrationResultT
-  integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench,
-                               const Eigen::Displacementd& i_basePos,
+  integrateStateFromBaseWrench(const Wrench& i_wrench,
+                               const Displacement& i_basePos,
                                const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions);
 
   /************************************************************************/
@@ -113,7 +110,7 @@ public:
   * (i.e. (a0.y, a0.z, a0.ry, a0.rz) = (0, 0, 0, 0)
   */
   static bool
-  isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench);
+  isConfigurationSingular(const Wrench& i_cfgWrench);
 
   /**
   * \brief Returns corresponding stifness coefficients a an extensible DLO from elasticity parameters.

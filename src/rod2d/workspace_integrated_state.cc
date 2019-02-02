@@ -500,7 +500,7 @@ const Eigen::Matrix<double, 3, 3>&
 WorkspaceIntegratedState::getMMatrix(size_t i_nodeIdx) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_M[i_nodeIdx];
 }
 
@@ -511,7 +511,7 @@ const Eigen::Matrix<double, 3, 3>&
 WorkspaceIntegratedState::getJMatrix(size_t i_nodeIdx) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_J[i_nodeIdx];
 }
 

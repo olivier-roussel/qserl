@@ -23,12 +23,13 @@ namespace qserl {
 namespace util {
 
 Eigen::Matrix4d
-GetHomogenousMatrix(const Eigen::Displacementd& disp)
+GetHomogenousMatrix(const rod3d::Displacement& disp)
 {
-  Eigen::Matrix4d res = Eigen::Matrix4d::Identity();
-  res.block<3, 1>(0, 3) = disp.getTranslation();
-  res.block<3, 3>(0, 0) = disp.getRotation().adjoint();
-  return res;
+//  Eigen::Matrix4d res = Eigen::Matrix4d::Identity();
+//  res.block<3, 1>(0, 3) = disp.getTranslation();
+//  res.block<3, 3>(0, 0) = disp.getRotation().adjoint();
+//  return res;
+  return disp;
 }
 
 Eigen::Matrix4d
@@ -42,25 +43,25 @@ GetTransformationMatrix(const Eigen::Matrix4d& H,
   return res;
 }
 
-Eigen::Matrix4d
-GetTransformationMatrix(const Eigen::Displacementd& disp,
-                        const Eigen::Vector3d& scale)
-{
-  return GetTransformationMatrix(GetHomogenousMatrix(disp), scale);
-}
+//Eigen::Matrix4d
+//GetTransformationMatrix(const rod3d::Displacement& disp,
+//                        const Eigen::Vector3d& scale)
+//{
+//  return GetTransformationMatrix(GetHomogenousMatrix(disp), scale);
+//}
 
-Eigen::Vector3d
-GetScaleFromMatrix(const Eigen::Matrix4d& TM)
-{
-  double sign = 1.;
-  if(TM.block<3, 3>(0, 0).determinant() < 0)
-  {
-    sign = -1.;
-  } //inverting scaling
-  return sign * Eigen::Vector3d(Eigen::Vector3d(TM(0, 0), TM(1, 0), TM(2, 0)).norm(),
-                                Eigen::Vector3d(TM(0, 1), TM(1, 1), TM(2, 1)).norm(),
-                                Eigen::Vector3d(TM(0, 2), TM(1, 2), TM(2, 2)).norm());
-}
+//Eigen::Vector3d
+//GetScaleFromMatrix(const Eigen::Matrix4d& TM)
+//{
+//  double sign = 1.;
+//  if(TM.block<3, 3>(0, 0).determinant() < 0)
+//  {
+//    sign = -1.;
+//  } //inverting scaling
+//  return sign * Eigen::Vector3d(Eigen::Vector3d(TM(0, 0), TM(1, 0), TM(2, 0)).norm(),
+//                                Eigen::Vector3d(TM(0, 1), TM(1, 1), TM(2, 1)).norm(),
+//                                Eigen::Vector3d(TM(0, 2), TM(1, 2), TM(2, 2)).norm());
+//}
 
 Eigen::Vector3d
 GetTranslationFromMatrix(const Eigen::Matrix4d& TM)
@@ -68,17 +69,17 @@ GetTranslationFromMatrix(const Eigen::Matrix4d& TM)
   return Eigen::Vector3d(TM.block<3, 1>(0, 3));
 }
 
-Eigen::Rotation3d
-GetRotationFromMatrix(const Eigen::Matrix4d& TM)
-{
-  Eigen::Vector3d scale = GetScaleFromMatrix(TM);
-  Eigen::Matrix3d rot;
-  rot << TM(0, 0) / scale[0], TM(0, 1) / scale[1], TM(0, 2) / scale[2],
-      TM(1, 0) / scale[0], TM(1, 1) / scale[1], TM(1, 2) / scale[2],
-      TM(2, 0) / scale[0], TM(2, 1) / scale[1], TM(2, 2) / scale[2];
-
-  return Eigen::Rotation3d(Eigen::Quaterniond(rot));
-}
+//Eigen::Rotation3d
+//GetRotationFromMatrix(const Eigen::Matrix4d& TM)
+//{
+//  Eigen::Vector3d scale = GetScaleFromMatrix(TM);
+//  Eigen::Matrix3d rot;
+//  rot << TM(0, 0) / scale[0], TM(0, 1) / scale[1], TM(0, 2) / scale[2],
+//      TM(1, 0) / scale[0], TM(1, 1) / scale[1], TM(1, 2) / scale[2],
+//      TM(2, 0) / scale[0], TM(2, 1) / scale[1], TM(2, 2) / scale[2];
+//
+//  return Eigen::Rotation3d(Eigen::Quaterniond(rot));
+//}
 
 Eigen::Matrix3d
 rotationMatrixFromBryantAngles(double rx,

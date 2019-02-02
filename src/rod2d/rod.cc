@@ -172,7 +172,7 @@ Rod::isConfigurationSingular(const Wrench2D& i_cfgWrench)
 double
 Rod::getStiffnessCoefficients(const Parameters& /*i_parameters*/)
 {
-  assert(false and "stiffness coefficient is fixed to 1");
+//  assert(false and "stiffness coefficient is fixed to 1");
   return 1.;
 }
 

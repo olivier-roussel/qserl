@@ -39,9 +39,9 @@ namespace rod3d {
 /*													Constructor																	*/
 /************************************************************************/
 WorkspaceIntegratedState::WorkspaceIntegratedState(unsigned int i_nnodes,
-                                                   const Eigen::Displacementd& i_basePosition,
+                                                   const Displacement& i_basePosition,
                                                    const Parameters& i_rodParams) :
-    WorkspaceState(std::vector<Eigen::Displacementd>(), i_basePosition, i_rodParams),
+    WorkspaceState(std::vector<Displacement>(), i_basePosition, i_rodParams),
     m_isInitialized{false},
     m_isStable{false},
     m_mu{},
@@ -66,9 +66,9 @@ WorkspaceIntegratedState::~WorkspaceIntegratedState()
 /*														create																		*/
 /************************************************************************/
 WorkspaceIntegratedStateShPtr
-WorkspaceIntegratedState::create(const Eigen::Wrenchd& i_baseWrench,
+WorkspaceIntegratedState::create(const Wrench& i_baseWrench,
                                  unsigned int i_nnodes,
-                                 const Eigen::Displacementd& i_basePosition,
+                                 const Displacement& i_basePosition,
                                  const Parameters& i_rodParams)
 {
   WorkspaceIntegratedStateShPtr shPtr(new WorkspaceIntegratedState(i_nnodes, i_basePosition, i_rodParams));
@@ -96,7 +96,7 @@ WorkspaceIntegratedState::createCopy(const WorkspaceIntegratedStateConstShPtr& i
 /*														init																			*/
 /************************************************************************/
 bool
-WorkspaceIntegratedState::init(const Eigen::Wrenchd& i_wrench)
+WorkspaceIntegratedState::init(const Wrench& i_wrench)
 {
   bool success = true;
 
@@ -127,7 +127,7 @@ WorkspaceIntegratedState::clone() const
 WorkspaceIntegratedState::IntegrationResultT
 WorkspaceIntegratedState::integrate()
 {
-  const Eigen::Wrenchd mu_0(Eigen::Matrix<double, 6, 1>(m_mu[0].data()));
+  const Wrench mu_0(Eigen::Matrix<double, 6, 1>(m_mu[0].data()));
   return integrateFromBaseWrenchRK4(mu_0);
 }
 
@@ -135,7 +135,7 @@ WorkspaceIntegratedState::integrate()
 /*												integrateFromBaseWrenchRK4												*/
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT
-WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Eigen::Wrenchd& i_wrench)
+WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
 {
 
   static const double ktstart = 0.;                          // Start integration time
@@ -206,11 +206,11 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Eigen::Wrenchd& i_wre
   }
 
   // update state
-  m_nodes.assign(q_array.size(), Eigen::Displacementd::Identity());
+  m_nodes.assign(q_array.size(), Displacement::Identity());
   for(size_t i = 0; i < q_array.size(); ++i)
   {
     const Eigen::Map<const Eigen::Matrix4d> q_e(q_array[i].data());
-    m_nodes[i] = Eigen::Displacementd(q_e);
+    m_nodes[i] = Displacement(q_e);
   }
 
   // 3. Solve the jacobian system (and check non-degenerescence of matrix J)
@@ -350,34 +350,34 @@ WorkspaceIntegratedState::isStable() const
 /************************************************************************/
 /*																baseWrench														*/
 /************************************************************************/
-Eigen::Wrenchd
+Wrench
 WorkspaceIntegratedState::baseWrench() const
 {
   assert(m_isInitialized && "the state must be integrated first");
   const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu_0(m_mu[0].data());
-  return Eigen::Wrenchd(mu_0);
+  return Wrench(mu_0);
 }
 
 /************************************************************************/
 /*																	tipWrench														*/
 /************************************************************************/
-Eigen::Wrenchd
+Wrench
 WorkspaceIntegratedState::tipWrench() const
 {
   assert(m_isInitialized && "the state must be integrated first");
   const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu_n(m_mu.back().data());
-  return Eigen::Wrenchd(mu_n);
+  return Wrench(mu_n);
 }
 
 /************************************************************************/
 /*																wrench																*/
 /************************************************************************/
-Eigen::Wrenchd
+Wrench
 WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 {
   assert(m_isInitialized && "the state must be integrated first");
   const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu(m_mu[i_idxNode].data());
-  return Eigen::Wrenchd(mu);
+  return Wrench(mu);
 }
 
 /************************************************************************/
@@ -435,27 +435,27 @@ WorkspaceIntegratedState::J_nu_sv(size_t i_nodeIdx) const
 /************************************************************************/
 /*											computeLinearizedNodePositions									*/
 /************************************************************************/
-WorkspaceStateShPtr
-WorkspaceIntegratedState::approximateLinearlyNeighbourState(const Eigen::Wrenchd& i_da,
-                                                            const Eigen::Displacementd& i_neighbBase) const
-{
-  //assert (m_state && "current state must be initialized to compute linearized positions. ");
-
-  WorkspaceStateShPtr neighbApproxState = WorkspaceState::create(std::vector<Eigen::Displacementd>(m_numNodes),
-                                                                 i_neighbBase,
-                                                                 m_rodParameters);
-
-  for(int nodeIdx = 0; nodeIdx < static_cast<int>(m_numNodes); ++nodeIdx)
-  {
-    const Eigen::Matrix<double, 6, 6>& J_mat = getJMatrix(nodeIdx);
-    const Eigen::Twistd xi = J_mat * i_da;
-    Eigen::Displacementd localDisp = xi.exp();
-    // apply DLO scale
-    localDisp.getTranslation() = localDisp.getTranslation() * m_rodParameters.length;
-    neighbApproxState->m_nodes[nodeIdx] = m_nodes[nodeIdx] * localDisp;
-  }
-  return neighbApproxState;
-}
+//WorkspaceStateShPtr
+//WorkspaceIntegratedState::approximateLinearlyNeighbourState(const Wrench& i_da,
+//                                                            const Displacement& i_neighbBase) const
+//{
+//  //assert (m_state && "current state must be initialized to compute linearized positions. ");
+//
+//  WorkspaceStateShPtr neighbApproxState = WorkspaceState::create(std::vector<Displacement>(m_numNodes),
+//                                                                 i_neighbBase,
+//                                                                 m_rodParameters);
+//
+//  for(int nodeIdx = 0; nodeIdx < static_cast<int>(m_numNodes); ++nodeIdx)
+//  {
+//    const Eigen::Matrix<double, 6, 6>& J_mat = getJMatrix(nodeIdx);
+//    const Eigen::Twistd xi = J_mat * i_da;
+//    Displacement localDisp = xi.exp();
+//    // apply DLO scale
+//    localDisp.getTranslation() = localDisp.getTranslation() * m_rodParameters.length;
+//    neighbApproxState->m_nodes[nodeIdx] = m_nodes[nodeIdx] * localDisp;
+//  }
+//  return neighbApproxState;
+//}
 
 
 /************************************************************************/

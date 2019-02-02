@@ -100,14 +100,14 @@ The following code can be found in examples/example_rod_2D.cpp.
 
 		// For example, we can express the rod geometry (node by node) in the global frame
 		// instead of rod base frame this way
-		const Eigen::Displacementd base3D = toDisplacement3D(rodBasePosition);
+		const se3::SE3 base3D = toDisplacement3D(rodBasePosition);
 		for (std::vector<Displacement2D>::const_iterator itNode = integratedState1->nodes().begin();
 		  itNode != integratedState1->nodes().end(); ++itNode)
 		{
 					// we will tranform our 2D 'pseudo'-displacement to 3D displacements
 					// which will make transformations and manipulation easier
-					Eigen::Displacementd node3D = toDisplacement3D(*itNode);
-					Eigen::Displacementd node3DGlobal = base3D * node3D;
+					se3::SE3 node3D = toDisplacement3D(*itNode);
+					se3::SE3 node3DGlobal = base3D * node3D;
 
 					// ... do something with the current rod node position ...
 		} 
@@ -180,7 +180,7 @@ internal wrench at its base (i.e. its 6-dimensional parameterization):
 	RodShPtr rod = Rod::create(rodParameters);
 	
 	// Define coordinates in A-space for the rod (its parameterization)...
-	Eigen::Wrenchd baseWrench;
+	Wrench baseWrench;
 	baseWrench.tx() = 5.7449;
 	baseWrench.ty() = -0.1838;
 	baseWrench.tz() = 3.7734;
@@ -189,7 +189,7 @@ internal wrench at its base (i.e. its 6-dimensional parameterization):
 	baseWrench.fz() = 83.1471;
 	
 	// ... the rod base position (here identity element of SE(3) ) ...
-	const Eigen::Displacementd rodBasePosition(Eigen::Displacementd::Identity());
+	const se3::SE3 rodBasePosition(se3::SE3::Identity());
 	
 	// ... some integration options if needed ...
 	// for example, here we want in addition to the rod geometry its internal wrenches
@@ -214,10 +214,10 @@ internal wrench at its base (i.e. its 6-dimensional parameterization):
 		// For example, we can express the rod geometry (node by node) in the global frame
 		// instead of rod base frame this way
 		// Note this could be also directly given by the method WorkspaceState::nodesAbsolute6DPositions()
-		for (std::vector<Eigen::Displacementd>::const_iterator itNode = integratedState1->nodes().begin();
+		for (std::vector<se3::SE3>::const_iterator itNode = integratedState1->nodes().begin();
 			itNode != integratedState1->nodes().end(); ++itNode)
 		{
-			const Eigen::Displacementd nodeAbsolutePosition = rodBasePosition * (*itNode);
+			const se3::SE3 nodeAbsolutePosition = rodBasePosition * (*itNode);
 		
 			// ... do something with the current rod node position ...
 		}

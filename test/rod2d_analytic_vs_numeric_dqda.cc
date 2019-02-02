@@ -90,7 +90,7 @@ compareAnalyticAndNumericDqDa(const Eigen::Vector3d& i_wrench,
       std::vector<Eigen::Matrix3d> J_num_Tq(3, Eigen::Matrix3d::Zero());
       std::vector<Eigen::Matrix3d> J_num_Te_Body_Skew_SE2(3, Eigen::Matrix3d::Zero());
       const qserl::rod2d::Displacement2D& q_disp2D = rodState->nodes()[idxNode];
-      const Eigen::Displacementd q_disp3D = qserl::rod2d::toDisplacement3D(q_disp2D);
+//      const auto q_disp3D = qserl::rod2d::toDisplacement3D(q_disp2D);
       Eigen::Matrix3d q_mat;
       qserl::rod2d::toHomogeneousMatrix(q_disp2D, q_mat);
       Eigen::Vector3d dtheta_da; // dtheta_da(j) for j=1..3

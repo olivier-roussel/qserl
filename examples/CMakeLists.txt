@@ -22,7 +22,7 @@
 macro(add_example name)
   add_executable(${name} ${name}.cpp)
   target_compile_features(${name} PRIVATE cxx_auto_type)
-  target_link_libraries(${name} qserl)
+  target_link_libraries(${name} PRIVATE qserl)
 endmacro(add_example)
 
 add_example(example_rod_2D)

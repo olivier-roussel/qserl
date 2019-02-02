@@ -50,14 +50,14 @@ main()
 
     // For example, we can express the rod geometry (node by node) in the global frame
     // instead of rod base frame this way
-    const Eigen::Displacementd base3D = toDisplacement3D(rodBasePosition);
+    const Eigen::Matrix4d base3D = toHomogeneousMatrix(rodBasePosition);
     for(std::vector<Displacement2D>::const_iterator itNode = integratedState1->nodes().begin();
         itNode != integratedState1->nodes().end(); ++itNode)
     {
       // we will tranform our 2D 'pseudo'-displacement to 3D displacements
       // which will make transformations and manipulation easier
-      const Eigen::Displacementd node3D = toDisplacement3D(*itNode);
-      const Eigen::Displacementd node3DGlobal = base3D * node3D;
+      const Eigen::Matrix4d node3D = toHomogeneousMatrix(*itNode);
+      const Eigen::Matrix4d node3DGlobal = base3D * node3D;
 
       // ... do something with the current rod node position ...
     }
