@@ -24,8 +24,6 @@
 
 #include <functional>
 
-//#include <Eigen/Lgsm>
-
 #include "qserl/rod2d/workspace_integrated_state.h"
 
 namespace qserl {

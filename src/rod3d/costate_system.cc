@@ -18,6 +18,7 @@
 **/
 
 #include "costate_system.h"
+#include <Eigen/Geometry>
 
 namespace qserl {
 namespace rod3d {

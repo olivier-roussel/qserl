@@ -35,7 +35,6 @@ option(QSERL_BUILD_TEST "Build tests" OFF)
 
 find_package(Boost 1.55 REQUIRED MODULE)
 find_package (Eigen3 3.2 REQUIRED NO_MODULE)
-find_package(cereal REQUIRED CONFIG)
 
 #------------------------------------------------------------------------------
 # Setting up target
@@ -84,12 +83,11 @@ target_include_directories(qserl
   )
 
 target_compile_features(qserl PRIVATE cxx_std_11)
-#target_compile_options(qserl PRIVATE -Wall -Wextra)
+target_compile_options(qserl PRIVATE -Wall -Wextra)
 
 target_link_libraries(qserl
   PUBLIC
     Boost::boost
-    cereal
     Eigen3::Eigen
   )
 

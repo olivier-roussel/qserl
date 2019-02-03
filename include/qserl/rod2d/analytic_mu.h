@@ -27,10 +27,6 @@
 
 #include "qserl/exports.h"
 
-////#pragma warning( push, 0 )
-//#include <Eigen/Lgsm>
-////#pragma warning( pop )
-
 #include <Eigen/Core>
 
 namespace qserl {

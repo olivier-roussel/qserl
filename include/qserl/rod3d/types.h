@@ -23,7 +23,6 @@
 #include "qserl/exports.h"
 
 #include <Eigen/Core>
-#include <array>
 
 namespace qserl {
 namespace rod3d {

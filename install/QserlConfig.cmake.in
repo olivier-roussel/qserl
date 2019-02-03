@@ -23,7 +23,6 @@ list(APPEND CMAKE_MODULE_PATH ${Qserl_CMAKE_DIR})
 # ----------------------------------------
 find_dependency(Boost 1.55 REQUIRED MODULE)
 find_dependency(Eigen3 3.2 REQUIRED NO_MODULE)
-find_package(cereal REQUIRED CONFIG)
 # ----------------------------------------
 
 list(REMOVE_AT CMAKE_MODULE_PATH -1)
