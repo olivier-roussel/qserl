@@ -33,8 +33,8 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations2DTest_1)
   qserl::rod2d::Parameters rodDefaultParameters;
 
   // 1. ckeck null base wrench
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
-  qserl::rod2d::Wrench2D singularWrench1 = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
+  qserl::rod2d::Wrench2D singularWrench1 = qserl::rod2d::Wrench2D::Zero();
   qserl::rod2d::WorkspaceIntegratedStateShPtr rodIntegratedState1 = qserl::rod2d::WorkspaceIntegratedState::create(
       singularWrench1,
       /*rodDefaultParameters.numNodes, */
@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations2DTest_2)
   qserl::rod2d::Parameters rodDefaultParameters;
 
   // 2. ckeck signular base wrench (a[1] = a[2] = 0)
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
-  qserl::rod2d::Wrench2D singularWrench2 = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
+  qserl::rod2d::Wrench2D singularWrench2 = qserl::rod2d::Wrench2D::Zero();
   singularWrench2[0] = -1.5;
   qserl::rod2d::WorkspaceIntegratedStateShPtr rodIntegratedState2 = qserl::rod2d::WorkspaceIntegratedState::create(
       singularWrench2,
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability2DTest_stable1)
   integrationOptions.keepJMatrices = true;
 
   // stable configuration
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
   qserl::rod2d::Wrench2D stableConf1;
   stableConf1[0] = 0.;
   stableConf1[1] = 0.;
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability2DTest_iterativeIntegration_stable1
   integrationOptions.keepJMatrices = true;
 
   // stable configuration
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
   qserl::rod2d::Wrench2D stableConf1;
   stableConf1[0] = 0.;
   stableConf1[1] = 0.;
@@ -151,8 +151,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability2DTest_iterativeIntegration_stable1
   rodStableState1->integrationOptions(integrationOptions);
   // not singular
   double tinv = 0.;
-  static const qserl::rod2d::Wrench2D maxWrench = {{std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), std::numeric_limits<
-      double>::max()}};
+  static const qserl::rod2d::Wrench2D maxWrench = qserl::rod2d::Wrench2D::Constant (std::numeric_limits<double>::max());
   qserl::rod2d::WorkspaceIntegratedState::IntegrationResultT integrationResult = rodStableState1->integrateWhileValid(
       maxWrench,
       tinv);
