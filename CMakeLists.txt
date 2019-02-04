@@ -15,9 +15,10 @@
 # qserl.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.5)
 
 project(libqserl VERSION 1.1.0 LANGUAGES CXX)
+set (CMAKE_CXX_STANDARD 11)
 
 # Use cmake/ dir for user modules
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
@@ -35,7 +36,7 @@ option(QSERL_BUILD_TEST ON "Build tests")
 # Dependencies
 #------------------------------------------------------------------------------
 
-find_package(Boost 1.55 REQUIRED MODULE)
+find_package(Boost 1.55 REQUIRED MODULE COMPONENTS python)
 find_package(EigenLgsm REQUIRED CONFIG)
 find_package(cereal REQUIRED CONFIG)
 
@@ -85,12 +86,12 @@ target_include_directories(qserl
     ${CMAKE_CURRENT_SOURCE_DIR}/src
   )
 
-target_compile_features(qserl PRIVATE cxx_std_11)
+#target_compile_features(qserl PRIVATE cxx_std_11)
 target_compile_options(qserl PRIVATE -Wall -Wextra)
 
 target_link_libraries(qserl
   PUBLIC
-    Boost::boost
+  ${Boost_LIBRARIES}
     cereal
     EigenLgsm
   )
@@ -163,6 +164,7 @@ endif()
 #------------------------------------------------------------------------------
 
 add_subdirectory(examples)
+add_subdirectory(bindings)
 
 if(QSERL_BUILD_TEST)
   add_subdirectory(test)
