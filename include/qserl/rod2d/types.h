@@ -37,7 +37,7 @@ namespace rod2d {
 * \warning This convention is different from the 3D case and the one used in Eigen/Lgsm, where 
 *   rotational components are before translationnal ones. To be changed in next major release.
 */
-typedef std::array<double, 3> Wrench2D;
+typedef Eigen::Matrix<double, 3, 1> Wrench2D;
 
 /**< For convenience, a 2-dimensional displacement (with reference to displacement in screw theory
 * for 3-dimensional bodies is stored in an array where index storage represent:
@@ -47,7 +47,7 @@ typedef std::array<double, 3> Wrench2D;
 * \warning This convention is different from the 3D case and the one used in Eigen/Lgsm, where 
 *   rotational components are before translationnal ones. To be changed in next major release.
 */
-typedef std::array<double, 3> Displacement2D;
+typedef Eigen::Matrix<double, 3, 1> Displacement2D;
 
 /**< Helper transforming a 2-dimensional pseudo-displacement into a 3D displacement
 * in the XY plane at z=0.
@@ -93,9 +93,11 @@ toWrench3D(const Wrench2D& i_wrench)
 /**< \brief Comparator for 2D wrenches.
 * Returns true if w1 is strictly less than w2, false otherwise.
 */
-inline bool
-isLess(const Wrench2D& i_w1,
-       const Wrench2D& i_w2)
+template<typename T, typename U>
+inline
+bool
+isLess(const T& i_w1,
+       const U& i_w2)
 {
   bool res = true;
   for(int k = 0; k < 3 && res; ++k)

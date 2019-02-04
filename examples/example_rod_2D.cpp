@@ -25,7 +25,7 @@ main()
   baseWrench[2] = 1.57;
 
   // ... the rod base position ...
-  const Displacement2D rodBasePosition = {{1., 0., -3.1416}};
+  const Displacement2D rodBasePosition = Displacement2D{1., 0., -3.1416};
 
   // ... some integration options if needed ...
   // for example, here we want in addition to the rod geometry its internal wrenches
