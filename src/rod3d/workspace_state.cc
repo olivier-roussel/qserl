@@ -27,7 +27,7 @@ namespace rod3d {
 /************************************************************************/
 /*													Constructor																	*/
 /************************************************************************/
-WorkspaceState::WorkspaceState(const std::vector<Displacement>& i_nodes,
+WorkspaceState::WorkspaceState(const Displacements& i_nodes,
                                const Displacement& i_basePosition,
                                const Parameters& i_rodParams) :
     m_numNodes(i_nodes.size()),
@@ -49,7 +49,7 @@ WorkspaceState::~WorkspaceState()
 /*														create																		*/
 /************************************************************************/
 WorkspaceStateShPtr
-WorkspaceState::create(const std::vector<Displacement>& i_nodes,
+WorkspaceState::create(const Displacements& i_nodes,
                        const Displacement& i_basePosition,
                        const Parameters& i_rodParams)
 {
@@ -95,7 +95,7 @@ WorkspaceState::numNodes() const
 /************************************************************************/
 /*																	nodes																*/
 /************************************************************************/
-const std::vector<Displacement>&
+const Displacements&
 WorkspaceState::nodes() const
 {
   return m_nodes;
@@ -137,10 +137,10 @@ WorkspaceState::base(const Displacement& i_base)
 /************************************************************************/
 /*														nodesAbsolute6DPositions										*/
 /************************************************************************/
-//std::vector<Displacement>
+//Displacements
 //WorkspaceState::nodesAbsolute6DPositions() const
 //{
-//  std::vector<Displacement> pos;
+//  Displacements pos;
 //  pos.reserve(m_numNodes);
 //  for(size_t i = 0; i < m_numNodes; ++i)
 //  {

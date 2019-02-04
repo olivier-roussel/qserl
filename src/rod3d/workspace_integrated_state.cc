@@ -39,7 +39,7 @@ namespace rod3d {
 WorkspaceIntegratedState::WorkspaceIntegratedState(unsigned int i_nnodes,
                                                    const Displacement& i_basePosition,
                                                    const Parameters& i_rodParams) :
-    WorkspaceState(std::vector<Displacement>(), i_basePosition, i_rodParams),
+    WorkspaceState(Displacements(), i_basePosition, i_rodParams),
     m_isInitialized{false},
     m_isStable{false},
     m_mu{},
@@ -439,7 +439,7 @@ WorkspaceIntegratedState::J_nu_sv(size_t i_nodeIdx) const
 //{
 //  //assert (m_state && "current state must be initialized to compute linearized positions. ");
 //
-//  WorkspaceStateShPtr neighbApproxState = WorkspaceState::create(std::vector<Displacement>(m_numNodes),
+//  WorkspaceStateShPtr neighbApproxState = WorkspaceState::create(Displacements(m_numNodes),
 //                                                                 i_neighbBase,
 //                                                                 m_rodParameters);
 //
