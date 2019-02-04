@@ -1,14 +1,19 @@
 #include <boost/python.hpp>
+#include <boost/python/overloads.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include <Eigen/Geometry>
 
 #include <qserl/rod3d/rod.h>
+#include <qserl/util/explog.h>
 
 #include <eigenpy/eigenpy.hpp>
 
 using namespace boost::python;
 
+using Eigen::Vector3d;
+using Eigen::Matrix3d;
+typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Matrix<double,7,1> Vector7d;
 typedef Eigen::Matrix<double,6,6> Matrix6d;
 
@@ -30,6 +35,22 @@ namespace qserl {
       return ws.nodes()[i];
     }
 
+    Eigen::Vector3d _log3_a(const Eigen::Matrix3d & R)
+    {
+      return log3 (R);
+    }
+
+    tuple _log3_b(const Eigen::Matrix3d & R)
+    {
+      double t;
+      Eigen::Vector3d w = log3 (R, t);
+      return make_tuple (w, t);
+    }
+
+    Displacement _exp6 (const Vector6d& v) { return exp6 (v); }
+    Matrix3d _exp3 (const Vector3d& v) { return exp3 (v); }
+    Vector6d _log6 (const Displacement& v) { return log6 (v); }
+
     void exposeToPython()
     {
       typedef return_value_policy<return_by_value> policy_by_value;
@@ -41,6 +62,12 @@ namespace qserl {
         .def(vector_indexing_suite<Displacements >());
 
       def ("displacementToTQ", displacementToTQ);
+      def ("inv"  , inv<double>);
+      def ("exp3" , _exp3);
+      def ("log3" , _log3_a);
+      def ("log3t", _log3_b);
+      def ("exp6" , _exp6);
+      def ("log6" , _log6);
 
       enum_ <Parameters::RodModelT> ("RodModelT")
         .value ("RM_INEXTENSIBLE"        , Parameters::RM_INEXTENSIBLE)
@@ -55,12 +82,12 @@ namespace qserl {
         .value ("IR_NUMBER_OF_INTEGRATION_RESULTS", WorkspaceIntegratedState::IR_NUMBER_OF_INTEGRATION_RESULTS)
         ;
       class_<Parameters> ("Parameters", init<>())
-        .def_readwrite  ("radius"               ,   &Parameters::radius               )
-        .def_readwrite  ("length"               ,   &Parameters::length               )
-        // need eigenpy
-        .def_readwrite  ("stiffnessCoefficients",   &Parameters::stiffnessCoefficients)
-        .def_readwrite  ("rodModel"             ,   &Parameters::rodModel             )
-        .def_readwrite  ("numNodes"             ,   &Parameters::numNodes             )
+        .def_readwrite ("radius"               , &Parameters::radius               )
+        .def_readwrite ("length"               , &Parameters::length               )
+        .def_readwrite ("stiffnessCoefficients", &Parameters::stiffnessCoefficients)
+        .def_readwrite ("rodModel"             , &Parameters::rodModel             )
+        .def_readwrite ("numNodes"             , &Parameters::numNodes             )
+        .def_readwrite ("integrationTime"      , &Parameters::integrationTime      )
         .def ("setIsotropicStiffnessCoefficientsFromElasticityParameters", &Parameters::setIsotropicStiffnessCoefficientsFromElasticityParameters)
         ;
       class_<Rod, RodShPtr, boost::noncopyable> ("Rod", no_init)
