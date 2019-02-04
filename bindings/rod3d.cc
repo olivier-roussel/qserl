@@ -1,39 +1,46 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+#include <Eigen/Geometry>
+
 #include <qserl/rod3d/rod.h>
 
 #include <eigenpy/eigenpy.hpp>
 
 using namespace boost::python;
 
-typedef Eigen::Matrix<double,6,1> Vector6d;
 typedef Eigen::Matrix<double,7,1> Vector7d;
+typedef Eigen::Matrix<double,6,6> Matrix6d;
 
 namespace qserl {
   namespace rod3d {
-    WorkspaceIntegratedState::IntegrationResultT bind_integrateStateFromBaseWrench
-      (RodShPtr rod,
-       const Vector6d& v_wrench,
-       const Vector7d& v_basePos,
-       const WorkspaceIntegratedState::IntegrationOptions& integrationOptions)
-      {
-        Eigen::Wrenchd wrench (v_wrench);
-        //Eigen::Wrenchd wrench;
-        //Eigen::Displacementd basePos (v_basePos);
-        Eigen::Displacementd basePos; basePos.get() = v_basePos;
-        rod->integrateStateFromBaseWrench (wrench, basePos, integrationOptions);
-      }
-
-    Vector7d WorkspaceState_node (const WorkspaceState& ws, std::size_t i)
+    list displacementToTQ (const Displacement& d)
     {
-      return ws.nodes()[i].get();
+      list ret;
+      // Translation
+      for (int i = 0; i < 3; ++i) ret.append (d(i,3));
+      // Rotation
+      Eigen::Quaterniond q (d.topLeftCorner<3,3>());
+      for (int i = 0; i < 4; ++i) ret.append (q.coeffs()[i]);
+      return ret;
+    }
+
+    Displacement WorkspaceState_node (const WorkspaceState& ws, std::size_t i)
+    {
+      return ws.nodes()[i];
     }
 
     void exposeToPython()
     {
+      typedef return_value_policy<return_by_value> policy_by_value;
+
       class_< std::vector<double> >("StdVector_double")
         .def(vector_indexing_suite<std::vector<double> >());
+      // Does not work and I don't know why.
+      class_< Displacements >("Displacements")
+        .def(vector_indexing_suite<Displacements >());
+
+      def ("displacementToTQ", displacementToTQ);
 
       enum_ <Parameters::RodModelT> ("RodModelT")
         .value ("RM_INEXTENSIBLE"        , Parameters::RM_INEXTENSIBLE)
@@ -59,21 +66,22 @@ namespace qserl {
       class_<Rod, RodShPtr, boost::noncopyable> ("Rod", no_init)
         .def ("create", &Rod::create)
         .staticmethod("create")
-        .def ("integrateStateFromBaseWrench", bind_integrateStateFromBaseWrench)
+        .def ("integrateStateFromBaseWrench", &Rod::integrateStateFromBaseWrench)
         .def ("integratedState", &Rod::integratedState)
         ;
 
       class_<WorkspaceState, WorkspaceStateShPtr, boost::noncopyable> ("WorkspaceState", no_init)
         .def ("numNodes", &WorkspaceState::numNodes)
         .def ("node", WorkspaceState_node)
-        //.def ("nodes", &WorkspaceState::nodes)
-        //.def ("nodesAbsolute6DPositions", &WorkspaceState::nodesAbsolute6DPositions)
+        .def ("nodes", &WorkspaceState::nodes, policy_by_value())
+        // .def ("nodesAbsolute6DPositions", &WorkspaceState::nodesAbsolute6DPositions)
         ;
       class_<WorkspaceIntegratedState, WorkspaceIntegratedStateShPtr, bases<WorkspaceState>, boost::noncopyable> ("WorkspaceIntegratedState", no_init)
-        .def ("getMMatrix", &WorkspaceIntegratedState::getMMatrix, return_value_policy<return_by_value>())
-        .def ("getJMatrix", &WorkspaceIntegratedState::getJMatrix, return_value_policy<return_by_value>())
-        .def ("J_det", &WorkspaceIntegratedState::J_det, return_value_policy<return_by_value>())
-        .def ("J_nu_sv", &WorkspaceIntegratedState::J_nu_sv, return_value_policy<return_by_value>())
+        .def ("isStable"  , &WorkspaceIntegratedState::isStable)
+        .def ("getMMatrix", &WorkspaceIntegratedState::getMMatrix, policy_by_value())
+        .def ("getJMatrix", &WorkspaceIntegratedState::getJMatrix, policy_by_value())
+        .def ("J_det"     , &WorkspaceIntegratedState::J_det     , policy_by_value())
+        .def ("J_nu_sv"   , &WorkspaceIntegratedState::J_nu_sv   , policy_by_value())
         ;
 
       class_ <WorkspaceIntegratedState::IntegrationOptions> ("IntegrationOptions", init<>())
@@ -91,10 +99,13 @@ namespace qserl {
 namespace eigenpy {
   void exposeMissingMatrices ()
   {
-    ENABLE_SPECIFIC_MATRIX_TYPE(Vector6d);
+    typedef qserl::rod3d::Wrench Wrench;
+    typedef qserl::rod3d::Displacement Displacement;
+    ENABLE_SPECIFIC_MATRIX_TYPE(Wrench);
+    ENABLE_SPECIFIC_MATRIX_TYPE(Displacement);
+
     ENABLE_SPECIFIC_MATRIX_TYPE(Vector7d);
 
-    typedef Eigen::Matrix<double,6,6> Matrix6d;
     ENABLE_SPECIFIC_MATRIX_TYPE(Matrix6d);
   }
 }

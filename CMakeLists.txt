@@ -17,6 +17,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 include(cmake/base.cmake)
+include(cmake/eigen.cmake)
 
 project(libqserl VERSION 1.1.0 LANGUAGES CXX)
 set (CMAKE_CXX_STANDARD 11)
@@ -35,7 +36,8 @@ option(QSERL_BUILD_TEST "Build tests" OFF)
 #------------------------------------------------------------------------------
 
 find_package(Boost 1.55 REQUIRED MODULE COMPONENTS python)
-find_package(Eigen3 3.2 REQUIRED NO_MODULE)
+SEARCH_FOR_EIGEN("eigen3 >= 3.2")
+ADD_OPTIONAL_DEPENDENCY("eigenpy")
 
 #------------------------------------------------------------------------------
 # Setting up target
@@ -89,7 +91,6 @@ target_compile_options(qserl PRIVATE -Wall -Wextra)
 target_link_libraries(qserl
   PUBLIC
   ${Boost_LIBRARIES}
-    Eigen3::Eigen
   )
 
 #------------------------------------------------------------------------------
@@ -160,7 +161,9 @@ endif()
 #------------------------------------------------------------------------------
 
 add_subdirectory(examples)
-add_subdirectory(bindings)
+IF(EIGENPY_FOUND)
+  add_subdirectory(bindings)
+ENDIF(EIGENPY_FOUND)
 
 if(QSERL_BUILD_TEST)
   add_subdirectory(test)
