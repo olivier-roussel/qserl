@@ -100,8 +100,10 @@ WorkspaceIntegratedState::init(const Wrench2D& i_wrench)
   m_isInitialized = false;
 
   m_mu.resize(1);
-  m_mu[0] = i_wrench;
-
+  for(auto k = 0ul; k < 3; ++k)
+  {
+    m_mu[0][k] = i_wrench[k];
+  }
   return success;
 }
 
@@ -120,6 +122,7 @@ WorkspaceIntegratedState::clone() const
 WorkspaceIntegratedState::IntegrationResultT
 WorkspaceIntegratedState::integrate()
 {
+//  const Wrench2D mu_0(Eigen::Matrix<double, 3, 1>(m_mu[0].data()));
   WorkspaceIntegratedState::IntegrationResultT status = IR_NUMBER_OF_INTEGRATION_RESULTS;
   if(m_integrationOptions.integrator == WorkspaceIntegratedState::IN_RK4)
   {
@@ -135,14 +138,15 @@ WorkspaceIntegratedState::integrate()
 /*												integrateFromBaseWrenchRK4  									*/
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT
-WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench2D& i_wrench)
+WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const costate_type& i_wrench)
 {
   static const double ktstart = 0.;                          // Start integration time
   const double dt = m_rodParameters.delta_t;
 
   m_isInitialized = true;
 
-  if(Rod::isConfigurationSingular(i_wrench))
+  const Wrench2D mu_0(Eigen::Matrix<double, 3, 1>(i_wrench.data()));
+  if(Rod::isConfigurationSingular(mu_0))
   {
     return IR_SINGULAR;
   }
@@ -188,13 +192,15 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench2D& i_wrench)
 
   // init q_0 to identity
   state_type q_t = StateSystem::defaultState();
-  m_nodes[0] = q_t;
+//  m_nodes[0] = q_t;
+  m_nodes[0] = Eigen::Map<Displacement2D>(q_t.data());
 
   step_idx = 1;
   for(double t = ktstart; step_idx < m_numNodes; ++step_idx, t += dt)
   {
     sss_stepper.do_step(state_system, q_t, t, dt);
-    m_nodes[step_idx] = q_t;
+//    m_nodes[step_idx] = q_t;
+    m_nodes[step_idx] = Eigen::Map<Displacement2D>(q_t.data());
   }
 
   if(m_integrationOptions.computeJacobians)
@@ -301,12 +307,12 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench2D& i_wrench)
 /*												integrateFromBaseWrenchRK45										*/
 /************************************************************************/
 /* TODO _ WIP */
-WorkspaceIntegratedState::IntegrationResultT
-WorkspaceIntegratedState::integrateFromBaseWrenchRK45(const Wrench2D& /*i_wrench*/)
-{
-  assert(false and "unimplemented");
-  return WorkspaceIntegratedState::IR_NUMBER_OF_INTEGRATION_RESULTS;
-}
+//WorkspaceIntegratedState::IntegrationResultT
+//WorkspaceIntegratedState::integrateFromBaseWrenchRK45(const costate_type& /*i_wrench*/)
+//{
+//  assert(false and "unimplemented");
+//  return WorkspaceIntegratedState::IR_NUMBER_OF_INTEGRATION_RESULTS;
+//}
 //WorkspaceIntegratedState::IntegrationResultT WorkspaceIntegratedState::integrateFromBaseWrenchRK45(const Wrench2D& i_wrench)
 //{
 //	static const double ktstart = 0.;													// Start integration time
@@ -480,7 +486,8 @@ Wrench2D
 WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  return m_mu[i_idxNode];
+//  return m_mu[i_idxNode];
+  return Eigen::Map<const Wrench2D>(m_mu[i_idxNode].data());
 }
 
 /************************************************************************/
@@ -500,7 +507,7 @@ const Eigen::Matrix<double, 3, 3>&
 WorkspaceIntegratedState::getMMatrix(size_t i_nodeIdx) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_M[i_nodeIdx];
 }
 
@@ -511,7 +518,7 @@ const Eigen::Matrix<double, 3, 3>&
 WorkspaceIntegratedState::getJMatrix(size_t i_nodeIdx) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_J[i_nodeIdx];
 }
 
@@ -573,7 +580,8 @@ WorkspaceIntegratedState::integrateWhileValid(const Wrench2D& i_maxWrench,
 
   m_isInitialized = true;
 
-  if(Rod::isConfigurationSingular(m_mu[0]))
+  const Wrench2D mu_0(Eigen::Matrix<double, 3, 1>(m_mu[0].data()));
+  if(Rod::isConfigurationSingular(mu_0))
   {
     return IR_SINGULAR;
   }
@@ -605,7 +613,8 @@ WorkspaceIntegratedState::integrateWhileValid(const Wrench2D& i_maxWrench,
   boost::numeric::odeint::runge_kutta4<state_type> sss_stepper;
   state_type q_t = StateSystem::defaultState();
   m_nodes.clear();
-  m_nodes.push_back(q_t);
+//  m_nodes.push_back(q_t);
+  m_nodes.push_back(Eigen::Map<Displacement2D>(q_t.data()));
   //m_nodes.reserve(m_numNodes);
 
   // init jacobian integarator and M_0 to identity and J_0 to zero
@@ -653,6 +662,7 @@ WorkspaceIntegratedState::integrateWhileValid(const Wrench2D& i_maxWrench,
       scaledMaxWrench[1] = i_maxWrench[1];
       scaledMaxWrench[2] = i_maxWrench[2];
     }
+//    const Wrench2D mu_t_mapped(Wrench2D(mu_t.data()));
     if(!isLess(mu_t, i_maxWrench))
     {
       isOutOfWrenchBounds = true;
@@ -691,7 +701,8 @@ WorkspaceIntegratedState::integrateWhileValid(const Wrench2D& i_maxWrench,
         {
           m_J_det.push_back(Jdet_cur);
         }
-        m_nodes.push_back(q_t);
+//        m_nodes.push_back(q_t);
+        m_nodes.push_back(Eigen::Map<Displacement2D>(q_t.data()));
         ++iter;
         t += dt;
       }

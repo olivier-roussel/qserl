@@ -23,10 +23,6 @@
 #include "qserl/exports.h"
 
 #include <Eigen/Core>
-#include <cereal/access.hpp>
-#include <cereal/archives/xml.hpp>
-
-#include "qserl/util/eigen_types_serialization.h"
 
 namespace qserl {
 namespace rod3d {
@@ -99,24 +95,6 @@ struct QSERL_EXPORT Parameters
                                                   * used for 2D rod by delta_t = 1 / (numNodes - 1) */
   /**< Internal use only. */
   double                        integrationTime;  /**< Should be kept to 1 (default value). */
-
-  /**
-   * Serialization
-   */
-  template<class Archive>
-  void
-  serialize(Archive& ar,
-            const unsigned int version)
-  {
-    ar(cereal::make_nvp("radius", radius),
-       cereal::make_nvp("length", length),
-       cereal::make_nvp("stiffnessCoefficients", stiffnessCoefficients),
-       cereal::make_nvp("rodModel", rodModel),
-       cereal::make_nvp("numNodes", numNodes),
-        //cereal::make_nvp("density", density) &
-       cereal::make_nvp("integrationTime", integrationTime)
-    );
-  }
 };
 
 }  // namespace rod3d

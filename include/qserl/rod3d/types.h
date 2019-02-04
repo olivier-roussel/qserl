@@ -17,29 +17,21 @@
 * <http://www.gnu.org/licenses/>.
 **/
 
-
-#ifndef QSERL_2D_ANALYTIC_ENERGY_H_
-#define QSERL_2D_ANALYTIC_ENERGY_H_
+#ifndef QSERL_3D_TYPES_H_
+#define QSERL_3D_TYPES_H_
 
 #include "qserl/exports.h"
 
-#include "qserl/rod2d/analytic_q.h"
+#include <Eigen/Core>
 
 namespace qserl {
-namespace rod2d {
+namespace rod3d {
 
+typedef Eigen::Matrix<double, 6, 1> Wrench;
 
-/**
-* \brief Compute the total elastic energy of the rod.
-* \param[in]  i_motionConstants Constants of motion for the rod
-* \pre a(i) (i=3..5) values corresponding to given motion constants must respect the unhandled following cases:
-*   - if Case I (includes Case III) i.e. lambda4 >= 0, then a3 != 0 and a5 != 0
-*/
-QSERL_EXPORT bool
-computeTotalElasticEnergy(const MotionConstantsQ& i_motionConstants,
-                          double& o_energy);
+typedef Eigen::Matrix<double, 4, 4> Displacement;
 
-}  // namespace rod2d
+}  // namespace rod3d
 }  // namespace qserl
 
-#endif // QSERL_2D_ANALYTIC_ENERGY_H_
+#endif // QSERL_3D_TYPES_H_

@@ -22,12 +22,9 @@
 #ifndef QSERL_UTIL_UTILS_H_
 #define QSERL_UTIL_UTILS_H_
 
+#include <Eigen/Core>
 #include <string>
 #include <vector>
-
-//#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
-//#pragma warning( pop )
 
 namespace qserl {
 namespace util {
@@ -163,71 +160,52 @@ std::vector<std::string>
 split(const std::string& s,
       char delim);
 
-/**
-* cfg Files contains planning problem configurations.
-* Comment lines must start with a #.
-* Line containing start configuration dof values must start with start keyword
-* Second line is goal configuration dof values must start with goal keyword
-* Dof values must be ordered as it:
-* tx ty tz fx fy fz x y z rx ry rz
-* (separator are spaces)
-* where where wrench is given by the first six coefficient and
-* displacement by the six last ones.
-*/
-bool
-readStartAngGoalConfigsFromCfgFile(const std::string& i_cfgPath,
-                                   Eigen::Wrenchd& o_startWrench,
-                                   Eigen::Displacementd& o_startDisp,
-                                   Eigen::Wrenchd& o_goalWrench,
-                                   Eigen::Displacementd& o_goalDisp);
+///**
+//* \brief Performs coefficient wise equality comparison for a given precision between
+//* two Eigen matrices.
+//*/
+//template<typename DerivedA, typename DerivedB>
+//bool
+//allclose(const Eigen::DenseBase<DerivedA>& a,
+//         const Eigen::DenseBase<DerivedB>& b,
+//         const typename DerivedA::RealScalar& rtol
+//         = Eigen::NumTraits<typename DerivedA::RealScalar>::dummy_precision(),
+//         const typename DerivedA::RealScalar& atol
+//         = Eigen::NumTraits<typename DerivedA::RealScalar>::epsilon())
+//{
+//  return ((a.derived() - b.derived()).array().abs()
+//          <= (atol + rtol * b.derived().array().abs())).all();
+//}
 
-
-/**
-* \brief Performs coefficient wise equality comparison for a given precision between
-* two Eigen matrices.
-*/
-template<typename DerivedA, typename DerivedB>
-bool
-allclose(const Eigen::DenseBase<DerivedA>& a,
-         const Eigen::DenseBase<DerivedB>& b,
-         const typename DerivedA::RealScalar& rtol
-         = Eigen::NumTraits<typename DerivedA::RealScalar>::dummy_precision(),
-         const typename DerivedA::RealScalar& atol
-         = Eigen::NumTraits<typename DerivedA::RealScalar>::epsilon())
-{
-  return ((a.derived() - b.derived()).array().abs()
-          <= (atol + rtol * b.derived().array().abs())).all();
-}
-
-/** \brief Search insertion index of given element in sorted randomly accessible container.
-* Returns a pair where first is a boolean set to true if element was found in the array,
-* and second is the index where should be inserted e_ in sorted array vec_ (i.e. e_ < vec_[index] )
-*/
-template<typename V, typename T, typename FuncPred>
-inline std::pair<bool, int>
-searchInsertionIndexInSortedContainer(const V& i_cont,
-                                      const T& i_e,
-                                      const FuncPred& i_isLess)
-{
-  int binf = 0, bsup = static_cast<int>(i_cont.size()) - 1;
-  while(binf <= bsup)
-  {
-    const int mid = (binf + bsup) / 2;
-    if(i_isLess(i_e, i_cont[mid]))
-    {
-      bsup = mid - 1;
-    }
-    else if(i_isLess(i_cont[mid], i_e))
-    {
-      binf = mid + 1;
-    }
-    else
-    {
-      return std::pair<bool, int>(true, mid);
-    }
-  }
-  return std::pair<bool, int>(false, binf);
-}
+///** \brief Search insertion index of given element in sorted randomly accessible container.
+//* Returns a pair where first is a boolean set to true if element was found in the array,
+//* and second is the index where should be inserted e_ in sorted array vec_ (i.e. e_ < vec_[index] )
+//*/
+//template<typename V, typename T, typename FuncPred>
+//inline std::pair<bool, int>
+//searchInsertionIndexInSortedContainer(const V& i_cont,
+//                                      const T& i_e,
+//                                      const FuncPred& i_isLess)
+//{
+//  int binf = 0, bsup = static_cast<int>(i_cont.size()) - 1;
+//  while(binf <= bsup)
+//  {
+//    const int mid = (binf + bsup) / 2;
+//    if(i_isLess(i_e, i_cont[mid]))
+//    {
+//      bsup = mid - 1;
+//    }
+//    else if(i_isLess(i_cont[mid], i_e))
+//    {
+//      binf = mid + 1;
+//    }
+//    else
+//    {
+//      return std::pair<bool, int>(true, mid);
+//    }
+//  }
+//  return std::pair<bool, int>(false, binf);
+//}
 
 /**
  * \brief Returns color based on the Jet color map for the given 1-d value v

@@ -1,5 +1,6 @@
 // Requires the header "qserl/rod2d/rod.h"
 #include <qserl/rod2d/rod.h>
+#include <Eigen/Dense>
 
 #include "qserl/rod2d/analytic_q.h"
 #include "qserl/rod2d/analytic_dqda.h"

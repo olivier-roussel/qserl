@@ -213,13 +213,13 @@ protected:
   /** \brief Integrates rod state from given base wrench..
       Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
   IntegrationResultT
-  integrateFromBaseWrenchRK4(const Wrench2D& i_wrench);
+  integrateFromBaseWrenchRK4(const costate_type& i_wrench);
 
   /** \brief Integrates rod state from given base wrench.
   Numerical integration is done through a 5-th order Runge-Kutta with 4-th order error estimation and
   adaptative step. */
-  IntegrationResultT
-  integrateFromBaseWrenchRK45(const Wrench2D& i_wrench);
+//  IntegrationResultT
+//  integrateFromBaseWrenchRK45(const costate_type& i_wrench);
 
   bool m_isInitialized;/**< True if the state has been integrated.*/
   bool m_isStable;      /**< True if DLO state is stable. */

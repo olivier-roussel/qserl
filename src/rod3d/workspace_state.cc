@@ -27,8 +27,8 @@ namespace rod3d {
 /************************************************************************/
 /*													Constructor																	*/
 /************************************************************************/
-WorkspaceState::WorkspaceState(const std::vector<Eigen::Displacementd>& i_nodes,
-                               const Eigen::Displacementd& i_basePosition,
+WorkspaceState::WorkspaceState(const std::vector<Displacement>& i_nodes,
+                               const Displacement& i_basePosition,
                                const Parameters& i_rodParams) :
     m_numNodes(i_nodes.size()),
     m_nodes(i_nodes),
@@ -49,8 +49,8 @@ WorkspaceState::~WorkspaceState()
 /*														create																		*/
 /************************************************************************/
 WorkspaceStateShPtr
-WorkspaceState::create(const std::vector<Eigen::Displacementd>& i_nodes,
-                       const Eigen::Displacementd& i_basePosition,
+WorkspaceState::create(const std::vector<Displacement>& i_nodes,
+                       const Displacement& i_basePosition,
                        const Parameters& i_rodParams)
 {
   WorkspaceStateShPtr shPtr(new WorkspaceState(i_nodes, i_basePosition, i_rodParams));
@@ -95,7 +95,7 @@ WorkspaceState::numNodes() const
 /************************************************************************/
 /*																	nodes																*/
 /************************************************************************/
-const std::vector<Eigen::Displacementd>&
+const std::vector<Displacement>&
 WorkspaceState::nodes() const
 {
   return m_nodes;
@@ -104,7 +104,7 @@ WorkspaceState::nodes() const
 /************************************************************************/
 /*																base																	*/
 /************************************************************************/
-const Eigen::Displacementd&
+const Displacement&
 WorkspaceState::base() const
 {
   return m_base;
@@ -114,7 +114,7 @@ WorkspaceState::base() const
 /*																base																	*/
 /************************************************************************/
 void
-WorkspaceState::base(const Eigen::Displacementd& i_base)
+WorkspaceState::base(const Displacement& i_base)
 {
   m_base = i_base;
 }
@@ -122,32 +122,32 @@ WorkspaceState::base(const Eigen::Displacementd& i_base)
 /************************************************************************/
 /*														nodesAbsolutePositions										*/
 /************************************************************************/
-std::vector<Eigen::Vector3d>
-WorkspaceState::nodesAbsolutePositions() const
-{
-  std::vector<Eigen::Vector3d> pos;
-  pos.reserve(m_numNodes);
-  for(size_t i = 0; i < m_numNodes; ++i)
-  {
-    pos.push_back(m_base * m_nodes[i].getTranslation());
-  }
-  return pos;
-}
+//std::vector<Eigen::Vector3d>
+//WorkspaceState::nodesAbsolutePositions() const
+//{
+//  std::vector<Eigen::Vector3d> pos;
+//  pos.reserve(m_numNodes);
+//  for(size_t i = 0; i < m_numNodes; ++i)
+//  {
+//    pos.push_back(m_base * m_nodes[i].getTranslation());
+//  }
+//  return pos;
+//}
 
 /************************************************************************/
 /*														nodesAbsolute6DPositions										*/
 /************************************************************************/
-std::vector<Eigen::Displacementd>
-WorkspaceState::nodesAbsolute6DPositions() const
-{
-  std::vector<Eigen::Displacementd> pos;
-  pos.reserve(m_numNodes);
-  for(size_t i = 0; i < m_numNodes; ++i)
-  {
-    pos.push_back(m_base * m_nodes[i]);
-  }
-  return pos;
-}
+//std::vector<Displacement>
+//WorkspaceState::nodesAbsolute6DPositions() const
+//{
+//  std::vector<Displacement> pos;
+//  pos.reserve(m_numNodes);
+//  for(size_t i = 0; i < m_numNodes; ++i)
+//  {
+//    pos.push_back(m_base * m_nodes[i]);
+//  }
+//  return pos;
+//}
 
 /************************************************************************/
 /*													staticParameters														*/
@@ -165,7 +165,7 @@ size_t
 WorkspaceState::memUsage() const
 {
   return sizeof(m_numNodes) +
-         m_nodes.capacity() * sizeof(Eigen::Displacementd) +
+         m_nodes.capacity() * sizeof(Displacement) +
          sizeof(m_base) +
          sizeof(m_rodParameters);/* +
 		sizeof(m_weakPtr);*/
@@ -174,18 +174,18 @@ WorkspaceState::memUsage() const
 /************************************************************************/
 /*													torsionalRotation														*/
 /************************************************************************/
-double
-WorkspaceState::torsionalRotation() const
-{
-  double torsionalRotation = 0.;
-  for(size_t idxNode = 0; idxNode < m_numNodes - 1; ++idxNode)
-  {
-    const Eigen::AngularVelocityd w = (m_nodes[idxNode].getRotation().inverse() *
-                                       m_nodes[idxNode + 1].getRotation()).log();
-    torsionalRotation += w[0];
-  }
-  return torsionalRotation;
-}
+//double
+//WorkspaceState::torsionalRotation() const
+//{
+//  double torsionalRotation = 0.;
+//  for(size_t idxNode = 0; idxNode < m_numNodes - 1; ++idxNode)
+//  {
+//    const Eigen::AngularVelocityd w = (m_nodes[idxNode].getRotation().inverse() *
+//                                       m_nodes[idxNode + 1].getRotation()).log();
+//    torsionalRotation += w[0];
+//  }
+//  return torsionalRotation;
+//}
 
 }  // namespace rod3d
 }  // namespace qserl

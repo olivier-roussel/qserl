@@ -22,10 +22,6 @@
 
 #include "qserl/exports.h"
 
-//#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
-//#pragma warning( pop )
-
 #include "qserl/rod2d/parameters.h"
 #include "qserl/rod2d/types.h"
 #include "qserl/util/forward_class.h"

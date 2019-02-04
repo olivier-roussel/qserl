@@ -23,6 +23,7 @@
 
 #include <array>
 
+#include "qserl/rod3d/types.h"
 #include "qserl/rod3d/workspace_state.h"
 #include "qserl/rod3d/parameters.h"
 #include "qserl/util/forward_class.h"
@@ -63,9 +64,9 @@ public:
   * Rod base is independant from this as node positions are computed in local base frame.
   */
   static WorkspaceIntegratedStateShPtr
-  create(const Eigen::Wrenchd& i_baseWrench,
+  create(const Wrench& i_baseWrench,
          unsigned int i_nnodes,
-         const Eigen::Displacementd& i_basePosition,
+         const Displacement& i_basePosition,
          const Parameters& i_rodParams);
 
   /**
@@ -95,9 +96,10 @@ public:
   * Output positions are in local base frame.
   * \pre this state is initialized.
   */
-  WorkspaceStateShPtr
-  approximateLinearlyNeighbourState(const Eigen::Wrenchd& i_da,
-                                    const Eigen::Displacementd& i_neighbBase) const;
+  // TODO FIXME needs SE3 lie algebra
+//  WorkspaceStateShPtr
+//  approximateLinearlyNeighbourState(const Wrench& i_da,
+//                                    const se3::SE3& i_neighbBase) const;
 
   /** \brief Set whether the singular values of the linear speed nu part of the Jacobian
   * (the 3x6 block starting at (3,0) ) should be computed during integration or not.
@@ -125,7 +127,7 @@ public:
   * \note This is equivalent to access through mu()[0]
   * \deprecated Use wrench(size_t i_idxNode) instead.
   */
-  Eigen::Wrenchd
+  Wrench
   baseWrench() const;
 
   /**
@@ -133,13 +135,13 @@ public:
   * \note This is equivalent to access through mu()[N-1]
   * \deprecated Use wrench(size_t i_idxNode) instead.
   */
-  Eigen::Wrenchd
+  Wrench
   tipWrench() const;
 
   /**
   * \brief Returns the wrench at the rod given node.
   */
-  Eigen::Wrenchd
+  Wrench
   wrench(size_t i_idxNode) const;
 
   /**
@@ -222,19 +224,19 @@ protected:
   \brief Constructor
   */
   WorkspaceIntegratedState(unsigned int i_nnodes,
-                           const Eigen::Displacementd& i_basePosition,
+                           const Displacement& i_basePosition,
                            const Parameters& i_rodParams);
 
   /**
   \brief Init function
   */
   bool
-  init(const Eigen::Wrenchd& i_wrench);
+  init(const Wrench& i_wrench);
 
   /** \brief Integrates rod state from given base wrench..
       Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
   IntegrationResultT
-  integrateFromBaseWrenchRK4(const Eigen::Wrenchd& i_wrench);
+  integrateFromBaseWrenchRK4(const Wrench& i_wrench);
 
 
   bool m_isInitialized;/**< True if the state has been integrated.*/

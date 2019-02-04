@@ -21,9 +21,7 @@
 #ifndef QSERL_UTIL_LIE_ALGEBRA_UTILS_H_
 #define QSERL_UTIL_LIE_ALGEBRA_UTILS_H_
 
-//#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
-//#pragma warning( pop )
+#include "qserl/rod3d/types.h"
 
 namespace qserl {
 namespace util {
@@ -49,24 +47,24 @@ hat_SE2(const Eigen::Vector3d& i_v,
 }
 
 Eigen::Matrix4d
-GetHomogenousMatrix(const Eigen::Displacementd& disp);
+GetHomogenousMatrix(const rod3d::Displacement& disp);
 
 Eigen::Matrix4d
 GetTransformationMatrix(const Eigen::Matrix4d& H,
                         const Eigen::Vector3d& scale);
 
-Eigen::Matrix4d
-GetTransformationMatrix(const Eigen::Displacementd& disp,
-                        const Eigen::Vector3d& scale);
+//Eigen::Matrix4d
+//GetTransformationMatrix(const rod3d::Displacement& disp,
+//                        const Eigen::Vector3d& scale);
 
-Eigen::Vector3d
-GetScaleFromMatrix(const Eigen::Matrix4d& TM);
+//Eigen::Vector3d
+//GetScaleFromMatrix(const Eigen::Matrix4d& TM);
 
 Eigen::Vector3d
 GetTranslationFromMatrix(const Eigen::Matrix4d& TM);
 
-Eigen::Rotation3d
-GetRotationFromMatrix(const Eigen::Matrix4d& TM);
+//Eigen::Rotation3d
+//GetRotationFromMatrix(const Eigen::Matrix4d& TM);
 
 Eigen::Matrix3d
 rotationMatrixFromBryantAngles(double rx,

@@ -94,7 +94,7 @@ main()
       ++successfullMotionConstants;
       qserl::rod2d::computeTotalElasticEnergy(motionConstants, energy);
 
-      static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+      static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D{0., 0., 0.};
       qserl::rod2d::Wrench2D wrench_XYT;
       wrench_XYT[0] = wrench_TXY[1];
       wrench_XYT[1] = wrench_TXY[2];

@@ -78,8 +78,8 @@ Rod::init(const RodWkPtr& i_weakPtr)
 /*												integrateStateFromBaseWrench									*/
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT
-Rod::integrateStateFromBaseWrench(const Eigen::Wrenchd& i_wrench,
-                                  const Eigen::Displacementd& i_basePos,
+Rod::integrateStateFromBaseWrench(const Wrench& i_wrench,
+                                  const Displacement& i_basePos,
                                   const WorkspaceIntegratedState::IntegrationOptions& i_integrationOptions)
 {
   WorkspaceIntegratedStateShPtr intState = WorkspaceIntegratedState::create(i_wrench, m_staticParameters.numNodes,
@@ -143,7 +143,7 @@ Rod::integratedState() const
 /*											isConfigurationSingular													*/
 /************************************************************************/
 bool
-Rod::isConfigurationSingular(const Eigen::Wrenchd& i_cfgWrench)
+Rod::isConfigurationSingular(const Wrench& i_cfgWrench)
 {
   static const double kWrenchTolerance = 1.e-6;
 

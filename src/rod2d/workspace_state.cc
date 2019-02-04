@@ -159,7 +159,7 @@ size_t
 WorkspaceState::memUsage() const
 {
   return sizeof(m_numNodes) +
-         m_nodes.capacity() * sizeof(Eigen::Displacementd) +
+         m_nodes.capacity() * sizeof(Displacement2D) +
          sizeof(m_base) +
          sizeof(m_rodParameters);/* +
 		sizeof(m_weakPtr);*/

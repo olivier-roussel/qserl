@@ -23,17 +23,16 @@ main()
   RodShPtr rod = Rod::create(rodParameters);
 
   // Define coordinates in A-space for the rod (its parameterization)...
-  Eigen::Wrenchd baseWrench;
-  baseWrench.tx() = 5.7449;
-  baseWrench.ty() = -0.1838;
-  baseWrench.tz() = 3.7734;
-  baseWrench.fx() = -71.6227;
-  baseWrench.fy() = -15.6477;
-  baseWrench.fz() = 83.1471;
+  Wrench baseWrench;
+  baseWrench[0] = 5.7449; // tx
+  baseWrench[1] = -0.1838; // ty
+  baseWrench[2] = 3.7734; // tz
+  baseWrench[3] = -71.6227; // fx
+  baseWrench[4] = -15.6477; // fy
+  baseWrench[5] = 83.1471; // fz
 
   // ... the rod base position (here identity element of SE(3) ) ...
-  const Eigen::Displacementd
-  rodBasePosition(Eigen::Displacementd::Identity());
+  const Displacement rodBasePosition(Displacement::Identity());
 
   // ... some integration options if needed ...
   // for example, here we want in addition to the rod geometry its internal wrenches
@@ -59,10 +58,10 @@ main()
     // For example, we can express the rod geometry (node by node) in the global frame
     // instead of rod base frame this way
     // Note this could be also directly given by the method WorkspaceState::nodesAbsolute6DPositions()
-    for(std::vector<Eigen::Displacementd>::const_iterator itNode = integratedState1->nodes().begin();
+    for(std::vector<Displacement>::const_iterator itNode = integratedState1->nodes().begin();
         itNode != integratedState1->nodes().end(); ++itNode)
     {
-      const Eigen::Displacementd nodeAbsolutePosition = rodBasePosition * (*itNode);
+      const Displacement nodeAbsolutePosition = rodBasePosition * (*itNode);
 
       // ... do something with the current rod node position ...
     }

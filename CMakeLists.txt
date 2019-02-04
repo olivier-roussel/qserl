@@ -16,6 +16,7 @@
 # <http://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.5)
+include(cmake/base.cmake)
 
 project(libqserl VERSION 1.1.0 LANGUAGES CXX)
 set (CMAKE_CXX_STANDARD 11)
@@ -24,21 +25,17 @@ set (CMAKE_CXX_STANDARD 11)
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
 
 # Option for building shared lib
-# XXX Building shared DLL library is disabled since the library exposes directly interfaces
-# using the STL library
-# FIXME
-option(QSERL_BUILD_SHARED ON "Build shared libraries")
+option(QSERL_BUILD_SHARED "Build shared libraries" ON)
 
 # Option for building tests
-option(QSERL_BUILD_TEST ON "Build tests")
+option(QSERL_BUILD_TEST "Build tests" OFF)
 
 #------------------------------------------------------------------------------
 # Dependencies
 #------------------------------------------------------------------------------
 
 find_package(Boost 1.55 REQUIRED MODULE COMPONENTS python)
-find_package(EigenLgsm REQUIRED CONFIG)
-find_package(cereal REQUIRED CONFIG)
+find_package(Eigen3 3.2 REQUIRED NO_MODULE)
 
 #------------------------------------------------------------------------------
 # Setting up target
@@ -92,8 +89,7 @@ target_compile_options(qserl PRIVATE -Wall -Wextra)
 target_link_libraries(qserl
   PUBLIC
   ${Boost_LIBRARIES}
-    cereal
-    EigenLgsm
+    Eigen3::Eigen
   )
 
 #------------------------------------------------------------------------------
@@ -129,7 +125,7 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
   )
 
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/QserlConfig.cmake.in
+configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/install/QserlConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/QserlConfig.cmake
   INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
   )
@@ -169,3 +165,5 @@ add_subdirectory(bindings)
 if(QSERL_BUILD_TEST)
   add_subdirectory(test)
 endif()
+
+SETUP_PROJECT_FINALIZE()

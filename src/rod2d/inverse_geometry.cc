@@ -25,6 +25,7 @@
 
 #include <iostream>
 
+#include <Eigen/LU>
 #include "qserl/rod2d/analytic_dqda.h"
 #include "qserl/util/timer.h"
 #include "util/utils.h"
@@ -108,7 +109,6 @@ inverseGeometry_Newton(const Eigen::Vector3d& i_q_des,
   }
   return success;
 }
-
 
 }  // namespace rod2d
 }  // namespace qserl

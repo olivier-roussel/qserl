@@ -74,7 +74,7 @@ JacobianSystem::evaluateInextensible(const state_type& i_MJ,
                                      double i_t)
 {
   const size_t k = static_cast<size_t>(i_t / m_dt);
-  assert (k >= 0 && k < m_mu.size() && "Given mu values array not consistent with current integration parameters.");
+  assert (k < m_mu.size() && "Given mu values array not consistent with current integration parameters.");
 
   const WorkspaceIntegratedState::costate_type& mu_k = m_mu[k];
 

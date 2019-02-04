@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRod3DRawDataTests_compare_external_data1)
   rodParameters.numNodes = 200000;
 
   // stable configuration
-  Eigen::Wrenchd stableConf1;
+  qserl::rod3d::Wrench stableConf1;
   stableConf1[0] = 5.7449;
   stableConf1[1] = -0.1838;
   stableConf1[2] = 3.7734;
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRod3DRawDataTests_compare_external_data1)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(
       stableConf1,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodStableState1);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
@@ -109,12 +109,12 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_1)
   qserl::rod3d::Parameters rodDefaultParameters;
 
   // 1. ckeck null base wrench
-  Eigen::Wrenchd
-  singularWrench1(Eigen::Wrenchd::Zero());
+  qserl::rod3d::Wrench
+  singularWrench1(qserl::rod3d::Wrench::Zero());
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodIntegratedState = qserl::rod3d::WorkspaceIntegratedState::create(
       singularWrench1,
       rodDefaultParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodDefaultParameters);
   BOOST_CHECK(rodIntegratedState);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodIntegratedState->integrate();
@@ -127,14 +127,14 @@ BOOST_AUTO_TEST_CASE(SingularConfigurations3DTest_2)
   qserl::rod3d::Parameters rodDefaultParameters;
 
   // 2. ckeck signular base wrench (a[1] = a[2] = a[4] = a[5] = 0)
-  Eigen::Wrenchd
-  singularWrench2(Eigen::Wrenchd::Zero());
+  qserl::rod3d::Wrench
+  singularWrench2(qserl::rod3d::Wrench::Zero());
   singularWrench2[0] = -1.5;
   singularWrench2[3] = 2.;
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodIntegratedState = qserl::rod3d::WorkspaceIntegratedState::create(
       singularWrench2,
       rodDefaultParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodDefaultParameters);
   BOOST_CHECK(rodIntegratedState);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodIntegratedState->integrate();
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable1)
   rodParameters.numNodes = 100;
 
   // stable configuration
-  Eigen::Wrenchd stableConf1;
+  qserl::rod3d::Wrench stableConf1;
   stableConf1[0] = -0.3967;
   stableConf1[1] = 0.2774;
   stableConf1[2] = 0.1067;
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable1)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(
       stableConf1,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodStableState1);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
   rodParameters.numNodes = 100;
 
   // stable configuration
-  Eigen::Wrenchd stableConf2;
+  qserl::rod3d::Wrench stableConf2;
   stableConf2[0] = 0.5205;
   stableConf2[1] = 0.2989;
   stableConf2[2] = 0.0875;
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_stable2)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(
       stableConf2,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodStableState1);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
   rodParameters.numNodes = 100;
 
   // unstable configuration
-  Eigen::Wrenchd unstableConf1;
+  qserl::rod3d::Wrench unstableConf1;
   unstableConf1[0] = -0.5885;
   unstableConf1[1] = -0.7467;
   unstableConf1[2] = 0.4277;
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable1)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState1 = qserl::rod3d::WorkspaceIntegratedState::create(
       unstableConf1,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodUnstableState1);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState1->integrate();
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
   rodParameters.numNodes = 100;
 
   // unstable configuration
-  Eigen::Wrenchd unstableConf2;
+  qserl::rod3d::Wrench unstableConf2;
   unstableConf2[0] = -0.4294;
   unstableConf2[1] = -0.3144;
   unstableConf2[2] = -0.4496;
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(ExtensibleRodStability3DTest_unstable2)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState2 = qserl::rod3d::WorkspaceIntegratedState::create(
       unstableConf2,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodUnstableState2);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState2->integrate();
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable1)
   rodParameters.numNodes = 100;
 
   // stable configuration
-  Eigen::Wrenchd stableConf1;
+  qserl::rod3d::Wrench stableConf1;
   stableConf1[0] = -0.3967;
   stableConf1[1] = 0.2774;
   stableConf1[2] = 0.1067;
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable1)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(
       stableConf1,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodStableState1);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
   rodParameters.numNodes = 100;
 
   // stable configuration
-  Eigen::Wrenchd stableConf2;
+  qserl::rod3d::Wrench stableConf2;
   stableConf2[0] = 0.5205;
   stableConf2[1] = 0.2989;
   stableConf2[2] = 0.0875;
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_stable2)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState2 = qserl::rod3d::WorkspaceIntegratedState::create(
       stableConf2,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodStableState2);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState2->integrate();
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
   rodParameters.numNodes = 100;
 
   // unstable configuration
-  Eigen::Wrenchd unstableConf1;
+  qserl::rod3d::Wrench unstableConf1;
   unstableConf1[0] = -0.5885;
   unstableConf1[1] = -0.7467;
   unstableConf1[2] = 0.4277;
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable1)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState1 = qserl::rod3d::WorkspaceIntegratedState::create(
       unstableConf1,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodUnstableState1);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState1->integrate();
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
   rodParameters.numNodes = 100;
 
   // unstable configuration
-  Eigen::Wrenchd unstableConf2;
+  qserl::rod3d::Wrench unstableConf2;
   unstableConf2[0] = -0.4294;
   unstableConf2[1] = -0.3144;
   unstableConf2[2] = -0.4496;
@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE(InextensibleRodStability3DTest_unstable2)
   qserl::rod3d::WorkspaceIntegratedStateShPtr rodUnstableState2 = qserl::rod3d::WorkspaceIntegratedState::create(
       unstableConf2,
       rodParameters.numNodes,
-      Eigen::Displacementd::Identity(),
+      qserl::rod3d::Displacement::Identity(),
       rodParameters);
   BOOST_CHECK(rodUnstableState2);
   qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodUnstableState2->integrate();
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
   integrationOptions.keepJMatrices = true;
 
   qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
-  Eigen::Wrenchd wrench;
+  qserl::rod3d::Wrench wrench;
   static const int numSamples = 2000;
   int validSamples = 0;
   for(int i = 0; i < numSamples; ++i)
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(Extensible3DBencnhmark_1)
     bool isStable = false;
     qserl::rod3d::WorkspaceIntegratedStateShPtr rodState = qserl::rod3d::WorkspaceIntegratedState::create(wrench,
                                                                                                           rodParameters.numNodes,
-                                                                                                          Eigen::Displacementd::Identity(),
+                                                                                                          qserl::rod3d::Displacement::Identity(),
                                                                                                           rodParameters);
     rodState->integrationOptions(integrationOptions);
     BOOST_CHECK(rodState);
@@ -555,7 +555,7 @@ BOOST_AUTO_TEST_SUITE_END();
 //	rodParameters.numNodes = 1000;
 //
 //	// stable configuration
-//	Eigen::Wrenchd stableConf1;
+//	Wrench stableConf1;
 //	stableConf1[0] = 5.7449;
 //	stableConf1[1] = -0.1838;
 //	stableConf1[2] = 3.7734;
@@ -563,7 +563,7 @@ BOOST_AUTO_TEST_SUITE_END();
 //	stableConf1[4] = -15.6477;
 //	stableConf1[5] = 83.1471;
 //	qserl::rod3d::WorkspaceIntegratedStateShPtr rodStableState1 = qserl::rod3d::WorkspaceIntegratedState::create(stableConf1,
-//		rodParameters.numNodes, Eigen::Displacementd::Identity(), rodParameters);
+//		rodParameters.numNodes, se3::SE3::Identity(), rodParameters);
 //	BOOST_CHECK( rodStableState1 );	
 //	qserl::rod3d::WorkspaceIntegratedState::IntegrationResultT status = rodStableState1->integrate();
 //	// not singular 

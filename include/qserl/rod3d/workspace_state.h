@@ -22,10 +22,7 @@
 
 #include "qserl/exports.h"
 
-//#pragma warning( push, 0 )
-#include <Eigen/Lgsm>
-//#pragma warning( pop )
-
+#include "qserl/rod3d/types.h"
 #include "qserl/rod3d/parameters.h"
 #include "qserl/util/forward_class.h"
 
@@ -50,8 +47,8 @@ public:
   * Compute rod directly from its geometry and its static parameters.
   */
   static WorkspaceStateShPtr
-  create(const std::vector<Eigen::Displacementd>& i_nodes,
-         const Eigen::Displacementd& i_basePosition,
+  create(const std::vector<Displacement>& i_nodes,
+         const Displacement& i_basePosition,
          const Parameters& i_rodParams);
 
   /**
@@ -70,13 +67,13 @@ public:
   * \brief Returns a vector of rod nodes positions, if initialized, in <b>base</b> frame.
   * Else returns an empty vector.
   */
-  const std::vector<Eigen::Displacementd>&
+  const std::vector<Displacement>&
   nodes() const;
 
   /**
   * \brief Accessor to rod base position (in world frame).
   */
-  const Eigen::Displacementd&
+  const Displacement&
   base() const;
 
   /**
@@ -84,21 +81,23 @@ public:
   * ? deprecated ?
   */
   void
-  base(const Eigen::Displacementd& i_base);
+  base(const Displacement& i_base);
 
   /**
   * \brief Returns a vector of rod nodes positions, if initialized, in <b>world</b> frame.
   * Else returns an empty vector.
   */
-  std::vector<Eigen::Vector3d>
-  nodesAbsolutePositions() const;
+  // deprecated
+//  std::vector<Eigen::Vector3d>
+//  nodesAbsolutePositions() const;
 
   /**
 	* \brief Returns a vector of rod nodes 6D positions, if initialized, in <b>world</b> frame.
 	* Else returns an empty vector.
 	*/
-  std::vector<Eigen::Displacementd>
-  nodesAbsolute6DPositions() const;
+  // deprecated
+//  std::vector<Displacement>
+//  nodesAbsolute6DPositions() const;
 
   /** \brief Const accessor to rod static paramaters. */
   const Parameters&
@@ -112,8 +111,9 @@ public:
   * i.e. rotation arround X axis.
   * \pre resolution must be sufficient such two successive rotations does not exceed PI.
   */
-  double
-  torsionalRotation() const;
+  // TODO FIXME needs to be linked with pinocchio
+//  double
+//  torsionalRotation() const;
 
   /** \note WorkspaceIntegratedState needs a way to access protected members of other
   * instances of this class.
@@ -125,13 +125,13 @@ protected:
   /**
   \brief Constructor
   */
-  WorkspaceState(const std::vector<Eigen::Displacementd>& i_nodes,
-                 const Eigen::Displacementd& i_basePosition,
+  WorkspaceState(const std::vector<Displacement>& i_nodes,
+                 const Displacement& i_basePosition,
                  const Parameters& i_rodParams);
 
   size_t m_numNodes;    /**< Number of nodes N. */
-  std::vector<Eigen::Displacementd> m_nodes;      /**< Position of each node (size N), in base frame. */
-  Eigen::Displacementd m_base;        /**< DLO base position, in world frame (absolute). */
+  std::vector<Displacement> m_nodes;      /**< Position of each node (size N), in base frame. */
+  Displacement m_base;        /**< DLO base position, in world frame (absolute). */
 
   Parameters m_rodParameters;
 };

@@ -23,8 +23,6 @@
 #include "qserl/exports.h"
 
 #include <Eigen/Core>
-#include <cereal/access.hpp>
-#include <cereal/archives/xml.hpp>
 
 namespace qserl {
 namespace rod2d {
@@ -76,21 +74,6 @@ struct QSERL_EXPORT Parameters
 															 * Default is 1e-2. */
   RodModelT rodModel;
 
-  /**
-   * Serialization
-   */
-  template<class Archive>
-  void
-  serialize(Archive& ar,
-            const unsigned int version)
-  {
-    ar(cereal::make_nvp("radius", radius),
-       cereal::make_nvp("length", length),
-       cereal::make_nvp("integrationTime", integrationTime),
-       cereal::make_nvp("delta_t", delta_t),
-       cereal::make_nvp("rodModel", rodModel)
-    );
-  }
 };
 
 }  // namespace rod2d
