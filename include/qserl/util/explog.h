@@ -1,7 +1,22 @@
-//
-// Copyright (c) 2015-2018 CNRS INRIA
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
-//
+/**
+* Copyright (c) 2019 CNRS
+* Author: Joseph Mirabel
+* Inspired by file explog.hpp of Pinocchio library.
+*
+* This file is part of the qserl package.
+* qserl is free software: you can redistribute it
+* and/or modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation, either version
+* 3 of the License, or (at your option) any later version.
+*
+* qserl is distributed in the hope that it will be
+* useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+* of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* General Lesser Public License for more details.  You should have
+* received a copy of the GNU Lesser General Public License along with
+* qserl.  If not, see
+* <http://www.gnu.org/licenses/>.
+**/
 
 #ifndef QSERL_EXPLOG_H_
 #define QSERL_EXPLOG_H_
@@ -21,8 +36,8 @@
 #endif
 
 #include <cmath>
-#include <boost/math/constants/constants.hpp>
 #include <Eigen/Geometry>
+#include <qserl/util/constants.h>
 
 namespace qserl
 {
@@ -107,17 +122,15 @@ namespace qserl
     typedef typename Matrix3Like::Scalar Scalar;
     typedef Eigen::Matrix<Scalar,3,1> Vector3;
     
-    static const Scalar PI_value = boost::math::constants::pi<Scalar>();
-    
     Vector3 res;
     const Scalar tr = R.trace();
     if (tr > Scalar(3))       theta = 0; // acos((3-1)/2)
-    else if (tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
+    else if (tr < Scalar(-1)) theta = constants::pi; // acos((-1-1)/2)
     else                      theta = acos((tr - Scalar(1))/Scalar(2));
     assert(theta == theta && "theta contains some NaN"); // theta != NaN
     
     // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
-    if (theta < PI_value - 1e-2)
+    if (theta < constants::pi - 1e-2)
     {
       const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<3>())
                         ? theta / sin(theta)
@@ -132,7 +145,7 @@ namespace qserl
       // using explicit formula. However, the precision of this method
       // is the square root of the precision with the antisymmetric
       // method (Nominal case).
-      const Scalar cphi = cos(theta - PI_value);
+      const Scalar cphi = cos(theta - constants::pi);
       const Scalar beta  = theta*theta / ( Scalar(1) + cphi );
       Vector3 tmp((R.diagonal().array() + cphi) * beta);
       res(0) = (R (2, 1) > R (1, 2) ? Scalar(1) : Scalar(-1)) * (tmp[0] > Scalar(0) ? sqrt(tmp[0]) : Scalar(0));
