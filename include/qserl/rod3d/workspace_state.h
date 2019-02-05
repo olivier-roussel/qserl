@@ -47,7 +47,7 @@ public:
   * Compute rod directly from its geometry and its static parameters.
   */
   static WorkspaceStateShPtr
-  create(const std::vector<Displacement>& i_nodes,
+  create(const Displacements& i_nodes,
          const Displacement& i_basePosition,
          const Parameters& i_rodParams);
 
@@ -67,7 +67,7 @@ public:
   * \brief Returns a vector of rod nodes positions, if initialized, in <b>base</b> frame.
   * Else returns an empty vector.
   */
-  const std::vector<Displacement>&
+  const Displacements&
   nodes() const;
 
   /**
@@ -96,7 +96,7 @@ public:
 	* Else returns an empty vector.
 	*/
   // deprecated
-//  std::vector<Displacement>
+//  Displacements
 //  nodesAbsolute6DPositions() const;
 
   /** \brief Const accessor to rod static paramaters. */
@@ -125,12 +125,12 @@ protected:
   /**
   \brief Constructor
   */
-  WorkspaceState(const std::vector<Displacement>& i_nodes,
+  WorkspaceState(const Displacements& i_nodes,
                  const Displacement& i_basePosition,
                  const Parameters& i_rodParams);
 
   size_t m_numNodes;    /**< Number of nodes N. */
-  std::vector<Displacement> m_nodes;      /**< Position of each node (size N), in base frame. */
+  Displacements m_nodes;      /**< Position of each node (size N), in base frame. */
   Displacement m_base;        /**< DLO base position, in world frame (absolute). */
 
   Parameters m_rodParameters;

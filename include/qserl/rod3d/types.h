@@ -22,7 +22,9 @@
 
 #include "qserl/exports.h"
 
+#include <vector>
 #include <Eigen/Core>
+#include <Eigen/StdVector>
 
 namespace qserl {
 namespace rod3d {
@@ -30,6 +32,14 @@ namespace rod3d {
 typedef Eigen::Matrix<double, 6, 1> Wrench;
 
 typedef Eigen::Matrix<double, 4, 4> Displacement;
+
+typedef Eigen::Matrix<double, 6, 6> Matrix6d;
+
+typedef std::vector<Wrench      , Eigen::aligned_allocator<Wrench      > > Wrenches;
+
+typedef std::vector<Displacement, Eigen::aligned_allocator<Displacement> > Displacements;
+
+typedef std::vector<Matrix6d    , Eigen::aligned_allocator<Matrix6d    > > Matrices6d;
 
 }  // namespace rod3d
 }  // namespace qserl

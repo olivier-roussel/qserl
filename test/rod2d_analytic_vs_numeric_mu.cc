@@ -36,7 +36,7 @@ compareAnalyticAndNumericMu(const Eigen::Vector3d& i_wrench,
   // Integrate numerically mu(t)
   // ----------------------------------
 
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
   // set integration options
   qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
   integrationOptions.stop_if_unstable = false;

@@ -38,7 +38,7 @@ compareAnalyticAndNumericDqDa(const Eigen::Vector3d& i_wrench,
   // Integrate numerically the jacobian dq / da
   // ----------------------------------
 
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
   // set integration options
   qserl::rod2d::WorkspaceIntegratedState::IntegrationOptions integrationOptions;
   integrationOptions.stop_if_unstable = false;
@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE(Numeric_DqDa1_Benchmarking_Full_RandomSet)
   integrationOptions.computeJacobians = true;
   integrationOptions.integrator = qserl::rod2d::WorkspaceIntegratedState::IN_RK4;
 
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
 
   qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
   for(size_t idxRun = 0; idxRun < numRuns; ++idxRun)

@@ -15,10 +15,14 @@
 # qserl.  If not, see
 # <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.5)
 include(cmake/base.cmake)
+include(cmake/eigen.cmake)
 
 project(libqserl VERSION 1.1.0 LANGUAGES CXX)
+if(NOT ${CMAKE_VERSION} VERSION_GREATER 3.8)
+ set(CMAKE_CXX_STANDARD 11)
+endif()
 
 # Use cmake/ dir for user modules
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
@@ -33,8 +37,9 @@ option(QSERL_BUILD_TEST "Build tests" OFF)
 # Dependencies
 #------------------------------------------------------------------------------
 
-find_package(Boost 1.55 REQUIRED MODULE)
-find_package (Eigen3 3.2 REQUIRED NO_MODULE)
+find_package(Boost 1.55 REQUIRED MODULE COMPONENTS python)
+SEARCH_FOR_EIGEN("eigen3 >= 3.2")
+ADD_OPTIONAL_DEPENDENCY("eigenpy")
 
 #------------------------------------------------------------------------------
 # Setting up target
@@ -56,6 +61,7 @@ set(qserl_SOURCES
   src/rod3d/jacobian_system.cc
   src/rod3d/parameters.cc
   src/rod3d/rod.cc
+  src/rod3d/ik.cc
   src/rod3d/state_system.cc
   src/rod3d/workspace_integrated_state.cc
   src/rod3d/workspace_state.cc
@@ -82,13 +88,14 @@ target_include_directories(qserl
     ${CMAKE_CURRENT_SOURCE_DIR}/src
   )
 
-target_compile_features(qserl PRIVATE cxx_std_11)
+if(${CMAKE_VERSION} VERSION_GREATER 3.8)
+ target_compile_features(qserl PRIVATE cxx_std_11)
+endif()
 target_compile_options(qserl PRIVATE -Wall -Wextra)
 
 target_link_libraries(qserl
   PUBLIC
-    Boost::boost
-    Eigen3::Eigen
+  Boost::boost
   )
 
 #------------------------------------------------------------------------------
@@ -159,6 +166,9 @@ endif()
 #------------------------------------------------------------------------------
 
 add_subdirectory(examples)
+IF(EIGENPY_FOUND)
+  add_subdirectory(bindings)
+ENDIF(EIGENPY_FOUND)
 
 if(QSERL_BUILD_TEST)
   add_subdirectory(test)

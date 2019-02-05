@@ -37,7 +37,7 @@ compareAnalyticAndNumericQ(const Eigen::Vector3d& i_wrench,
   // Integrate numerically mu(t)
   // ----------------------------------
 
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
 
   qserl::rod2d::Wrench2D wrench2D;
   wrench2D[0] = i_wrench[1];
@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE(Numeric_Q1_Benchmarking_Full_RandomSet)
   integrationOptions.computeJacobians = false;
   integrationOptions.integrator = qserl::rod2d::WorkspaceIntegratedState::IN_RK4;
 
-  static const qserl::rod2d::Displacement2D identityDisp = {{0., 0., 0.}};
+  static const qserl::rod2d::Displacement2D identityDisp = qserl::rod2d::Displacement2D::Zero();
 
   qserl::util::TimePoint startBenchTime = qserl::util::getTimePoint();
   for(size_t idxRun = 0; idxRun < numRuns; ++idxRun)

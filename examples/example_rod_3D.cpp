@@ -58,7 +58,7 @@ main()
     // For example, we can express the rod geometry (node by node) in the global frame
     // instead of rod base frame this way
     // Note this could be also directly given by the method WorkspaceState::nodesAbsolute6DPositions()
-    for(std::vector<Displacement>::const_iterator itNode = integratedState1->nodes().begin();
+    for(Displacements::const_iterator itNode = integratedState1->nodes().begin();
         itNode != integratedState1->nodes().end(); ++itNode)
     {
       const Displacement nodeAbsolutePosition = rodBasePosition * (*itNode);

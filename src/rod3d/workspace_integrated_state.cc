@@ -39,7 +39,7 @@ namespace rod3d {
 WorkspaceIntegratedState::WorkspaceIntegratedState(unsigned int i_nnodes,
                                                    const Displacement& i_basePosition,
                                                    const Parameters& i_rodParams) :
-    WorkspaceState(std::vector<Displacement>(), i_basePosition, i_rodParams),
+    WorkspaceState(Displacements(), i_basePosition, i_rodParams),
     m_isInitialized{false},
     m_isStable{false},
     m_mu{},
@@ -167,14 +167,13 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
   if(m_integrationOptions.keepMuValues)
   {
     mu_buffer = &m_mu;
-    mu_buffer->assign(m_numNodes, CostateSystem::defaultState());
-    m_mu[0] = mu_t;        // store mu_0
   }
   else
   {
-    mu_buffer = new std::vector<costate_type>(m_numNodes, CostateSystem::defaultState());
-    m_mu.assign(1, mu_t); // store mu_0
+    mu_buffer = new std::vector<costate_type>();
   }
+  mu_buffer->resize (m_numNodes, CostateSystem::defaultState());
+  m_mu[0] = mu_t;        // store mu_0
 
   // integrator for costates mu
   boost::numeric::odeint::runge_kutta4<costate_type> css_stepper;
@@ -214,27 +213,27 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
   // 3. Solve the jacobian system (and check non-degenerescence of matrix J)
   JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);
   boost::numeric::odeint::runge_kutta4<jacobian_state_type> jacobianStepper;
-  std::vector<Eigen::Matrix<double, 6, 6> >* M_buffer;
+  Matrices6d* M_buffer;
   if(m_integrationOptions.keepMMatrices)
   {
     M_buffer = &m_M;
-    M_buffer->assign(m_numNodes, Eigen::Matrix<double, 6, 6>::Zero());
   }
   else
   {
-    M_buffer = new std::vector<Eigen::Matrix<double, 6, 6> >(m_numNodes, Eigen::Matrix<double, 6, 6>::Zero());
+    M_buffer = new Matrices6d();
   }
+  M_buffer->assign(m_numNodes, Matrix6d::Zero());
 
-  std::vector<Eigen::Matrix<double, 6, 6> >* J_buffer;
+  Matrices6d* J_buffer;
   if(m_integrationOptions.keepJMatrices)
   {
     J_buffer = &m_J;
-    J_buffer->assign(m_numNodes, Eigen::Matrix<double, 6, 6>::Zero());
   }
   else
   {
-    J_buffer = new std::vector<Eigen::Matrix<double, 6, 6> >(m_numNodes, Eigen::Matrix<double, 6, 6>::Zero());
+    J_buffer = new Matrices6d();
   }
+  J_buffer->assign(m_numNodes, Matrix6d::Zero());
 
   // init M_0 to identity and J_0 to zero
   jacobian_state_type jacobian_t;
@@ -253,12 +252,12 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
   if(m_integrationOptions.keepJdet)
   {
     J_det_buffer = &m_J_det;
-    J_det_buffer->assign(m_numNodes, 0.);
   }
   else
   {
-    J_det_buffer = new std::vector<double>(m_numNodes, 0.);
+    J_det_buffer = new std::vector<double>();
   }
+  J_det_buffer->assign(m_numNodes, 0.);
 
   for(double t = ktstart; step_idx < m_numNodes && (!m_integrationOptions.stop_if_unstable || m_isStable);
       ++step_idx, t += dt)
@@ -439,7 +438,7 @@ WorkspaceIntegratedState::J_nu_sv(size_t i_nodeIdx) const
 //{
 //  //assert (m_state && "current state must be initialized to compute linearized positions. ");
 //
-//  WorkspaceStateShPtr neighbApproxState = WorkspaceState::create(std::vector<Displacement>(m_numNodes),
+//  WorkspaceStateShPtr neighbApproxState = WorkspaceState::create(Displacements(m_numNodes),
 //                                                                 i_neighbBase,
 //                                                                 m_rodParameters);
 //
