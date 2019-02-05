@@ -90,6 +90,12 @@ public:
   IntegrationResultT
   integrate();
 
+  /** \brief Integrates rod state from given base wrench..
+      Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
+  IntegrationResultT
+  integrateFromBaseWrenchRK4(const Wrench& i_wrench);
+
+
   /**
   *\brief Approximate nodes positions by linearization for a neighboring state of this.
   * The local neihbour state is given by this plus given da, the base wrench perturbation.
@@ -233,17 +239,11 @@ protected:
   bool
   init(const Wrench& i_wrench);
 
-  /** \brief Integrates rod state from given base wrench..
-      Numerical integration is done through a 4-th order Runge-Kutta with constant step. */
-  IntegrationResultT
-  integrateFromBaseWrenchRK4(const Wrench& i_wrench);
-
-
   bool m_isInitialized;/**< True if the state has been integrated.*/
   bool m_isStable;    /**< True if DLO state is stable. */
   std::vector<costate_type> m_mu;          /**< Wrenches at each nodes (size N). */
-  std::vector<Eigen::Matrix<double, 6, 6> > m_M;
-  std::vector<Eigen::Matrix<double, 6, 6> > m_J;
+  Matrices6d m_M;
+  Matrices6d m_J;
 
   std::vector<double> m_J_det;
   std::vector<Eigen::Vector3d> m_J_nu_sv;      /**< Singular values of the linear speed nu part of the Jacobian matrix. */
