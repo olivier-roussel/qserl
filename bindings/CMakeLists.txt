@@ -11,7 +11,7 @@ include_directories ( ${EIGEN3_INCLUDE_DIR}
   )
 
 target_link_libraries(rod3d
-  qserl ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+  qserl Boost::boost Boost::python ${PYTHON_LIBRARIES})
 PKG_CONFIG_USE_DEPENDENCY(rod3d "eigenpy")
 
 install(TARGETS rod3d

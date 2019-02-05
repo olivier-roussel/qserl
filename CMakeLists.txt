@@ -20,7 +20,9 @@ include(cmake/base.cmake)
 include(cmake/eigen.cmake)
 
 project(libqserl VERSION 1.1.0 LANGUAGES CXX)
-set (CMAKE_CXX_STANDARD 11)
+if(NOT ${CMAKE_VERSION} VERSION_GREATER 3.8)
+ set(CMAKE_CXX_STANDARD 11)
+endif()
 
 # Use cmake/ dir for user modules
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
@@ -85,12 +87,14 @@ target_include_directories(qserl
     ${CMAKE_CURRENT_SOURCE_DIR}/src
   )
 
-#target_compile_features(qserl PRIVATE cxx_std_11)
+if(${CMAKE_VERSION} VERSION_GREATER 3.8)
+ target_compile_features(qserl PRIVATE cxx_std_11)
+endif()
 target_compile_options(qserl PRIVATE -Wall -Wextra)
 
 target_link_libraries(qserl
   PUBLIC
-  ${Boost_LIBRARIES}
+  Boost::boost
   )
 
 #------------------------------------------------------------------------------
