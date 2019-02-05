@@ -40,7 +40,9 @@ target_include_directories(qserl-tests
     ${CMAKE_SOURCE_DIR}/src
     )
 
-target_compile_features(qserl-tests PRIVATE cxx_auto_type)
+if(${CMAKE_VERSION} VERSION_GREATER 3.8)
+  target_compile_features(qserl-tests PRIVATE cxx_std_11)
+endif()
 
 target_link_libraries(qserl-tests
     PRIVATE

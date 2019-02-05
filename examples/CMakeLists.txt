@@ -21,7 +21,11 @@
 
 macro(add_example name)
   add_executable(${name} ${name}.cpp)
-  target_compile_features(${name} PRIVATE cxx_auto_type)
+
+  if(${CMAKE_VERSION} VERSION_GREATER 3.8)
+    target_compile_features(${name} PRIVATE cxx_std_11)
+  endif()
+
   target_link_libraries(${name}
     PRIVATE
     qserl)

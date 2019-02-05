@@ -10,6 +10,10 @@ include_directories ( ${EIGEN3_INCLUDE_DIR}
   ${EIGEN3_INCLUDE_DIR}/unsupported
   )
 
+if(${CMAKE_VERSION} VERSION_GREATER 3.8)
+  target_compile_features(rod3d PRIVATE cxx_std_11)
+endif()
+
 target_link_libraries(rod3d
   qserl Boost::boost Boost::python ${PYTHON_LIBRARIES})
 PKG_CONFIG_USE_DEPENDENCY(rod3d "eigenpy")
