@@ -217,8 +217,8 @@ namespace qserl
     Block33 R = res.template topLeftCorner <3,3>();
     Block31 p = res.template topRightCorner<3,1>();
     
-    const VectorBlock3 v (nu.template head<3>());
-    const VectorBlock3 w (nu.template tail<3>());
+    const VectorBlock3 w (nu.template head<3>()); // Angular
+    const VectorBlock3 v (nu.template tail<3>()); // Linear
     
     const Scalar t2 = w.squaredNorm();
     
@@ -288,7 +288,7 @@ namespace qserl
     
     Scalar t;
     Vector6 res;
-    VectorBlock3 w (res.template tail<3>());
+    VectorBlock3 w (res.template head<3>()); // Angular
     w = log3(R,t); // t in [0,π]
     const Scalar t2 = t*t;
     Scalar alpha, beta;
@@ -304,7 +304,8 @@ namespace qserl
       beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
     }
     
-    res.template head<3>() = alpha * p - 0.5 * w.cross(p) + beta * w.dot(p) * w;
+    // Linear
+    res.template tail<3>() = alpha * p - 0.5 * w.cross(p) + beta * w.dot(p) * w;
     return res;
   }
 
