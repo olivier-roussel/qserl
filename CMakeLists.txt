@@ -61,6 +61,7 @@ set(qserl_SOURCES
   src/rod3d/jacobian_system.cc
   src/rod3d/parameters.cc
   src/rod3d/rod.cc
+  src/rod3d/ik.cc
   src/rod3d/state_system.cc
   src/rod3d/workspace_integrated_state.cc
   src/rod3d/workspace_state.cc

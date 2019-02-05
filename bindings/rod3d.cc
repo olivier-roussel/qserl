@@ -5,6 +5,7 @@
 #include <Eigen/Geometry>
 
 #include <qserl/rod3d/rod.h>
+#include <qserl/rod3d/ik.h>
 #include <qserl/util/explog.h>
 
 #include <eigenpy/eigenpy.hpp>
@@ -104,6 +105,7 @@ namespace qserl {
         // .def ("nodesAbsolute6DPositions", &WorkspaceState::nodesAbsolute6DPositions)
         ;
       class_<WorkspaceIntegratedState, WorkspaceIntegratedStateShPtr, bases<WorkspaceState>, boost::noncopyable> ("WorkspaceIntegratedState", no_init)
+        .def ("wrench"    , &WorkspaceIntegratedState::wrench)
         .def ("isStable"  , &WorkspaceIntegratedState::isStable)
         .def ("getMMatrix", &WorkspaceIntegratedState::getMMatrix, policy_by_value())
         .def ("getJMatrix", &WorkspaceIntegratedState::getJMatrix, policy_by_value())
@@ -118,6 +120,12 @@ namespace qserl {
         .def_readwrite ("keepJdet"        , &WorkspaceIntegratedState::IntegrationOptions::keepJdet)
         .def_readwrite ("keepMMatrices"   , &WorkspaceIntegratedState::IntegrationOptions::keepMMatrices)
         .def_readwrite ("keepJMatrices"   , &WorkspaceIntegratedState::IntegrationOptions::keepJMatrices)
+        ;
+
+      class_ <InverseKinematics> ("InverseKinematics", init<RodShPtr>())
+        .def ("compute", &InverseKinematics::compute)
+        .add_property ("errorThreshold"  , &InverseKinematics::getErrorThreshold, &InverseKinematics::setErrorThreshold)
+        .add_property ("maxIterations"  , &InverseKinematics::getMaxIter, &InverseKinematics::setMaxIter)
         ;
     }
   }
