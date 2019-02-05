@@ -52,10 +52,21 @@ namespace rod3d {
         return m_maxIter;
       }
 
+      void setVerbosity (int level)
+      {
+        m_verbosity = level;
+      }
+
+      int getVerbosity () const
+      {
+        return m_verbosity;
+      }
+
     private:
       RodConstShPtr m_rod;
       double m_squareErrorThr;
       int m_maxIter;
+      int m_verbosity;
   };
 
 }  // namespace rod3d

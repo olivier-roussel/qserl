@@ -27,7 +27,9 @@ namespace rod3d {
 
   InverseKinematics::InverseKinematics (const RodConstShPtr& rod) :
     m_rod (rod),
-    m_squareErrorThr (1e-6)
+    m_squareErrorThr (1e-6),
+    m_maxIter (20),
+    m_verbosity (INT_MAX)
   {}
 
   bool InverseKinematics::compute (const WorkspaceIntegratedStateShPtr& state,
@@ -47,8 +49,8 @@ namespace rod3d {
       iMt = iMo * state->nodes()[iNode];
       error = log6 (iMt);
       double errorNorm2 = error.squaredNorm();
-      //if iter % verbosity == 0:
-      std::cout << iter << '\t' << errorNorm2 << '\t' << w.transpose() << std::endl;
+      if (iter % m_verbosity == 0)
+        std::cout << iter << '\t' << errorNorm2 << '\t' << w.transpose() << std::endl;
       if (errorNorm2 < m_squareErrorThr) return true;
       if (iter == 0) return false;
 

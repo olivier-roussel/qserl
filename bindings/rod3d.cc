@@ -125,7 +125,8 @@ namespace qserl {
       class_ <InverseKinematics> ("InverseKinematics", init<RodShPtr>())
         .def ("compute", &InverseKinematics::compute)
         .add_property ("errorThreshold"  , &InverseKinematics::getErrorThreshold, &InverseKinematics::setErrorThreshold)
-        .add_property ("maxIterations"  , &InverseKinematics::getMaxIter, &InverseKinematics::setMaxIter)
+        .add_property ("verbosity"       , &InverseKinematics::getVerbosity, &InverseKinematics::setVerbosity)
+        .add_property ("maxIterations"   , &InverseKinematics::getMaxIter, &InverseKinematics::setMaxIter)
         ;
     }
   }
