@@ -58,6 +58,25 @@ namespace qserl
     }
   }; // struct TaylorSeriesExpansion
 
+  template<typename Scalar>
+  inline typename Eigen::Matrix<Scalar,4,4>
+  inv(const Eigen::Matrix<Scalar,4,4> & M)
+  {
+    typedef Eigen::Matrix<Scalar,4,4> Matrix4;
+    typedef Eigen::Block<const Matrix4,3,3> Block33;
+    typedef Eigen::Block<const Matrix4,3,1> Block31;
+
+    Matrix4 Minv;
+    const Block33 R = M.template topLeftCorner <3,3>();
+    const Block31 p = M.template topRightCorner<3,1>();
+
+    Minv <<
+      R.transpose(), -R.transpose() * p,
+      0,0,0        , 1;
+
+    return Minv;
+  }
+
   /// \brief Exp: so3 -> SO3.
   ///
   /// Return the integral of the input angular velocity during time 1.
