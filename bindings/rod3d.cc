@@ -91,6 +91,7 @@ namespace qserl {
       class_<Rod, RodShPtr, boost::noncopyable> ("Rod", no_init)
         .def ("create", &Rod::create)
         .staticmethod("create")
+        .def ("parameters", &Rod::parameters, policy_by_value())
         .def ("integrateStateFromBaseWrench", &Rod::integrateStateFromBaseWrench)
         .def ("integratedState", &Rod::integratedState)
         ;
@@ -99,6 +100,7 @@ namespace qserl {
         .def ("numNodes", &WorkspaceState::numNodes)
         .def ("node", WorkspaceState_node)
         .def ("nodes", &WorkspaceState::nodes, policy_by_value())
+        .def ("base", (const Displacement& (WorkspaceState::*)() const)&WorkspaceState::base, policy_by_value())
         // .def ("nodesAbsolute6DPositions", &WorkspaceState::nodesAbsolute6DPositions)
         ;
       {
@@ -134,6 +136,7 @@ namespace qserl {
         .add_property ("errorThreshold"  , &InverseKinematics::getErrorThreshold, &InverseKinematics::setErrorThreshold)
         .add_property ("verbosity"       , &InverseKinematics::getVerbosity, &InverseKinematics::setVerbosity)
         .add_property ("maxIterations"   , &InverseKinematics::getMaxIter, &InverseKinematics::setMaxIter)
+        .add_property ("scale"           , &InverseKinematics::getScale, &InverseKinematics::setScale)
         ;
     }
   }

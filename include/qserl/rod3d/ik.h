@@ -62,11 +62,22 @@ namespace rod3d {
         return m_verbosity;
       }
 
+      void setScale (double scale)
+      {
+        m_scale = scale;
+      }
+
+      double getScale () const
+      {
+        return m_scale;
+      }
+
     private:
       RodConstShPtr m_rod;
       double m_squareErrorThr;
       int m_maxIter;
       int m_verbosity;
+      double m_scale;
   };
 
 }  // namespace rod3d

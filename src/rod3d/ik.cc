@@ -29,17 +29,19 @@ namespace rod3d {
     m_rod (rod),
     m_squareErrorThr (1e-6),
     m_maxIter (20),
-    m_verbosity (INT_MAX)
+    m_verbosity (INT_MAX),
+    m_scale (1.)
   {}
 
   bool InverseKinematics::compute (const WorkspaceIntegratedStateShPtr& state,
       std::size_t iNode, Displacement oMi) const
   {
+    assert (state->integrationOptions().keepJMatrices);
+
     Displacement iMo (inv(oMi)), iMt;
     Wrench w (state->wrench (0)), dw;
     typedef Eigen::Matrix<double,6,1> Vector6;
     Vector6 error;
-    double scale = 1.;
 
     typedef Eigen::FullPivLU<Matrix6d> Decomposition;
     Decomposition decomposition (6,6);
@@ -59,7 +61,7 @@ namespace rod3d {
       if (!decomposition.isInvertible()) return false;
       dw = decomposition.solve (error);
 
-      w -= scale * dw;
+      w -= m_scale * dw;
 
       WorkspaceIntegratedState::IntegrationResultT result
         = state->integrateFromBaseWrenchRK4 (w);
