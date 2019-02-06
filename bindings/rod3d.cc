@@ -131,13 +131,24 @@ namespace qserl {
           ;
       }
 
-      class_ <InverseKinematics> ("InverseKinematics", init<RodShPtr>())
-        .def ("compute", &InverseKinematics::compute)
-        .add_property ("errorThreshold"  , &InverseKinematics::getErrorThreshold, &InverseKinematics::setErrorThreshold)
-        .add_property ("verbosity"       , &InverseKinematics::getVerbosity, &InverseKinematics::setVerbosity)
-        .add_property ("maxIterations"   , &InverseKinematics::getMaxIter, &InverseKinematics::setMaxIter)
-        .add_property ("scale"           , &InverseKinematics::getScale, &InverseKinematics::setScale)
-        ;
+      {
+        scope iks =
+          class_ <InverseKinematics> ("InverseKinematics", init<RodShPtr>())
+          .def ("compute", &InverseKinematics::compute)
+          .add_property ("errorThreshold"  , &InverseKinematics::getErrorThreshold, &InverseKinematics::setErrorThreshold)
+          .add_property ("verbosity"       , &InverseKinematics::getVerbosity, &InverseKinematics::setVerbosity)
+          .add_property ("maxIterations"   , &InverseKinematics::getMaxIter, &InverseKinematics::setMaxIter)
+          .add_property ("scale"           , &InverseKinematics::getScale, &InverseKinematics::setScale)
+          .def ("lastIntegrationResult"    , &InverseKinematics::lastIntegrationResult)
+          ;
+        enum_ <InverseKinematics::ResultT> ("ResultT");
+        // Make ResultT values accessible with InverseKinematics.value
+        iks.attr ("IK_VALID"                        ) = InverseKinematics::IK_VALID;
+        iks.attr ("IK_JACOBIAN_SINGULAR"            ) = InverseKinematics::IK_JACOBIAN_SINGULAR;
+        iks.attr ("IK_INTEGRATION_FAILED"           ) = InverseKinematics::IK_INTEGRATION_FAILED;
+        iks.attr ("IK_MAX_ITER_REACHED"             ) = InverseKinematics::IK_MAX_ITER_REACHED;
+        iks.attr ("IR_NUMBER_OF_INTEGRATION_RESULTS") = InverseKinematics::IR_NUMBER_OF_INTEGRATION_RESULTS;
+      }
     }
   }
 }

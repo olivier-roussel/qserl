@@ -33,7 +33,7 @@ namespace rod3d {
     m_scale (1.)
   {}
 
-  bool InverseKinematics::compute (const WorkspaceIntegratedStateShPtr& state,
+  InverseKinematics::ResultT InverseKinematics::compute (const WorkspaceIntegratedStateShPtr& state,
       std::size_t iNode, Displacement oMi) const
   {
     assert (state->integrationOptions().keepJMatrices);
@@ -53,24 +53,25 @@ namespace rod3d {
       double errorNorm2 = error.squaredNorm();
       if (iter % m_verbosity == 0)
         std::cout << iter << '\t' << errorNorm2 << '\t' << w.transpose() << std::endl;
-      if (errorNorm2 < m_squareErrorThr) return true;
-      if (iter == 0) return false;
+      if (errorNorm2 < m_squareErrorThr) return IK_VALID;
+      if (iter == 0) return IK_MAX_ITER_REACHED;
 
       const Matrix6d& J (state->getJMatrix (iNode));
       decomposition.compute (J);
-      if (!decomposition.isInvertible()) return false;
+      if (!decomposition.isInvertible())
+        return IK_JACOBIAN_SINGULAR;
       dw = decomposition.solve (error);
 
       w -= m_scale * dw;
 
-      WorkspaceIntegratedState::IntegrationResultT result
-        = state->integrateFromBaseWrenchRK4 (w);
+      m_lastResult = state->integrateFromBaseWrenchRK4 (w);
 
-      if (result != WorkspaceIntegratedState::IR_VALID) return false;
+      if (m_lastResult != WorkspaceIntegratedState::IR_VALID)
+        return IK_INTEGRATION_FAILED;
 
       iter--;
     }
-    return false;
+    return IK_MAX_ITER_REACHED;
   }
 }  // namespace rod3d
 }  // namespace qserl

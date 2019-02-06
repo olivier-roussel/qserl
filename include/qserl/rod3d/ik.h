@@ -27,9 +27,17 @@ namespace rod3d {
 
   class InverseKinematics {
     public:
+      enum ResultT {
+        IK_VALID = 0,                         /**< The IK solver has converged. */
+        IK_JACOBIAN_SINGULAR,                 /**< Failed to decompose the node Jacobian. */
+        IK_INTEGRATION_FAILED,                /**< Failed to integrate. See InverseKinematics::lastIntegrationResult() for details. */
+        IK_MAX_ITER_REACHED,                  /**< Maximum iteration reached. */
+        IR_NUMBER_OF_INTEGRATION_RESULTS
+      };
+
       InverseKinematics (const RodConstShPtr& rod);
 
-      bool compute (const WorkspaceIntegratedStateShPtr& state,
+      ResultT compute (const WorkspaceIntegratedStateShPtr& state,
           std::size_t iNode, Displacement target) const;
 
       void setErrorThreshold (double thr)
@@ -72,12 +80,18 @@ namespace rod3d {
         return m_scale;
       }
 
+      WorkspaceIntegratedState::IntegrationResultT lastIntegrationResult () const
+      {
+        return m_lastResult;
+      }
+
     private:
       RodConstShPtr m_rod;
       double m_squareErrorThr;
       int m_maxIter;
       int m_verbosity;
       double m_scale;
+      mutable WorkspaceIntegratedState::IntegrationResultT m_lastResult;
   };
 
 }  // namespace rod3d
