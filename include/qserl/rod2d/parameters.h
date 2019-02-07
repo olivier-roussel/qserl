@@ -35,6 +35,7 @@ struct QSERL_EXPORT Parameters
   Parameters() :
       radius(0.01),
       length(1.),
+      stiffness(1.),
       integrationTime(1.),
       delta_t(0.01),
       rodModel(RM_INEXTENSIBLE)
@@ -68,7 +69,7 @@ struct QSERL_EXPORT Parameters
    */
   double radius;              /**< Rod radius _ Default is 1e-2. */
   double length;              /**< Rod length _ Must be set to 1 _ Default is 1. */
-
+  double stiffness;
   double integrationTime;     /**< Internal use _ Default is 1. */
   double delta_t;             /**< Integration step time, defines the resolution of the rod discretization.
 															 * Default is 1e-2. */

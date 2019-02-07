@@ -80,8 +80,8 @@ JacobianSystem::evaluateInextensible(const state_type& i_MJ,
 
   // F matrix
   Eigen::Matrix<double, 3, 3> F;
-  F << 0., mu_k[2], mu_k[1],
-      -mu_k[2], 0, -mu_k[0],
+  F << 0., mu_k[2]*m_inv_c, mu_k[1]*m_inv_c,
+      -mu_k[2]*m_inv_c, 0, -mu_k[0]*m_inv_c,
       0., -1., 0.;
 
   // G matrix
@@ -91,8 +91,8 @@ JacobianSystem::evaluateInextensible(const state_type& i_MJ,
 
   // H matrix
   Eigen::Matrix<double, 3, 3> H;
-  H << 0., mu_k[2], 0.,
-      -mu_k[2], 0., 1.,
+  H << 0., mu_k[2]*m_inv_c, 0.,
+      -mu_k[2]*m_inv_c, 0., 1.,
       0., 0., 0.;
 
   // create mapping between mj array and M & J eigen matrices
