@@ -86,6 +86,11 @@ public:
   WorkspaceIntegratedStateShPtr
   integratedState() const;
 
+  /**
+  * \brief Setter for the rod state.
+  */
+  void
+  state(const WorkspaceStateShPtr& i_state);
 
   /**
   * \brief Compute rod state from its base wrench.

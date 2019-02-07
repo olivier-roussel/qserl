@@ -39,6 +39,8 @@ struct QSERL_EXPORT Parameters
       //density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */
       rodModel(RM_EXTENSIBLE_SHEARABLE),
       numNodes(100),
+      gravityDirection(Eigen::Vector3d{0., 0., -1.}),
+      unitaryMass(1.),
       integrationTime(1.)
   {
   }
@@ -47,13 +49,14 @@ struct QSERL_EXPORT Parameters
   {
     RM_INEXTENSIBLE = 0,
     RM_EXTENSIBLE_SHEARABLE,
+    RM_INEXTENSIBLE_WITH_GRAVITY,
     RM_NUMBER_OF_ROD_MODELS
   };
 
   static const std::string
   getRodModelName(RodModelT i_model)
   {
-    const static char* const model_names_array[] = {"INEXTENSIBLE", "EXTENSIBLE_SHEARABLE"};
+    const static char* const model_names_array[] = {"INEXTENSIBLE", "EXTENSIBLE_SHEARABLE", "INEXTENSIBLE_WITH_GRAVITY"};
     const static std::vector<std::string> v_model_names_array(model_names_array,
                                                               model_names_array + RM_NUMBER_OF_ROD_MODELS);
     return v_model_names_array[static_cast<int>(i_model)];
@@ -93,6 +96,9 @@ struct QSERL_EXPORT Parameters
   RodModelT                     rodModel;
   int                           numNodes;       /** Number of discretization nodes. Related to the delta_t field
                                                   * used for 2D rod by delta_t = 1 / (numNodes - 1) */
+  Eigen::Vector3d               gravityDirection; /**< Unit vector pointing to the direction of gravity. */
+  double                        unitaryMass;      /**< Rod mass per unit of length. */
+
   /**< Internal use only. */
   double                        integrationTime;  /**< Should be kept to 1 (default value). */
 };

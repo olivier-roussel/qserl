@@ -26,9 +26,7 @@
 #include <boost/numeric/odeint.hpp>
 
 #include "qserl/rod3d/rod.h"
-#include "state_system.h"
-#include "costate_system.h"
-#include "jacobian_system.h"
+#include "full_system.h"
 
 namespace qserl {
 namespace rod3d {
@@ -102,10 +100,7 @@ WorkspaceIntegratedState::init(const Wrench& i_wrench)
   m_isInitialized = false;
 
   m_mu.resize(1);
-  for(int i = 0; i < 6; ++i)
-  {
-    m_mu[0][i] = i_wrench[i];    // XXX for an Eigen::Wrench, torque are the 3 first components and force the 3 last
-  }
+  m_mu[0] = i_wrench;
 
   return success;
 }
@@ -130,7 +125,7 @@ WorkspaceIntegratedState::integrate()
 }
 
 /************************************************************************/
-/*												integrateFromBaseWrenchRK4												*/
+/*								integrateFromBaseWrenchRK4												*/
 /************************************************************************/
 WorkspaceIntegratedState::IntegrationResultT
 WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
@@ -138,7 +133,6 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
 
   static const double ktstart = 0.;                          // Start integration time
   const double ktend = m_rodParameters.integrationTime;      // End integration time
-  //const double ktend = 1.;
   const double dt = (ktend - ktstart) / static_cast<double>(m_numNodes - 1);  // Integration time step
 
   m_isInitialized = true;
@@ -149,131 +143,104 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
   }
 
   // 1. solve the costate system to find mu
-  const Eigen::Matrix<double, 6, 1>& stiffnessCoefficients = m_rodParameters.stiffnessCoefficients;
-  const Eigen::Matrix<double, 6, 1> invStiffness = stiffnessCoefficients.cwiseInverse();
-  CostateSystem costate_system(invStiffness, m_rodParameters.length, m_rodParameters.rodModel);
+  FullSystem full_system(m_rodParameters, dt);
+  boost::numeric::odeint::runge_kutta4<FullSystem::state_type> fss_stepper;
 
-  costate_type mu_t;
-  // init mu(0) = a					(base DLO wrench)
+  FullSystem::state_type x_t = FullSystem::defaultState();
+
+  // Set initial state
+  // init mu(0) = a	(base DLO wrench)
   for(int i = 0; i < 6; ++i)
   {
-    mu_t[i] = i_wrench[i];    // XXX for an Eigen::Wrench, torque are the 3 first components and force the 3 last, so we can just copy simply
+    (x_t.data() + FullSystem::mu_index())[i] = i_wrench[i];   // order in wrench is angular then linear
   }
-
-  // until C++0x, there is no convenient way to release memory of a vector
-  // so we use temporary allocated vectors if we do not want our instance
-  // memory print to explode.
-  std::vector<costate_type>* mu_buffer;
-  if(m_integrationOptions.keepMuValues)
-  {
-    mu_buffer = &m_mu;
-  }
-  else
-  {
-    mu_buffer = new std::vector<costate_type>();
-  }
-  mu_buffer->resize (m_numNodes, CostateSystem::defaultState());
-  m_mu[0] = mu_t;        // store mu_0
-
-  // integrator for costates mu
-  boost::numeric::odeint::runge_kutta4<costate_type> css_stepper;
-
-  size_t step_idx = 1;
-  for(double t = ktstart; step_idx < m_numNodes; ++step_idx, t += dt)
-  {
-    css_stepper.do_step(costate_system, mu_t, t, dt);
-    (*mu_buffer)[step_idx] = mu_t;
-  }
-
-  // 2. solve the state system to find q
-  StateSystem state_system(invStiffness, m_rodParameters.length, dt, *mu_buffer, m_rodParameters.rodModel);
-  boost::numeric::odeint::runge_kutta4<state_type> sss_stepper;
-  std::vector<state_type> q_array(m_numNodes, StateSystem::defaultState());
-
   // init q_0 to identity
-  state_type q_t;
-  Eigen::Matrix4d::Map(q_t.data()).setIdentity();
-  q_array[0] = q_t;      // store q_0
-
-  step_idx = 1;
-  for(double t = ktstart; step_idx < m_numNodes; ++step_idx, t += dt)
-  {
-    sss_stepper.do_step(state_system, q_t, t, dt);
-    q_array[step_idx] = q_t;
-  }
-
-  // update state
-  m_nodes.assign(q_array.size(), Displacement::Identity());
-  for(size_t i = 0; i < q_array.size(); ++i)
-  {
-    const Eigen::Map<const Eigen::Matrix4d> q_e(q_array[i].data());
-    m_nodes[i] = Displacement(q_e);
-  }
-
-  // 3. Solve the jacobian system (and check non-degenerescence of matrix J)
-  JacobianSystem jacobianSystem(invStiffness, dt, *mu_buffer, m_rodParameters.rodModel);
-  boost::numeric::odeint::runge_kutta4<jacobian_state_type> jacobianStepper;
-  Matrices6d* M_buffer;
-  if(m_integrationOptions.keepMMatrices)
-  {
-    M_buffer = &m_M;
-  }
-  else
-  {
-    M_buffer = new Matrices6d();
-  }
-  M_buffer->assign(m_numNodes, Matrix6d::Zero());
-
-  Matrices6d* J_buffer;
-  if(m_integrationOptions.keepJMatrices)
-  {
-    J_buffer = &m_J;
-  }
-  else
-  {
-    J_buffer = new Matrices6d();
-  }
-  J_buffer->assign(m_numNodes, Matrix6d::Zero());
-
+  Eigen::Map<Eigen::Matrix<double, 4, 4> > q_t_e(x_t.data() + FullSystem::q_index());
+  q_t_e.setIdentity();
   // init M_0 to identity and J_0 to zero
-  jacobian_state_type jacobian_t;
-  Eigen::Map<Eigen::Matrix<double, 6, 6> > M_t_e(jacobian_t.data());
-  Eigen::Map<Eigen::Matrix<double, 6, 6> > J_t_e(jacobian_t.data() + 36);
+  Eigen::Map<Eigen::Matrix<double, 6, 6> > M_t_e(x_t.data() + FullSystem::MJ_index());
+  Eigen::Map<Eigen::Matrix<double, 6, 6> > J_t_e(x_t.data() + FullSystem::MJ_index() + 36);
   M_t_e.setIdentity();
   J_t_e.setZero();
-  (*M_buffer)[0] = M_t_e;
-  (*J_buffer)[0] = J_t_e;
 
-  step_idx = 1;
+  // setup internal memory
+  m_nodes.resize(m_numNodes);
+  m_nodes[0] = q_t_e;      // store q_0
+  if(m_integrationOptions.keepMuValues)
+  {
+    m_mu.resize(m_numNodes);
+    // store mu_0
+    m_mu[0] = Eigen::Map<Wrench>(x_t.data() + FullSystem::mu_index());
+  }
+  else
+  {
+    m_mu.clear();
+  }
+  if(m_integrationOptions.keepMMatrices)
+  {
+    m_M.resize(m_numNodes);
+    m_M[0] = M_t_e;
+  }
+  else
+  {
+    m_M.clear();
+  }
+  if(m_integrationOptions.keepJMatrices)
+  {
+    m_J.resize(m_numNodes);
+    m_J[0] = J_t_e;
+  }
+  else
+  {
+    m_J.clear();
+  }
+  if(m_integrationOptions.keepJdet)
+  {
+    m_J_det.resize(m_numNodes);
+    m_J_det[0] = 0.;
+  }
+  else
+  {
+    m_J_det.clear();
+  }
+
   m_isStable = true;
   bool isThresholdOn = false;
 
-  std::vector<double>* J_det_buffer;
-  if(m_integrationOptions.keepJdet)
+  size_t step_idx = 1;
+  double prev_det_J = 0.;
+  double det_J = 0.;
+  for(double t = ktstart; step_idx < m_numNodes; ++step_idx, t += dt)
   {
-    J_det_buffer = &m_J_det;
-  }
-  else
-  {
-    J_det_buffer = new std::vector<double>();
-  }
-  J_det_buffer->assign(m_numNodes, 0.);
-
-  for(double t = ktstart; step_idx < m_numNodes && (!m_integrationOptions.stop_if_unstable || m_isStable);
-      ++step_idx, t += dt)
-  {
-    jacobianStepper.do_step(jacobianSystem, jacobian_t, t, dt);
-    (*M_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 6, 6> >(jacobian_t.data());
-    (*J_buffer)[step_idx] = Eigen::Map<Eigen::Matrix<double, 6, 6> >(jacobian_t.data() + 36);
-    // check if stable
-    double& J_det = (*J_det_buffer)[step_idx];
-    J_det = (*J_buffer)[step_idx].determinant();
-    if(abs(J_det) > JacobianSystem::kStabilityThreshold)
+    fss_stepper.do_step(full_system, x_t, t, dt);
+    // save state
+    if(m_integrationOptions.keepMuValues)
+    {
+      m_mu[step_idx] = Eigen::Map<Wrench>(x_t.data() + FullSystem::mu_index());
+    }
+    m_nodes[step_idx] = Eigen::Map<const Eigen::Matrix4d>(x_t.data() + FullSystem::q_index());
+    if(m_integrationOptions.keepMMatrices)
+    {
+      m_M[step_idx] = Eigen::Map<Eigen::Matrix<double, 6, 6> >(x_t.data() + FullSystem::MJ_index());
+    }
+    auto J_mat = Eigen::Map<Eigen::Matrix<double, 6, 6> >(x_t.data() + FullSystem::MJ_index() + 36);
+    // check stability
+    prev_det_J = det_J;
+    det_J =  Eigen::Map<Eigen::Matrix<double, 6, 6> >(x_t.data() + FullSystem::MJ_index() + 36).determinant();
+    if(m_integrationOptions.keepJMatrices)
+    {
+      m_J[step_idx] = J_mat;
+    }
+    if(m_integrationOptions.keepJdet)
+    {
+      m_J_det[step_idx] = det_J;
+    }
+    if(std::abs(det_J) > full_system.jacobianStabilityThreshold())
     {
       isThresholdOn = true;
     }
-    if(isThresholdOn && (abs(J_det) < JacobianSystem::kStabilityTolerance ||
-                         J_det * (*J_det_buffer)[step_idx - 1] < 0.))
+    if(isThresholdOn and (std::abs(det_J) < full_system.jacobianStabilityTolerance() or
+      det_J * prev_det_J < 0.))
     {  // zero crossing
       m_isStable = false;
     }
@@ -285,32 +252,12 @@ WorkspaceIntegratedState::integrateFromBaseWrenchRK4(const Wrench& i_wrench)
     m_J_nu_sv.assign(m_numNodes, Eigen::Vector3d::Zero());
     for(size_t idxNode = 1; idxNode < m_numNodes; ++idxNode)
     {
-      Eigen::JacobiSVD<Eigen::Matrix<double, 3, 6> > svd_J_nu((*J_buffer)[idxNode].block<3, 6>(3, 0));
+      Eigen::JacobiSVD<Eigen::Matrix<double, 3, 6> > svd_J_nu(m_J[idxNode].block<3, 6>(3, 0));
       m_J_nu_sv[idxNode] = svd_J_nu.singularValues();
     }
   }
 
-  if(!m_integrationOptions.keepMuValues)
-  {
-    delete mu_buffer;
-  }
-
-  if(!m_integrationOptions.keepJdet)
-  {
-    delete J_det_buffer;
-  }
-
-  if(!m_integrationOptions.keepMMatrices)
-  {
-    delete M_buffer;
-  }
-
-  if(!m_integrationOptions.keepJMatrices)
-  {
-    delete J_buffer;
-  }
-
-  if(!m_isStable)
+  if(not m_isStable)
   {
     return IR_UNSTABLE;
   }
@@ -351,8 +298,7 @@ Wrench
 WorkspaceIntegratedState::baseWrench() const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu_0(m_mu[0].data());
-  return Wrench(mu_0);
+  return m_mu.front();
 }
 
 /************************************************************************/
@@ -362,8 +308,7 @@ Wrench
 WorkspaceIntegratedState::tipWrench() const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu_n(m_mu.back().data());
-  return Wrench(mu_n);
+  return m_mu.back();
 }
 
 /************************************************************************/
@@ -373,14 +318,14 @@ Wrench
 WorkspaceIntegratedState::wrench(size_t i_idxNode) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  const Eigen::Map<const Eigen::Matrix<double, 6, 1> > mu(m_mu[i_idxNode].data());
-  return Wrench(mu);
+  assert(i_idxNode < m_mu.size() && "invalid node index");
+  return m_mu[i_idxNode];
 }
 
 /************************************************************************/
 /*																mu																		*/
 /************************************************************************/
-const std::vector<WorkspaceIntegratedState::costate_type>&
+const Wrenches&
 WorkspaceIntegratedState::mu() const
 {
   assert(m_isInitialized && "the state must be integrated first");
@@ -390,22 +335,22 @@ WorkspaceIntegratedState::mu() const
 /************************************************************************/
 /*																getMMatrix()													*/
 /************************************************************************/
-const Eigen::Matrix<double, 6, 6>&
+const Matrix6d&
 WorkspaceIntegratedState::getMMatrix(size_t i_nodeIdx) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_M[i_nodeIdx];
 }
 
 /************************************************************************/
 /*																getJMatrix()													*/
 /************************************************************************/
-const Eigen::Matrix<double, 6, 6>&
+const Matrix6d&
 WorkspaceIntegratedState::getJMatrix(size_t i_nodeIdx) const
 {
   assert(m_isInitialized && "the state must be integrated first");
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_J[i_nodeIdx];
 }
 
@@ -425,7 +370,7 @@ WorkspaceIntegratedState::J_det() const
 const Eigen::Vector3d&
 WorkspaceIntegratedState::J_nu_sv(size_t i_nodeIdx) const
 {
-  assert (i_nodeIdx >= 0 && i_nodeIdx < m_numNodes && "invalid node index");
+  assert(i_nodeIdx < m_numNodes && "invalid node index");
   return m_J_nu_sv[i_nodeIdx];
 }
 
@@ -464,14 +409,12 @@ WorkspaceIntegratedState::memUsage() const
   return WorkspaceState::memUsage() +
          sizeof(m_isInitialized) +
          sizeof(m_isStable) +
-         m_mu.capacity() * sizeof(costate_type) +
-         //m_MJ.capacity() * sizeof(JacobianSystem::state_type) +
-         m_M.capacity() * sizeof(Eigen::Matrix<double, 6, 6>) +
-         m_J.capacity() * sizeof(Eigen::Matrix<double, 6, 6>) +
+         m_mu.capacity() * sizeof(Wrench) +
+         m_M.capacity() * sizeof(Matrix6d) +
+         m_J.capacity() * sizeof(Matrix6d) +
          m_J_det.capacity() * sizeof(double) +
          m_J_nu_sv.capacity() * sizeof(Eigen::Vector3d) +
-         sizeof(m_integrationOptions);/* +
-		sizeof(m_weakPtr);*/
+         sizeof(m_integrationOptions);
 }
 
 /************************************************************************/

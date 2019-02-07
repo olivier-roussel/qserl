@@ -36,14 +36,6 @@ DECLARE_CLASS(WorkspaceIntegratedState);
 class QSERL_EXPORT WorkspaceIntegratedState : public WorkspaceState
 {
 public:
-
-  /** Rod state types. */
-  typedef std::array<double, 16> state_type;            /**< Type of 3D elastic rod states q(t) at position t, where q(t) is an element of the Lie Group SE(3). */
-  typedef std::array<double, 6> costate_type;          /**< Type of 3D elastic rod co-states mu(t) at position t, where mu(t) is an element of the dual Lie algebra se(3)*. */
-  typedef std::array<double, 72> jacobian_state_type;  /**< Type of 3D elastic rod co-state and state derviates M(t) ( resp. J(t) ) at position t, where:
-																													     - M(t) is the 6x6 Jacobian matrix of the co-state mu(t) w.r.t. initial conditions (i.e. mu(0)) (first 36 elements),
-																															 - J(t) is the 6x6 Jacobian matrix of the state q(t) w.r.t. initial conditions (i.e. mu(0)) (last 36 elements). */
-
   /**< \brief Descriptors of possible status result returned by the rod integration process.*/
   enum IntegrationResultT
   {
@@ -155,19 +147,19 @@ public:
   *   \warning Only accessible if the keepMuValues() has been set to true,
   *		with the exception of mu(0) (i.e. the base wrench) which is kept in any case.
   */
-  const std::vector<costate_type>&
+  const Wrenches&
   mu() const;
 
   /** \brief Returns the M matrix (i.e. dmu(t) / dmu(0) ).
   *   \warning Only accessible if the keepMMatrices integration option has been set to true.
   */
-  const Eigen::Matrix<double, 6, 6>&
+  const Matrix6d&
   getMMatrix(size_t i_nodeIdx) const;
 
   /** \brief Returns the J matrix (i.e. dq(t) / dmu(0) ).
   *   \warning Only accessible if the keepJMatrices integration option has been set to true.
   */
-  const Eigen::Matrix<double, 6, 6>&
+  const Matrix6d&
   getJMatrix(size_t i_nodeIdx) const;
 
   /**
@@ -241,7 +233,7 @@ protected:
 
   bool m_isInitialized;/**< True if the state has been integrated.*/
   bool m_isStable;    /**< True if DLO state is stable. */
-  std::vector<costate_type> m_mu;          /**< Wrenches at each nodes (size N). */
+  Wrenches m_mu;          /**< Wrenches at each nodes (size N). */
   Matrices6d m_M;
   Matrices6d m_J;
 
