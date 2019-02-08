@@ -74,7 +74,6 @@ namespace qserl {
         scope parameters =
           class_<Parameters> ("Parameters", init<>())
           .def_readwrite ("radius"               , &Parameters::radius               )
-          .def_readwrite ("length"               , &Parameters::length               )
           .def_readwrite ("stiffnessCoefficients", &Parameters::stiffnessCoefficients)
           .def_readwrite ("rodModel"             , &Parameters::rodModel             )
           .def_readwrite ("numNodes"             , &Parameters::numNodes             )
