@@ -77,14 +77,17 @@ namespace qserl {
           .def_readwrite ("stiffnessCoefficients", &Parameters::stiffnessCoefficients)
           .def_readwrite ("rodModel"             , &Parameters::rodModel             )
           .def_readwrite ("numNodes"             , &Parameters::numNodes             )
+          .def_readwrite ("gravity"              , &Parameters::gravity              )
+          .def_readwrite ("unitaryMass"          , &Parameters::unitaryMass          )
           .def_readwrite ("integrationTime"      , &Parameters::integrationTime      )
           .def ("setIsotropicStiffnessCoefficientsFromElasticityParameters", &Parameters::setIsotropicStiffnessCoefficientsFromElasticityParameters)
           ;
         enum_ <Parameters::RodModelT> ("RodModelT") ;
         // Make RodModelT values accessible with Parameters.value
-        parameters.attr ("RM_INEXTENSIBLE"        ) = Parameters::RM_INEXTENSIBLE;
-        parameters.attr ("RM_EXTENSIBLE_SHEARABLE") = Parameters::RM_EXTENSIBLE_SHEARABLE;
-        parameters.attr ("RM_NUMBER_OF_ROD_MODELS") = Parameters::RM_NUMBER_OF_ROD_MODELS;
+        parameters.attr ("RM_INEXTENSIBLE"              ) = Parameters::RM_INEXTENSIBLE;
+        parameters.attr ("RM_EXTENSIBLE_SHEARABLE"      ) = Parameters::RM_EXTENSIBLE_SHEARABLE;
+        parameters.attr ("RM_INEXTENSIBLE_WITH_GRAVITY" ) = Parameters::RM_INEXTENSIBLE_WITH_GRAVITY;
+        parameters.attr ("RM_NUMBER_OF_ROD_MODELS"      ) = Parameters::RM_NUMBER_OF_ROD_MODELS;
       }
 
       class_<Rod, RodShPtr, boost::noncopyable> ("Rod", no_init)
