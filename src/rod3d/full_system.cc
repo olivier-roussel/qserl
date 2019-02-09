@@ -60,7 +60,7 @@ FullSystem::FullSystem(const Parameters& i_params,
   else if(m_rodParameters.rodModel == Parameters::RM_INEXTENSIBLE_WITH_GRAVITY)
   {
     // XXX Note that w will be pointing to the opposite direction of gravity
-    const Eigen::Vector3d w = -m_rodParameters.gravityDirection * m_rodParameters.unitaryMass;
+    const Eigen::Vector3d w = -m_rodParameters.gravity * m_rodParameters.unitaryMass;
     m_w_x_0 = Eigen::Vector4d{w[0], w[1], w[2], 0.};
     m_evaluationCallback = std::bind(&FullSystem::evaluateInextensibleWithGravity, this, _1, _2, _3);
   }

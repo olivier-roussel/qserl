@@ -27,6 +27,10 @@
 namespace qserl {
 namespace rod3d {
 
+namespace {
+  static const auto kGravityAcceleration = 9.81; // m.s-2
+}
+
 /**
 * \brief Static parameters of a Kirchhoff 3D circular rod (homogeneous, istropic, linear elastic material).
 */
@@ -39,7 +43,7 @@ struct QSERL_EXPORT Parameters
       //density(1.1 * 10e3),   /** 1.10 kg/dm3 -> kg/m3, */
       rodModel(RM_EXTENSIBLE_SHEARABLE),
       numNodes(100),
-      gravityDirection(Eigen::Vector3d{0., 0., -1.}),
+      gravity(Eigen::Vector3d{0., 0., -kGravityAcceleration}),
       unitaryMass(1.),
       integrationTime(1.)
   {
@@ -96,8 +100,8 @@ struct QSERL_EXPORT Parameters
   RodModelT                     rodModel;
   int                           numNodes;       /** Number of discretization nodes. Related to the delta_t field
                                                   * used for 2D rod by delta_t = 1 / (numNodes - 1) */
-  Eigen::Vector3d               gravityDirection; /**< Unit vector pointing to the direction of gravity. */
-  double                        unitaryMass;      /**< Rod mass per unit of length. */
+  Eigen::Vector3d               gravity;         /**< Gravity vector. */
+  double                        unitaryMass;     /**< Rod mass per unit of length. */
 
   /**< Internal use only. */
   double                        integrationTime;  /**< Should be kept to 1 (default value). */
