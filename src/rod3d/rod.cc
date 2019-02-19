@@ -108,7 +108,7 @@ Rod::radius() const
 double
 Rod::length() const
 {
-  return m_staticParameters.length;
+  return m_staticParameters.integrationTime;
 }
 
 /************************************************************************/
